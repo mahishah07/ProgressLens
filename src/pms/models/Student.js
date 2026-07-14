@@ -2,28 +2,52 @@ const mongoose = require("mongoose");
 
 const studentSchema = new mongoose.Schema(
 	{
+		semester: {
+			type: String,
+			required: true,
+			trim: true,
+		},
+		centreId: {
+			type: String,
+			required: true,
+			trim: true,
+		},
+		teacherId: {
+			type: String,
+			required: true,
+			trim: true,
+		},
 		studentId: {
 			type: String,
 			required: true,
 			unique: true,
 			trim: true,
 		},
-		name: {
+		schoolId: {
 			type: String,
 			required: true,
 			trim: true,
 		},
-		dateOfBirth: {
-			type: Date,
+		age: {
+			type: Number,
+			required: true,
 		},
-		classGroup: {
-			type: String, // e.g. "P3A", "Sec2B"
+		schLevel: {
+			type: String,
 			trim: true,
+			enum: ["Primary", "Secondary"],
 		},
-		currentLevel: {
+		enrollmentDate: {
+			type: Date,
+			default: Date.now,
+		},
+		summaryBand: {
 			type: String,
 			enum: ["A1", "A2", "A3", "B4", "B5", "B6", "C7", "C8", "C9"],
-			default: "A1",
+		},
+		progress: {
+			type: String,
+			enum: ["Moved up", "Same level"],
 		},
 		parentName: {
 			type: String,
@@ -38,23 +62,11 @@ const studentSchema = new mongoose.Schema(
 			type: String,
 			trim: true,
 		},
-		teacherInCharge: {
-			type: String,
-			trim: true,
-		},
-		enrollmentDate: {
-			type: Date,
-			default: Date.now,
-		},
-		active: {
-			type: Boolean,
-			default: true,
-		},
 	},
 	{ timestamps: true },
 );
 
 // studentSchema.index({ studentId: 1 });
-studentSchema.index({ classGroup: 1 });
+// studentSchema.index({ classGroup: 1 });
 
 module.exports = mongoose.model("Student", studentSchema);
