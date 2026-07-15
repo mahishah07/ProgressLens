@@ -2,11 +2,6 @@ const mongoose = require("mongoose");
 
 const studentSchema = new mongoose.Schema(
 	{
-		semester: {
-			type: String,
-			required: true,
-			trim: true,
-		},
 		centreId: {
 			type: String,
 			required: true,
@@ -19,7 +14,6 @@ const studentSchema = new mongoose.Schema(
 		},
 		studentId: {
 			type: String,
-			required: true,
 			unique: true,
 			trim: true,
 		},

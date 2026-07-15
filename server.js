@@ -3,7 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const connectDB = require("./src/pms/config/db");
-const { notFound, errorHandler } = require("./src/pms/errorHandling");
+const { notFound, errorHandler } = require("./src/pms/error/errorHandling");
 
 const studentRoutes = require("./src/pms/routes/studentRoutes");
 const assessmentRoutes = require("./src/pms/routes/assessmentRoutes");
