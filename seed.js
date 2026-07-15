@@ -7,83 +7,97 @@ const Student = require("./src/pms/models/Student");
 const Assessment = require("./src/pms/models/Assessment");
 
 const parseDate = (val) => {
-	if (!val || val.trim() === "") return null;
+	if (!val || String(val).trim() === "") return null;
 	const d = new Date(val);
 	return isNaN(d.getTime()) ? null : d;
 };
 
 const parseNum = (val) => {
-	if (val === null || val === undefined || val === "") return null;
+	if (val === null || val === undefined || String(val).trim() === "")
+		return null;
 	const n = parseFloat(val);
 	return isNaN(n) ? null : n;
 };
 
 const parseBool = (val) => {
-	if (val === null || val === undefined || val === "") return null;
+	if (val === null || val === undefined || String(val).trim() === "")
+		return null;
 	if (typeof val === "boolean") return val;
-	if (val.toString().toUpperCase() === "TRUE") return true;
-	if (val.toString().toUpperCase() === "FALSE") return false;
+	if (String(val).toUpperCase() === "TRUE") return true;
+	if (String(val).toUpperCase() === "FALSE") return false;
 	return null;
 };
+
+const readCSV = (filePath) =>
+	new Promise((resolve, reject) => {
+		const rows = [];
+		fs.createReadStream(filePath)
+			.pipe(
+				csv({
+					mapHeaders: ({ header }) => header.replace(/^\uFEFF/, "").trim(),
+				}),
+			)
+			.on("data", (row) => rows.push(row))
+			.on("end", () => resolve(rows))
+			.on("error", reject);
+	});
 
 const run = async () => {
 	try {
 		await mongoose.connect(process.env.MONGODB_URI);
 		console.log("MongoDB connected");
 
-		const rows = [];
+		await Student.deleteMany({});
+		await Assessment.deleteMany({});
+		console.log("Cleared existing data");
 
-		await new Promise((resolve, reject) => {
-			fs.createReadStream(path.join(__dirname, "data.csv"))
-				.pipe(csv())
-				.on("data", (row) => rows.push(row))
-				.on("end", resolve)
-				.on("error", reject);
-		});
-
+		const rows = await readCSV(path.join(__dirname, "data.csv"));
 		console.log(`Read ${rows.length} rows from CSV`);
+		console.log("First row Semester:", rows[0]["Semester"]);
 
-		let studentsCreated = 0;
-		let assessmentsCreated = 0;
-		let skipped = 0;
+		// build unique students map (one doc per unique Student_ID)
+		const studentMap = {};
+		for (const row of rows) {
+			const studentId = row["Student_ID"]?.trim();
+			if (!studentId || studentMap[studentId]) continue;
+			studentMap[studentId] = {
+				studentId,
+				centreId: row["Centre_ID"]?.trim() || "",
+				teacherId: row["Teacher_ID"]?.trim() || "",
+				schoolId: row["School_ID"]?.trim() || "",
+				age: parseNum(row["Age"]),
+				schLevel: row["SchLevel"]?.trim() || "",
+				enrollmentDate: parseDate(row["EnrollmentDate"]),
+				summaryBand: row["SummaryBand"]?.trim() || null,
+				progress: parseBool(row["Progress"]) ? "Moved up" : "Same level",
+			};
+		}
+
+		const studentDocs = Object.values(studentMap);
+		const insertedStudents = await Student.insertMany(studentDocs, {
+			ordered: false,
+		});
+		console.log(`Inserted ${insertedStudents.length} students`);
+
+		// build studentId -> _id lookup
+		const idMap = {};
+		for (const s of insertedStudents) {
+			idMap[s.studentId] = s._id;
+		}
+
+		// build ALL 22k assessment rows — no deduplication
+		const assessments = [];
 
 		for (const row of rows) {
 			const studentId = row["Student_ID"]?.trim();
-			if (!studentId) {
-				skipped++;
-				continue;
-			}
-
-			// upsert student
-			let student = await Student.findOne({ studentId });
-			if (!student) {
-				student = await Student.create({
-					studentId,
-					centreId: row["Centre_ID"]?.trim() || "",
-					teacherId: row["Teacher_ID"]?.trim() || "",
-					schoolId: row["School_ID"]?.trim() || "",
-					age: parseNum(row["Age"]),
-					schLevel: row["SchLevel"]?.trim() || "",
-					enrollmentDate: parseDate(row["EnrollmentDate"]),
-					summaryBand: row["SummaryBand"]?.trim() || null,
-					progress: parseBool(row["Progress"]) ? "Moved up" : "Same level",
-				});
-				studentsCreated++;
-			}
-
-			// check for duplicate assessment (same student + semester)
 			const semester = row["Semester"]?.trim();
-			const existing = await Assessment.findOne({
-				student: student._id,
-				semester,
-			});
-			if (existing) {
-				skipped++;
-				continue;
-			}
+			if (!studentId || !semester) continue;
 
-			await Assessment.create({
-				student: student._id,
+			const mongoId = idMap[studentId];
+			if (!mongoId) continue;
+
+			assessments.push({
+				student: mongoId,
 				semester,
 				newBand: row["NewBand"]?.trim() || null,
 
@@ -156,12 +170,22 @@ const run = async () => {
 				term: semester,
 				assessedBy: row["Teacher_ID"]?.trim() || null,
 			});
+		}
 
-			assessmentsCreated++;
+		console.log(`Assessments built: ${assessments.length}`);
+
+		// bulk insert in batches of 1000
+		const batchSize = 1000;
+		let inserted = 0;
+		for (let i = 0; i < assessments.length; i += batchSize) {
+			const batch = assessments.slice(i, i + batchSize);
+			await Assessment.insertMany(batch, { ordered: false });
+			inserted += batch.length;
+			console.log(`Inserted ${inserted}/${assessments.length} assessments...`);
 		}
 
 		console.log(
-			`Done — ${studentsCreated} students created, ${assessmentsCreated} assessments created, ${skipped} skipped`,
+			`Done — ${insertedStudents.length} students, ${inserted} assessments`,
 		);
 		process.exit(0);
 	} catch (err) {

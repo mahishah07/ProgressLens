@@ -8,13 +8,16 @@ const { notFound, errorHandler } = require("./src/pms/error/errorHandling");
 const studentRoutes = require("./src/pms/routes/studentRoutes");
 const assessmentRoutes = require("./src/pms/routes/assessmentRoutes");
 const progressRoutes = require("./src/pms/routes/progressRoutes");
+const comparisonRoutes = require("./src/pms/routes/comparisonRoutes");
 
 connectDB();
 
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+//app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(morgan("dev"));
 
 app.get("/", (req, res) => {
@@ -23,11 +26,11 @@ app.get("/", (req, res) => {
 
 app.use("/api/students", studentRoutes);
 app.use("/api/assessments", assessmentRoutes);
+app.use("/api/progress", progressRoutes);
+app.use("/api/comparison", comparisonRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
-
-app.use("/api/progress", progressRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

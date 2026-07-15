@@ -3,8 +3,23 @@ const Student = require("../models/Student");
 // GET /api/students
 exports.getStudents = async (req, res) => {
 	try {
-		const students = await Student.find().sort({ createdAt: -1 });
-		res.json(students);
+		const page = parseInt(req.query.page) || 1;
+		const limit = parseInt(req.query.limit) || 50;
+		const skip = (page - 1) * limit;
+
+		const students = await Student.find()
+			.sort({ createdAt: -1 })
+			.skip(skip)
+			.limit(limit);
+
+		const total = await Student.countDocuments();
+
+		res.json({
+			students,
+			total,
+			page,
+			pages: Math.ceil(total / limit),
+		});
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}
