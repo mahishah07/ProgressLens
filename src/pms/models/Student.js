@@ -4,12 +4,10 @@ const studentSchema = new mongoose.Schema(
 	{
 		centreId: {
 			type: String,
-			required: true,
 			trim: true,
 		},
 		teacherId: {
 			type: String,
-			required: true,
 			trim: true,
 		},
 		studentId: {
@@ -19,12 +17,10 @@ const studentSchema = new mongoose.Schema(
 		},
 		schoolId: {
 			type: String,
-			required: true,
 			trim: true,
 		},
 		age: {
 			type: Number,
-			required: true,
 		},
 		schLevel: {
 			type: String,

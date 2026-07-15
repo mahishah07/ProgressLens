@@ -55,3 +55,13 @@ exports.deleteStudent = async (req, res) => {
 		res.status(500).json({ message: err.message });
 	}
 };
+
+// POST /api/students/bulk
+exports.bulkCreateStudents = async (req, res) => {
+	try {
+		const students = await Student.insertMany(req.body, { ordered: false });
+		res.status(201).json(students);
+	} catch (err) {
+		res.status(400).json({ message: err.message });
+	}
+};

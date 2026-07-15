@@ -7,6 +7,7 @@ const { notFound, errorHandler } = require("./src/pms/error/errorHandling");
 
 const studentRoutes = require("./src/pms/routes/studentRoutes");
 const assessmentRoutes = require("./src/pms/routes/assessmentRoutes");
+const progressRoutes = require("./src/pms/routes/progressRoutes");
 
 connectDB();
 
@@ -25,6 +26,8 @@ app.use("/api/assessments", assessmentRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
+
+app.use("/api/progress", progressRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

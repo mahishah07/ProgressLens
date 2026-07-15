@@ -8,6 +8,10 @@ const {
 	deleteStudent,
 } = require("../controllers/studentController");
 
+router.post(
+	"/bulk",
+	require("../controllers/studentController").bulkCreateStudents,
+);
 router.route("/").get(getStudents).post(createStudent);
 router
 	.route("/:id")
