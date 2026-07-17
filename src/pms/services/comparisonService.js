@@ -149,6 +149,40 @@ exports.compareAssessments = async (studentId) => {
 		allAverages.length;
 	const stdDev = parseFloat(Math.sqrt(variance).toFixed(2));
 
+	// per-assessment progression
+	const progressionSteps = [];
+	for (let i = 0; i < assessments.length - 1; i++) {
+		const from = assessments[i];
+		const to = assessments[i + 1];
+		const fromAvg = getAverage(getSkillScores(from));
+		const toAvg = getAverage(getSkillScores(to));
+		const scoreChange =
+			fromAvg !== null && toAvg !== null
+				? parseFloat((toAvg - fromAvg).toFixed(2))
+				: null;
+
+		progressionSteps.push({
+			step: i + 1,
+			from: {
+				assessmentId: from._id,
+				semester: from.semester,
+				date: from.assessmentDate,
+				band: from.newBand || null,
+				avgScore: fromAvg,
+			},
+			to: {
+				assessmentId: to._id,
+				semester: to.semester,
+				date: to.assessmentDate,
+				band: to.newBand || null,
+				avgScore: toAvg,
+			},
+			bandChange: getBandChange(from.newBand, to.newBand),
+			scoreChange,
+			improved: scoreChange !== null ? scoreChange > 0 : null,
+		});
+	}
+
 	return {
 		status: "ok",
 		student: {
@@ -179,6 +213,7 @@ exports.compareAssessments = async (studentId) => {
 			stdDev,
 			allScores: allAverages,
 		},
+		progressionSteps,
 		assessmentHistory: assessments.map((a) => ({
 			_id: a._id,
 			semester: a.semester,

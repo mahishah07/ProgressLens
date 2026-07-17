@@ -9,8 +9,14 @@ const studentRoutes = require("./src/pms/routes/studentRoutes");
 const assessmentRoutes = require("./src/pms/routes/assessmentRoutes");
 const progressRoutes = require("./src/pms/routes/progressRoutes");
 const comparisonRoutes = require("./src/pms/routes/comparisonRoutes");
+const reportRoutes = require("./src/pms/routes/reportRoutes");
+const aiRoutes = require("./src/pms/routes/aiRoutes");
+const sheetsRoutes = require("./src/pms/routes/sheetsRoutes");
+const sheetsSync = require("./src/pms/services/sheetsSync");
 
-connectDB();
+connectDB().then(() => {
+	sheetsSync.startPolling(1);
+});
 
 const app = express();
 
@@ -28,6 +34,9 @@ app.use("/api/students", studentRoutes);
 app.use("/api/assessments", assessmentRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api/comparison", comparisonRoutes);
+app.use("/api/reports", reportRoutes);
+app.use("/api/ai", aiRoutes);
+app.use("/api/sheets", sheetsRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

@@ -1,6 +1,13 @@
 {
-	"watch": ["src", "server.js"],
-	"ext": "js,json",
-	"ignore": ["node_modules/*", "node_modules/**/*"],
-	"delay": "1000"
+	"watch": ["src/**/*.js", "server.js"],
+	"ext": "js",
+	"ignore": [
+		"node_modules/*",
+		"node_modules/**/*",
+		"google-credentials.json",
+		"data.csv",
+		"*.log",
+		"*.json"
+	],
+	"delay": "2000"
 }
