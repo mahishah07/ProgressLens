@@ -1,0 +1,354 @@
+/* ---------- Reset ---------- */
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial, Helvetica, sans-serif;
+    background:#f5f7fb;
+}
+
+/* ---------- Whole Page ---------- */
+.landing-page{
+    display:flex;
+    width:100vw;
+    min-height:100vh;
+    overflow:hidden;
+}
+
+/* ---------- Sidebar ---------- */
+.sidebar{
+    width:260px;
+    background:white;
+    border-right:1px solid #e5e7eb;
+    display:flex;
+    flex-direction:column;
+}
+
+.logo-section{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    padding:30px 24px;
+    border-bottom:1px solid #ececec;
+}
+
+.logo-circle{
+    width:52px;
+    height:52px;
+    background:#2563eb;
+    color:white;
+    border-radius:14px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-weight:bold;
+    font-size:15px;
+}
+
+.logo-section h2{
+    font-size:18px;
+    color:#111827;
+    margin-bottom:4px;
+}
+
+.logo-section p{
+    font-size:13px;
+    color:#6b7280;
+}
+
+/* ---------- Navigation ---------- */
+.sidebar nav{
+    display:flex;
+    flex-direction:column;
+    padding:20px 12px;
+}
+
+.sidebar nav a{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:14px 16px;
+    text-decoration:none;
+    color:#475569;
+    border-radius:12px;
+    margin-bottom:6px;
+    transition:0.25s;
+}
+
+.sidebar nav a:hover{
+    background:#f3f4f6;
+}
+
+.sidebar nav .active{
+    background:#e8f0ff;
+    color:#2563eb;
+    font-weight:600;
+}
+
+/* ---------- Main ---------- */
+.main-content{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+}
+
+/* ---------- Top Bar ---------- */
+.topbar{
+    height:72px;
+    background:white;
+    border-bottom:1px solid #e5e7eb;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0 36px;
+}
+
+.topbar h2{
+    font-size:22px;
+    color:#2563eb;
+}
+
+.topbar button{
+    background:#2563eb;
+    color:white;
+    border:none;
+    border-radius:8px;
+    padding:10px 18px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    cursor:pointer;
+    font-size:14px;
+}
+
+.topbar button:hover{
+    background:#1d4ed8;
+}
+
+/* ---------- Main Content ---------- */
+.page-content{
+    padding:40px;
+}
+
+.page-content h1{
+    font-size:38px;
+    color:#111827;
+    margin-bottom:8px;
+}
+
+.subtitle{
+    color:#6b7280;
+    margin-bottom:30px;
+}
+
+/* ---------- Toolbar ---------- */
+.toolbar{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    margin-bottom:35px;
+}
+
+.search-box{
+    flex:1;
+    background:white;
+    border:1px solid #d1d5db;
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:0 16px;
+    height:52px;
+}
+
+.search-box input{
+    flex:1;
+    border:none;
+    outline:none;
+    font-size:15px;
+    background:transparent;
+}
+
+.toolbar select{
+    width:220px;
+    height:52px;
+    border:1px solid #d1d5db;
+    border-radius:12px;
+    background:white;
+    padding:0 14px;
+    font-size:15px;
+    cursor:pointer;
+}
+
+/* ---------- Grid ---------- */
+.student-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+    gap:28px;
+}
+
+/* ---------- Student Card ---------- */
+.student-card{
+    background:white;
+    border:1px solid #e5e7eb;
+    border-radius:18px;
+    padding:25px;
+    min-height:240px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    transition:0.25s;
+}
+
+.student-card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+/* Avatar */
+.avatar{
+    width:60px;
+    height:60px;
+    border-radius:50%;
+    background:#2563eb;
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:20px;
+    font-weight:bold;
+    margin-bottom:20px;
+}
+
+/* Student name */
+.student-card h3{
+    font-size:24px;
+    color:#111827;
+    margin-bottom:10px;
+}
+
+/* Reading Band */
+.student-card p{
+    color:#6b7280;
+    font-size:16px;
+    margin-bottom:25px;
+}
+
+/* Last Assessed */
+.student-card small{
+    color:#94a3b8;
+    font-size:14px;
+    line-height:22px;
+}
+
+/* Dashboard Button */
+.student-card button{
+    margin-top:20px;
+    border:none;
+    background:#2563eb;
+    color:white;
+    padding:12px;
+    border-radius:10px;
+    font-size:15px;
+    cursor:pointer;
+}
+
+.student-card button:hover{
+    background:#1d4ed8;
+}
+
+/* Register Student Card */
+.add-card{
+    border:2px dashed #cbd5e1;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    color:#64748b;
+}
+
+.plus{
+    font-size:55px;
+    margin-bottom:15px;
+}
+
+.top-right{
+    display:flex;
+    align-items:center;
+    gap:20px;
+}
+
+.teacher{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-weight:600;
+    color:#374151;
+}
+
+.teacher-avatar{
+    width:40px;
+    height:40px;
+    background:#2563eb;
+    color:white;
+    border-radius:50%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-weight:bold;
+}
+
+.settings-icon{
+    cursor:pointer;
+    color:#64748b;
+}
+
+.settings-icon:hover{
+    color:#2563eb;
+}
+
+.sheet-button{
+    width:240px;
+    height:52px;
+    border:none;
+    background:#2563eb;
+    color:white;
+    border-radius:12px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+    font-size:15px;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.sheet-button:hover{
+    background:#1d4ed8;
+}
+
+.dashboard-button{
+    margin-top:20px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    background:#2563eb;
+    color:white;
+    text-decoration:none;
+
+    padding:12px;
+    border-radius:10px;
+
+    font-size:15px;
+    font-weight:500;
+
+    transition:0.2s;
+}
+
+.dashboard-button:hover{
+    background:#1d4ed8;
+}
