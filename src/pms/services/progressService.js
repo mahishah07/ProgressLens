@@ -101,7 +101,17 @@ exports.buildDashboard = async (studentId) => {
 		skillBreakdown,
 		progressOverTime,
 		bandProgression,
-		assessmentHistory: assessments,
+		assessmentHistory: assessments.map((a) => ({
+			_id: a._id,
+			semester: a.semester,
+			assessmentDate: a.assessmentDate,
+			newBand: a.newBand,
+			summaryBand: a.summaryBand,
+			assessedBy: a.assessedBy,
+			teacherComments: a.teacherComments,
+			aiInsights: a.aiInsights,
+			averageScore: calculateAverageScore(getSkillScores(a)),
+		})),
 		totalAssessments: assessments.length,
 	};
 };

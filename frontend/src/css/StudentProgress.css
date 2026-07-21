@@ -1,7 +1,485 @@
-export default function StudentProgress(){
+.sp-page {
+	display: flex;
+	min-height: 100vh;
+	background: #f5f6fa;
+}
+.sp-main {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	overflow-y: auto;
+}
 
-    return(
-        <h1>Student Progress</h1>
-    );
+.sp-topbar {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	padding: 1rem 2rem;
+	background: white;
+	border-bottom: 1px solid #eee;
+	position: sticky;
+	top: 0;
+	z-index: 10;
+}
+.sp-topbar h2 {
+	font-size: 1.1rem;
+	font-weight: 700;
+	color: #1a3c6e;
+	margin: 0;
+}
+.sp-topbar-sub {
+	font-size: 1rem;
+	color: #555;
+}
 
+/* Profile card (overview) */
+.sp-profile-card {
+	display: flex;
+	align-items: center;
+	gap: 1.5rem;
+	background: white;
+	margin: 1.5rem 2rem;
+	padding: 1.5rem;
+	border-radius: 12px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+.sp-avatar-lg {
+	width: 80px;
+	height: 80px;
+	border-radius: 12px;
+	background: #f97316;
+	color: white;
+	font-size: 1.5rem;
+	font-weight: 700;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+.sp-profile-info {
+	flex: 1;
+}
+.sp-profile-info h1 {
+	font-size: 1.5rem;
+	font-weight: 700;
+	margin: 0 0 0.5rem;
+}
+.sp-sheets-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.4rem 1rem;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	font-size: 0.85rem;
+	color: #555;
+	text-decoration: none;
+	background: white;
+}
+.sp-sheets-btn:hover {
+	background: #f5f5f5;
+}
+.sp-profile-meta {
+	display: flex;
+	gap: 2rem;
+}
+.sp-meta-item {
+	display: flex;
+	flex-direction: column;
+	gap: 0.2rem;
+}
+.sp-meta-label {
+	font-size: 0.75rem;
+	color: #888;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+.sp-meta-value {
+	font-size: 0.95rem;
+	font-weight: 600;
+	color: #1a1a1a;
+}
+.sp-band {
+	color: #1a3c6e;
+}
+
+/* Options */
+.sp-options {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1.5rem;
+	margin: 0 2rem 1.5rem;
+}
+.sp-option-card {
+	padding: 2rem;
+	border-radius: 12px;
+	color: white;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	cursor: pointer;
+}
+.sp-option-blue {
+	background: #1a3c6e;
+}
+.sp-option-purple {
+	background: #7c3aed;
+}
+.sp-option-icon {
+	width: 56px;
+	height: 56px;
+	background: rgba(255, 255, 255, 0.15);
+	border-radius: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.sp-option-card h3 {
+	font-size: 1.2rem;
+	font-weight: 700;
+	margin: 0;
+}
+.sp-option-card p {
+	font-size: 0.9rem;
+	opacity: 0.85;
+	margin: 0;
+	line-height: 1.5;
+}
+.sp-option-btn {
+	background: white;
+	color: #1a3c6e;
+	border: none;
+	padding: 0.6rem 1.25rem;
+	border-radius: 8px;
+	font-weight: 600;
+	cursor: pointer;
+	align-self: flex-start;
+	font-size: 0.9rem;
+}
+.sp-option-btn-outline {
+	background: transparent;
+	color: white;
+	border: 2px solid white;
+	padding: 0.6rem 1.25rem;
+	border-radius: 8px;
+	font-weight: 600;
+	cursor: pointer;
+	align-self: flex-start;
+	font-size: 0.9rem;
+}
+
+/* Dashboard profile strip */
+.sp-profile-strip {
+	display: flex;
+	align-items: center;
+	gap: 1.5rem;
+	background: white;
+	margin: 1.5rem 2rem;
+	padding: 1.25rem 1.5rem;
+	border-radius: 12px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+.sp-avatar-md {
+	width: 60px;
+	height: 60px;
+	border-radius: 10px;
+	background: #f97316;
+	color: white;
+	font-size: 1.2rem;
+	font-weight: 700;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+.sp-profile-strip h2 {
+	font-size: 1.3rem;
+	font-weight: 700;
+	margin: 0 0 0.3rem;
+}
+.sp-strip-meta {
+	display: flex;
+	gap: 1.5rem;
+	font-size: 0.85rem;
+	color: #555;
+	align-items: center;
+}
+.sp-band-tag {
+	color: #1a3c6e;
+	font-weight: 600;
+}
+.sp-quick-actions {
+	display: flex;
+	gap: 0.75rem;
+	margin-left: auto;
+}
+.sp-qa-primary {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	background: #1a3c6e;
+	color: white;
+	border: none;
+	padding: 0.6rem 1.25rem;
+	border-radius: 8px;
+	font-size: 0.85rem;
+	font-weight: 600;
+	cursor: pointer;
+}
+.sp-qa-secondary {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	background: white;
+	color: #333;
+	border: 1px solid #ddd;
+	padding: 0.6rem 1.25rem;
+	border-radius: 8px;
+	font-size: 0.85rem;
+	cursor: pointer;
+	text-decoration: none;
+}
+
+/* Row layout */
+.sp-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1.5rem;
+	margin: 0 2rem 1.5rem;
+}
+
+/* AI card */
+.sp-ai-card {
+	background: #e0f2fe;
+	padding: 1.5rem;
+	border-radius: 12px;
+}
+.sp-ai-card h3 {
+	font-size: 1rem;
+	font-weight: 700;
+	color: #0c4a6e;
+	margin: 0 0 0.75rem;
+}
+.sp-ai-card p {
+	font-size: 0.9rem;
+	color: #1e3a5f;
+	line-height: 1.6;
+	margin: 0 0 1rem;
+}
+.sp-tags {
+	display: flex;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+}
+.sp-tag {
+	background: #1a3c6e;
+	color: white;
+	font-size: 0.75rem;
+	padding: 0.25rem 0.75rem;
+	border-radius: 99px;
+	font-weight: 500;
+}
+.sp-tag-alt {
+	background: #7c3aed;
+}
+
+/* Goals card */
+.sp-goals-card {
+	background: white;
+	padding: 1.5rem;
+	border-radius: 12px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+.sp-goals-card h3 {
+	font-size: 1rem;
+	font-weight: 700;
+	margin: 0 0 1rem;
+	display: flex;
+	justify-content: space-between;
+}
+.sp-view-all {
+	font-size: 0.8rem;
+	color: #1a3c6e;
+	font-weight: 500;
+	cursor: pointer;
+}
+.sp-goal-item {
+	margin-bottom: 1rem;
+}
+.sp-goal-label {
+	display: flex;
+	justify-content: space-between;
+	font-size: 0.85rem;
+	margin-bottom: 0.3rem;
+}
+.sp-goal-bar-bg {
+	background: #f0f0f0;
+	border-radius: 99px;
+	height: 8px;
+}
+.sp-goal-bar {
+	height: 8px;
+	border-radius: 99px;
+	transition: width 0.3s;
+}
+
+/* Charts */
+.sp-chart-card,
+.sp-radar-card {
+	background: white;
+	padding: 1.5rem;
+	border-radius: 12px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+.sp-chart-card h3,
+.sp-radar-card h3 {
+	font-size: 1rem;
+	font-weight: 700;
+	margin: 0 0 0.25rem;
+}
+.sp-chart-sub {
+	font-size: 0.8rem;
+	color: #888;
+	margin: 0 0 1rem;
+}
+.sp-strongest {
+	text-align: center;
+	font-size: 0.85rem;
+	color: #7c3aed;
+	font-weight: 600;
+	margin-top: 0.5rem;
+}
+
+/* Assessment history */
+.sp-history-card {
+	background: white;
+	margin: 0 2rem 1.5rem;
+	padding: 1.5rem;
+	border-radius: 12px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+.sp-history-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 1rem;
+}
+.sp-history-header h3 {
+	font-size: 1rem;
+	font-weight: 700;
+	margin: 0;
+}
+.sp-filter-btn {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.4rem 0.9rem;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	background: white;
+	font-size: 0.8rem;
+	cursor: pointer;
+}
+.sp-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.85rem;
+}
+.sp-table th {
+	text-align: left;
+	padding: 0.6rem 0.75rem;
+	font-size: 0.75rem;
+	color: #888;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	border-bottom: 1px solid #f0f0f0;
+}
+.sp-table td {
+	padding: 0.75rem;
+	border-bottom: 1px solid #f5f5f5;
+	color: #333;
+}
+.sp-table tr:last-child td {
+	border-bottom: none;
+}
+.sp-band-badge {
+	background: #eff6ff;
+	color: #1a3c6e;
+	padding: 0.2rem 0.6rem;
+	border-radius: 99px;
+	font-size: 0.75rem;
+	font-weight: 600;
+}
+.sp-view-details {
+	background: none;
+	border: none;
+	color: #1a3c6e;
+	font-size: 0.85rem;
+	cursor: pointer;
+	font-weight: 500;
+}
+
+/* Bottom bar */
+.sp-bottom-bar {
+	display: flex;
+	gap: 1rem;
+	padding: 1.5rem 2rem;
+	border-top: 1px solid #eee;
+	background: white;
+	margin-top: auto;
+}
+.sp-back-btn {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.6rem 1.25rem;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	background: white;
+	font-size: 0.9rem;
+	cursor: pointer;
+	text-decoration: none;
+	color: #333;
+}
+.sp-generate-btn {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.6rem 1.25rem;
+	border: none;
+	border-radius: 8px;
+	background: #1a3c6e;
+	color: white;
+	font-size: 0.9rem;
+	font-weight: 600;
+	cursor: pointer;
+	margin-left: auto;
+}
+.sp-compare-btn {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.6rem 1.25rem;
+	border: none;
+	border-radius: 8px;
+	background: #1a3c6e;
+	color: white;
+	font-size: 0.9rem;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+/* Back bar (overview) */
+.sp-back-bar {
+	padding: 1rem 2rem;
+}
+
+.state-msg {
+	text-align: center;
+	padding: 2rem;
+	color: #888;
+}
+.state-msg.error {
+	color: #e53e3e;
 }

@@ -6,12 +6,14 @@ const {
 	createStudent,
 	updateStudent,
 	deleteStudent,
+	getCentres,
 } = require("../controllers/studentController");
 
 router.post(
 	"/bulk",
 	require("../controllers/studentController").bulkCreateStudents,
 );
+router.get("/centres", getCentres);
 router.route("/").get(getStudents).post(createStudent);
 router
 	.route("/:id")

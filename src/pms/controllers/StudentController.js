@@ -80,3 +80,12 @@ exports.bulkCreateStudents = async (req, res) => {
 		res.status(400).json({ message: err.message });
 	}
 };
+
+exports.getCentres = async (req, res) => {
+	try {
+		const centres = await Student.distinct("centreId");
+		res.json(centres);
+	} catch (err) {
+		res.status(500).json({ message: err.message });
+	}
+};

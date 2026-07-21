@@ -15,7 +15,9 @@ const sheetsRoutes = require("./src/pms/routes/sheetsRoutes");
 const sheetsSync = require("./src/pms/services/sheetsSync");
 
 connectDB().then(() => {
-	sheetsSync.startPolling(1);
+	if (process.env.NODE_ENV === "production") {
+		sheetsSync.startPolling(30);
+	}
 });
 
 const app = express();

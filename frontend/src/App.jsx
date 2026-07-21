@@ -9,57 +9,27 @@ import WritingReview from "./pages/WritingReview";
 import DiagnosticReport from "./pages/DiagnosticReport";
 
 function App() {
+	return (
+		<Routes>
+			<Route path="/" element={<Landing />} />
 
-    return (
+			<Route path="/student-progress" element={<StudentProgress />} />
 
-        <Routes>
+			<Route path="/assessment-comparison" element={<AssessmentComparison />} />
 
-            <Route path="/" element={<Landing />} />
+			<Route path="/progress-report" element={<ProgressReport />} />
 
-            <Route
-                path="/student-progress"
-                element={<StudentProgress />}
-            />
+			<Route path="/student-errors" element={<StudentErrorAnalysis />} />
 
-            <Route
-                path="/assessment-comparison"
-                element={<AssessmentComparison />}
-            />
+			<Route path="/writing-review" element={<WritingReview />} />
 
-            <Route
-                path="/progress-report"
-                element={<ProgressReport />}
-            />
+			<Route path="/diagnostic-report" element={<DiagnosticReport />} />
 
-            <Route
-                path="/student-errors"
-                element={<StudentErrorAnalysis />}
-            />
+			<Route path="/" element={<Landing />} />
 
-            <Route
-                path="/writing-review"
-                element={<WritingReview />}
-            />
-
-            <Route
-                path="/diagnostic-report"
-                element={<DiagnosticReport />}
-            />
-
-            <Route
-                path="/"
-                element={<Landing />}
-            />
-
-            <Route
-                path="/student/:id"
-            element={<StudentProgress />}
-            />
-
-        </Routes>
-
-    );
-
+			<Route path="/student/:id" element={<StudentProgress />} />
+		</Routes>
+	);
 }
 
 export default App;
