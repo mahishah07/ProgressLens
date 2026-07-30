@@ -50,6 +50,7 @@ export default function StudentProgress() {
 	const [dashboard, setDashboard] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
+	const [selectedSkills, setSelectedSkills] = useState([]);
 
 	useEffect(() => {
 		if (!id) return;
@@ -115,14 +116,31 @@ export default function StudentProgress() {
 		};
 	};
 
+	const SKILL_LABELS = {
+		pictureNaming: "Picture Naming",
+		pictureDescription: "Picture Description",
+		paIdentification: "PA Identification",
+		phonics: "Phonics",
+		wra: "Word Reading Accuracy",
+		fluency: "Fluency",
+		wordSpelling: "Word Spelling",
+		letterFormation: "Letter Formation",
+		ed1: "Edit D1",
+		ed2: "Edit D2",
+		ed3: "Edit D3",
+		narrative: "Narrative Writing",
+		exposition: "Exposition Writing",
+		persuasive: "Persuasive Writing",
+		lsComprehension: "Listening Comprehension",
+		rdComprehension: "Reading Comprehension",
+	};
+
 	const buildRadarData = () => {
 		if (!dashboard?.latestAssessment?.skillScores) return null;
 		const scores = dashboard.latestAssessment.skillScores;
-		const entries = Object.entries(scores)
-			.filter(([_, v]) => v !== null)
-			.slice(0, 6);
+		const entries = Object.entries(scores).filter(([_, v]) => v !== null);
 		return {
-			labels: entries.map(([key]) => key.replace(/([A-Z])/g, " $1").trim()),
+			labels: entries.map(([k]) => SKILL_LABELS[k] || k),
 			datasets: [
 				{
 					label: "Score",
@@ -296,6 +314,32 @@ export default function StudentProgress() {
 	const progressData = buildProgressChartData();
 	const radarData = buildRadarData();
 
+	const toggleSkill = (label) => {
+		setSelectedSkills((prev) =>
+			prev.includes(label) ? prev.filter((s) => s !== label) : [...prev, label],
+		);
+	};
+
+	const filteredRadarData = () => {
+		if (!radarData) return null;
+		const activeSkills =
+			selectedSkills.length > 0 ? selectedSkills : radarData.labels;
+		const indices = radarData.labels
+			.map((label, i) => (activeSkills.includes(label) ? i : null))
+			.filter((i) => i !== null);
+		return {
+			labels: indices.map((i) => radarData.labels[i]),
+			datasets: [
+				{
+					label: "Score",
+					data: indices.map((i) => radarData.datasets[0].data[i]),
+					borderColor: "#7c3aed",
+					backgroundColor: "rgba(124, 58, 237, 0.3)",
+				},
+			],
+		};
+	};
+
 	return (
 		<div className="sp-page">
 			<Sidebar />
@@ -422,15 +466,33 @@ export default function StudentProgress() {
 						{radarData ? (
 							<>
 								<Radar
-									data={radarData}
+									data={filteredRadarData()}
 									options={{
 										responsive: true,
-										scales: { r: { min: 0, max: 100 } },
+										scales: {
+											r: { min: 0, max: 100, ticks: { stepSize: 20 } },
+										},
+										plugins: { legend: { display: false } },
 									}}
 								/>
 								<p className="sp-strongest">
 									Strongest Skill: {dashboard?.skillBreakdown?.strongest || "—"}
 								</p>
+								<div className="sp-skill-checkboxes">
+									{radarData.labels.map((label, i) => (
+										<label key={i} className="sp-skill-checkbox">
+											<input
+												type="checkbox"
+												checked={
+													selectedSkills.length === 0 ||
+													selectedSkills.includes(label)
+												}
+												onChange={() => toggleSkill(label)}
+											/>
+											{label}
+										</label>
+									))}
+								</div>
 							</>
 						) : (
 							<p className="state-msg">No skill data available</p>

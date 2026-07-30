@@ -483,3 +483,27 @@
 .state-msg.error {
 	color: #e53e3e;
 }
+
+.sp-skill-checkboxes {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-top: 1rem;
+	padding-top: 0.75rem;
+	border-top: 1px solid #f0f0f0;
+}
+
+.sp-skill-checkbox {
+	display: flex;
+	align-items: center;
+	gap: 0.3rem;
+	font-size: 0.75rem;
+	color: #555;
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.sp-skill-checkbox input {
+	accent-color: #7c3aed;
+	cursor: pointer;
+}

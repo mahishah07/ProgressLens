@@ -27,7 +27,7 @@
 	},
 	"jest": {
 		"testMatch": [
-			"**/src/pms/tests/**/*.js"
+			"**/src/pms/tests/**/*.test.js"
 		]
 	}
 }
