@@ -1,6 +1,4 @@
-// This function cleans OCR formatting only.
-// It does NOT correct spelling or grammar,
-// because student mistakes must be preserved for analysis.
+// This function cleans OCR formatting only. (not fixing spelling errors)
 function cleanOcrText(rawText) {
   if (!rawText) {
     return "";
@@ -9,7 +7,6 @@ function cleanOcrText(rawText) {
   let text = rawText;
 
   // Remove backslash characters that OCR may randomly detect.
-  // Example: "\ revised" becomes " revised"
   text = text.replace(/\\/g, "");
 
   // Convert Windows newlines to normal newlines.

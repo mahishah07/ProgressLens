@@ -1,4 +1,6 @@
-node_modules/
+node_modules
+.env
+coveragenode_modules/
 uploads/
 .env
 coverage/

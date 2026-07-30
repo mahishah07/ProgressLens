@@ -8,13 +8,11 @@ const { AzureKeyCredential,
 
 // This function receives the path of the uploaded PDF.
 async function extractTextFromPdf(filePath) {
-  // Get the endpoint from .env.
+  // get from env 
   const endpoint = process.env.AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT;
-
-  // Get the secret key from .env.
   const key = process.env.AZURE_DOCUMENT_INTELLIGENCE_KEY;
 
-  // If either value is missing, stop and show a clear error.
+  // If either value is missing, stop and show a clear error
   if (!endpoint || !key) {
     throw new Error("Azure endpoint or key is missing in .env");
   }
@@ -25,7 +23,6 @@ async function extractTextFromPdf(filePath) {
     new AzureKeyCredential(key)
   );
 
-  // Open the uploaded PDF file.
   const fileStream = fs.createReadStream(filePath);
 
   // Send the PDF to Azure's Read OCR model.
@@ -35,17 +32,17 @@ async function extractTextFromPdf(filePath) {
     fileStream
   );
 
-  // Azure OCR can take a few seconds, so wait until it is done.
+  // wait until it is done
   const result = await poller.pollUntilDone();
 
-  // result.content contains all extracted text in one string.
+  // result.content contains all extracted text in one string
   const extractedText = result.content || "";
 
-  // Return only the extracted essay text.
+  // Return only the extracted essay text
   return extractedText;
 }
 
-// Export this function so the upload controller can use it.
+// Export this function so the upload controller can use it
 module.exports = {
   extractTextFromPdf,
 };
