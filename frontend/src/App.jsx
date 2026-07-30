@@ -28,6 +28,8 @@ function App() {
 
 			<Route path="/" element={<Landing />} />
 
+			<Route path="/error-dashboard" element={<ErrorDashboard />} />
+
 			<Route path="/student/:id" element={<StudentProgress />} />
 
 			<Route path="/error-dashboard/:id" element={<ErrorDashboard />} />
