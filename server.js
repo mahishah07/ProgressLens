@@ -2,17 +2,20 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
-const connectDB = require("./src/pms/config/db");
-const { notFound, errorHandler } = require("./src/pms/error/errorHandling");
+const connectDB = require("./backendpms/src/pms/config/db");
+const {
+	notFound,
+	errorHandler,
+} = require("./backendpms/src/pms/error/errorHandling");
 
-const studentRoutes = require("./src/pms/routes/studentRoutes");
-const assessmentRoutes = require("./src/pms/routes/assessmentRoutes");
-const progressRoutes = require("./src/pms/routes/progressRoutes");
-const comparisonRoutes = require("./src/pms/routes/comparisonRoutes");
-const reportRoutes = require("./src/pms/routes/reportRoutes");
-const aiRoutes = require("./src/pms/routes/aiRoutes");
-const sheetsRoutes = require("./src/pms/routes/sheetsRoutes");
-const sheetsSync = require("./src/pms/services/sheetsSync");
+const studentRoutes = require("./backendpms/src/pms/routes/studentRoutes");
+const assessmentRoutes = require("./backendpms/src/pms/routes/assessmentRoutes");
+const progressRoutes = require("./backendpms/src/pms/routes/progressRoutes");
+const comparisonRoutes = require("./backendpms/src/pms/routes/comparisonRoutes");
+const reportRoutes = require("./backendpms/src/pms/routes/reportRoutes");
+const aiRoutes = require("./backendpms/src/pms/routes/aiRoutes");
+const sheetsRoutes = require("./backendpms/src/pms/routes/sheetsRoutes");
+const sheetsSync = require("./backendpms/src/pms/services/sheetsSync");
 
 connectDB().then(() => {
 	if (process.env.NODE_ENV === "production") {
