@@ -1,20 +1,50 @@
-const uploadAssignment = (req, res) => { // Create a function to handle uploaded assignments
-  if (!req.file) { // Check if no file was uploaded
-    return res.status(400).json({ error: "No PDF file uploaded" }); // Send error if file is missing
+// Import the OCR function.
+// This function sends the uploaded PDF to Azure and gets back text.
+const { extractTextFromPdf } = require("../services/ocrService");
+const { cleanOcrText } = require("../services/textCleanService");
+const { checkSpelling } = require("../services/spellCheckService");
+
+// This function runs after Multer successfully saves the uploaded PDF.
+const uploadAssignment = async (req, res) => {
+  try {
+    // If no file was uploaded, return an error.
+    if (!req.file) {
+      return res.status(400).json({
+        error: "No PDF file uploaded",
+      });
+    }
+
+    // Save basic information about the uploaded PDF.
+    const uploadedFileInfo = {
+      originalName: req.file.originalname,
+      savedName: req.file.filename,
+      fileType: req.file.mimetype,
+      fileSize: req.file.size,
+      savedPath: req.file.path,
+    };
+
+    // Send the saved PDF to Azure OCR.
+    // Azure will extract handwriting/printed text.
+    const extractedText = await extractTextFromPdf(req.file.path);
+    const cleanedText = cleanOcrText(extractedText);
+    const spellingErrors = await checkSpelling(cleanedText);
+
+    // Return upload info + extracted text.
+    return res.status(201).json({
+      message: "PDF uploaded and text extracted successfully",
+      file: uploadedFileInfo,
+      cleanedText: cleanedText,
+      spellingErrors: spellingErrors,
+    });
+  } catch (error) {
+    // If Azure or upload processing fails, show error details.
+    return res.status(500).json({
+      error: "Failed to upload PDF or extract text",
+      details: error.message,
+    });
   }
-
-  const uploadedFileInfo = { // Create a simple object with information about the uploaded file
-    originalName: req.file.originalname, // Store the original filename from the user's computer
-    savedName: req.file.filename, // Store the new filename saved in our backend
-    fileType: req.file.mimetype, // Store the file type, should be application/pdf
-    fileSize: req.file.size, // Store the file size in bytes
-    savedPath: req.file.path, // Store the location where the file was saved
-  };
-
-  return res.status(201).json({ // Send success response
-    message: "PDF uploaded successfully", // Message to show upload worked
-    file: uploadedFileInfo, // Send back the uploaded file information
-  });
 };
 
-module.exports = { uploadAssignment }; // Export this function so uploadRoutes.js can use it
+module.exports = {
+  uploadAssignment,
+};

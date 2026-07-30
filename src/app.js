@@ -1,3 +1,5 @@
+require("dotenv").config(); //read env variables from .env file
+
 const express = require("express"); // Import Express, which helps us build the backend server
 const multer = require("multer"); // Import Multer so we can recognise Multer upload errors
 const uploadRoutes = require("./routes/uploadRoutes"); // Import our upload routes from uploadRoutes.js
