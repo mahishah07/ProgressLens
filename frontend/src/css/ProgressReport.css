@@ -1,0 +1,115 @@
+.pr-page { display: flex; min-height: 100vh; background: #f5f6fa; }
+.pr-main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+
+.pr-topbar {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 1rem 2rem; background: white;
+  border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10;
+}
+.pr-topbar h2 { font-size: 1.1rem; font-weight: 700; color: #1a3c6e; margin: 0; }
+.pr-topbar-sub { font-size: 1rem; color: #555; }
+
+.pr-generate-banner {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 2rem; background: #eff6ff; border-bottom: 1px solid #bfdbfe;
+  font-size: 0.9rem; color: #1e40af;
+}
+.pr-gen-btn {
+  padding: 0.6rem 1.5rem; background: #1a3c6e; color: white;
+  border: none; border-radius: 8px; font-weight: 600; cursor: pointer;
+}
+.pr-gen-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.pr-doc-wrapper { padding: 2rem; flex: 1; }
+.pr-doc {
+  background: white; max-width: 860px; margin: 0 auto;
+  padding: 3rem; border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.pr-doc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; }
+.pr-das-logo { color: #1a3c6e; font-weight: 700; font-size: 1rem; margin-bottom: 0.5rem; }
+.pr-doc-title h1 { font-size: 1.8rem; font-weight: 700; margin: 0 0 0.3rem; }
+.pr-doc-title p { font-size: 0.85rem; color: #888; margin: 0; }
+.pr-report-id { text-align: right; }
+.pr-report-id-label { display: block; font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.3rem; }
+.pr-report-id-value { background: #1a3c6e; color: white; padding: 0.3rem 0.75rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; }
+
+.pr-divider { border: none; border-top: 1px solid #eee; margin: 1.5rem 0; }
+
+.pr-student-section { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; }
+.pr-student-info { display: flex; gap: 1rem; align-items: flex-start; }
+.pr-student-avatar {
+  width: 60px; height: 60px; border-radius: 10px;
+  background: #f97316; color: white; font-size: 1.1rem;
+  font-weight: 700; display: flex; align-items: center; justify-content: center;
+}
+.pr-student-info h2 { font-size: 1.3rem; font-weight: 700; margin: 0 0 0.5rem; }
+.pr-student-meta { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.85rem; color: #555; }
+.pr-student-meta span { font-weight: 600; color: #333; }
+.pr-overall-progress {
+  background: #1a3c6e; color: white; padding: 1.25rem 1.75rem;
+  border-radius: 12px; text-align: center; min-width: 140px;
+}
+.pr-op-label { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.8; margin-bottom: 0.3rem; }
+.pr-op-score { display: block; font-size: 2.2rem; font-weight: 700; margin-bottom: 0.3rem; }
+.pr-op-tag { background: rgba(255,255,255,0.15); padding: 0.2rem 0.6rem; border-radius: 99px; font-size: 0.75rem; }
+
+.pr-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem; }
+.pr-chart-block h3 { font-size: 0.95rem; font-weight: 700; margin: 0 0 1rem; color: #1a1a1a; }
+
+.pr-section { margin-bottom: 2rem; }
+.pr-section h3 { font-size: 0.95rem; font-weight: 700; margin: 0 0 1rem; }
+.pr-quote {
+  font-size: 0.9rem; color: #444; line-height: 1.7;
+  font-style: italic; margin: 0; padding: 1rem 1.25rem;
+  background: #f9f9f9; border-left: 3px solid #1a3c6e; border-radius: 4px;
+}
+.pr-textarea {
+  width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px;
+  font-size: 0.9rem; font-family: inherit; resize: vertical;
+}
+.pr-edit-actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+.pr-save-btn { padding: 0.5rem 1rem; background: #1a3c6e; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+.pr-cancel-btn { padding: 0.5rem 1rem; background: white; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+
+.pr-ai-section {
+  background: #faf5ff; padding: 1.5rem; border-radius: 12px;
+  margin-bottom: 2rem; border: 1px solid #ede9fe;
+}
+.pr-ai-section h3 { font-size: 0.95rem; font-weight: 700; color: #7c3aed; margin: 0 0 1rem; }
+.pr-ai-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.pr-ai-item { background: white; padding: 1rem; border-radius: 8px; }
+.pr-ai-item h4 { font-size: 0.8rem; font-weight: 700; color: #7c3aed; margin: 0 0 0.4rem; }
+.pr-ai-item p { font-size: 0.85rem; color: #444; margin: 0; line-height: 1.5; }
+.pr-ai-placeholder { text-align: center; padding: 1rem; }
+.pr-ai-placeholder p { color: #888; font-size: 0.9rem; margin-bottom: 1rem; }
+
+.pr-signatures { display: flex; gap: 4rem; margin-top: 2rem; }
+.pr-sig { text-align: center; }
+.pr-sig-line { border-top: 1px solid #333; width: 200px; margin-bottom: 0.5rem; }
+.pr-sig p { font-weight: 600; font-size: 0.9rem; margin: 0; }
+.pr-sig span { font-size: 0.8rem; color: #888; }
+
+.pr-bottom-bar {
+  display: flex; gap: 0.75rem; padding: 1rem 2rem;
+  border-top: 1px solid #eee; background: white;
+  position: sticky; bottom: 0;
+}
+.pr-edit-btn {
+  display: flex; align-items: center; gap: 0.4rem;
+  padding: 0.6rem 1.25rem; background: #1a3c6e; color: white;
+  border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer;
+}
+.pr-download-btn {
+  display: flex; align-items: center; gap: 0.4rem;
+  padding: 0.6rem 1.25rem; background: white; border: 1px solid #ddd;
+  border-radius: 8px; font-size: 0.9rem; cursor: pointer;
+}
+.pr-mail-btn, .pr-share-btn {
+  padding: 0.6rem 0.9rem; background: white; border: 1px solid #ddd;
+  border-radius: 8px; cursor: pointer; display: flex; align-items: center;
+}
+
+.state-msg { text-align: center; padding: 2rem; color: #888; }
+.state-msg.error { color: #dc2626; }
