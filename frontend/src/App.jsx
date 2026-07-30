@@ -7,6 +7,7 @@ import ProgressReport from "./pages/ProgressReport";
 import StudentErrorAnalysis from "./pages/StudentErrorAnalysis";
 import WritingReview from "./pages/WritingReview";
 import DiagnosticReport from "./pages/DiagnosticReport";
+import ErrorDashboard from "./pages/ErrorDashboard";
 
 function App() {
 	return (
@@ -28,6 +29,8 @@ function App() {
 			<Route path="/" element={<Landing />} />
 
 			<Route path="/student/:id" element={<StudentProgress />} />
+
+			<Route path="/error-dashboard/:id" element={<ErrorDashboard />} />
 		</Routes>
 	);
 }
