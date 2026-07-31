@@ -1,11 +1,8 @@
-const express = require("express"); // Import Express so we can create routes
+const express = require("express");
+const upload = require("../middleware/upload");
+const { uploadAssignment } = require("../controllers/uploadController");
 
-const upload = require("../middleware/upload"); // Import the Multer upload setup
+const router = express.Router();
+router.post("/writing-sample", upload.single("assignment"), uploadAssignment);
 
-const { uploadAssignment } = require("../controllers/uploadController"); // Import the upload controller function
-
-const router = express.Router(); // Create an Express router
-
-router.post("/assignment", upload.single("assignment"), uploadAssignment); // Create POST /api/uploads/assignment route
-
-module.exports = router; // Export the router so app.js can connect it
+module.exports = router;

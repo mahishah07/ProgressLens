@@ -5,8 +5,12 @@
     "dictionary-en": "^4.0.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "mongoose": "^9.8.1",
     "multer": "^2.2.0",
-    "nspell": "^2.1.5"
+    "natural": "^8.1.1",
+    "nspell": "^2.1.5",
+    "openai": "^7.1.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "jest": "^30.4.2",
@@ -14,8 +18,13 @@
     "supertest": "^7.2.2"
   },
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
-    "test": "jest --runInBand"
+    "start": "node backend/src/server.js",
+    "dev": "nodemon backend/src/server.js",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand"
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "^mime-types$": "<rootDir>/node_modules/mime-types/index.js"
+    }
   }
 }

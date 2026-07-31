@@ -1,7 +1,13 @@
-const app = require("./app"); 
+const app = require("./app");
+const { port } = require("./config/env");
+const { connectDatabase } = require("./config/database");
 
-const PORT = 5000; 
+async function startServer() {
+  await connectDatabase();
+  app.listen(port, "0.0.0.0", () => console.log(`Server running on http://localhost:${port}`));
+}
 
-app.listen(PORT, "0.0.0.0", () => { 
-  console.log(`Server running on http://localhost:${PORT}`); 
+startServer().catch((error) => {
+  console.error("Unable to start ProgressLens:", error.message);
+  process.exitCode = 1;
 });

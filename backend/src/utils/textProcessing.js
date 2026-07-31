@@ -1,7 +1,6 @@
 const regexpTokenizerModule = require("natural/lib/natural/tokenizers/regexp_tokenizer");
 const SentenceTokenizer = require("natural/lib/natural/tokenizers/sentence_tokenizer");
 
-// WordTokenizer is exported from regexp_tokenizer.js
 const WordTokenizer = regexpTokenizerModule.WordTokenizer;
 
 const wordTokenizer = new WordTokenizer();
