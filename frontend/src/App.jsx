@@ -25,6 +25,7 @@ function App() {
 			<Route path="/writing-review" element={<WritingReview />} />
 
 			<Route path="/diagnostic-report" element={<DiagnosticReport />} />
+			<Route path="/error-report/:reportId" element={<DiagnosticReport />} />
 
 			<Route path="/" element={<Landing />} />
 

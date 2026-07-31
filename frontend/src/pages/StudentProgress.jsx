@@ -298,7 +298,7 @@ export default function StudentProgress() {
 							</p>
 							<button
 								className="sp-option-btn-outline"
-								onClick={() => navigate("/error-dashboard")}
+								onClick={() => navigate(`/error-dashboard/${encodeURIComponent(overview.student.studentId)}`)}
 							>
 								Open Error Pattern Analysis
 							</button>

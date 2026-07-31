@@ -12,7 +12,7 @@ describe("UT-20 — ProgressService empty state", () => {
 	});
 
 	test("should return assessment_pending when student has no assessments", async () => {
-		Student.findById.mockResolvedValue({
+		Student.findOne.mockResolvedValue({
 			_id: "mockid123",
 			studentId: "Student 0001",
 			summaryBand: "A1",
@@ -31,7 +31,7 @@ describe("UT-20 — ProgressService empty state", () => {
 	});
 
 	test("should return null when student does not exist", async () => {
-		Student.findById.mockResolvedValue(null);
+		Student.findOne.mockResolvedValue(null);
 
 		const result = await progressService.buildDashboard("nonexistentid");
 

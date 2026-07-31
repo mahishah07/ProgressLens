@@ -1,5 +1,6 @@
 const Report = require("../models/Report");
 const Student = require("../models/Student");
+const { resolveStudent } = require("./studentIdentityService");
 const comparisonService = require("./comparisonService");
 
 const BAND_DESCRIPTIONS = {
@@ -122,7 +123,7 @@ const aiService = require("./aiService");
 
 // UC3: generate AI-powered parent-friendly report
 exports.generateReport = async (studentId, generatedBy) => {
-	const student = await Student.findById(studentId);
+	const student = await resolveStudent(studentId);
 	if (!student) return null;
 
 	const comparison = await comparisonService.compareAssessments(studentId);
@@ -139,7 +140,7 @@ exports.generateReport = async (studentId, generatedBy) => {
 	);
 
 	const report = await Report.create({
-		student: studentId,
+		student: student._id,
 		generatedBy: generatedBy || "System",
 		overallProgress: aiReport.overallProgress,
 		literacyGrowth: aiReport.literacyGrowth,
@@ -153,7 +154,9 @@ exports.generateReport = async (studentId, generatedBy) => {
 
 // UC5: get latest report for a student
 exports.getLatestReport = async (studentId) => {
-	const report = await Report.findOne({ student: studentId })
+	const student = await resolveStudent(studentId);
+	if (!student) return null;
+	const report = await Report.findOne({ student: student._id })
 		.sort({ createdAt: -1 })
 		.populate("student", "studentId summaryBand schLevel");
 	if (!report) return null;

@@ -25,7 +25,7 @@ exports.generateRecommendations = async (req, res) => {
 
 		// save aiInsights to latest assessment
 		const latest = await Assessment.findOne({
-			student: req.params.studentId,
+			student: comparison.student._id,
 		}).sort({
 			assessmentDate: -1,
 		});

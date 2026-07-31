@@ -1,5 +1,6 @@
 const Assessment = require("../models/Assessment");
 const Student = require("../models/Student");
+const { resolveStudent } = require("./studentIdentityService");
 
 const BAND_ORDER = ["A1", "A2", "A3", "B4", "B5", "B6", "C7", "C8", "C9"];
 
@@ -100,10 +101,10 @@ const getSkillProficiency = (scores) => {
 
 // UC4: compare all assessments for a student
 exports.compareAssessments = async (studentId) => {
-	const student = await Student.findById(studentId);
+	const student = await resolveStudent(studentId);
 	if (!student) return null;
 
-	const assessments = await Assessment.find({ student: studentId }).sort({
+	const assessments = await Assessment.find({ student: student._id }).sort({
 		assessmentDate: 1,
 	});
 

@@ -1,5 +1,6 @@
 const Assessment = require("../models/Assessment");
 const Student = require("../models/Student");
+const { resolveStudent } = require("./studentIdentityService");
 
 const BAND_ORDER = ["A1", "A2", "A3", "B4", "B5", "B6", "C7", "C8", "C9"];
 
@@ -43,10 +44,11 @@ const getSkillBreakdown = (skillScores) => {
 
 // UC2: retrieve full assessment history + build dashboard data
 exports.buildDashboard = async (studentId) => {
-	const student = await Student.findById(studentId);
+	const student = await resolveStudent(studentId);
 	if (!student) return null;
+	const studentMongoId = student._id;
 
-	const assessments = await Assessment.find({ student: studentId }).sort({
+	const assessments = await Assessment.find({ student: studentMongoId }).sort({
 		assessmentDate: 1,
 	});
 
@@ -118,10 +120,10 @@ exports.buildDashboard = async (studentId) => {
 
 // UC1: student overview (lighter version)
 exports.getStudentOverview = async (studentId) => {
-	const student = await Student.findById(studentId);
+	const student = await resolveStudent(studentId);
 	if (!student) return null;
 
-	const latest = await Assessment.findOne({ student: studentId }).sort({
+	const latest = await Assessment.findOne({ student: student._id }).sort({
 		assessmentDate: -1,
 	});
 

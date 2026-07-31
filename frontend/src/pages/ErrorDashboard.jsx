@@ -1,5 +1,5 @@
 import "./../css/ErrorDashboard.css";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import {
   LayoutDashboard,
@@ -15,14 +15,14 @@ import {
   Eye,
 } from "lucide-react";
 
+const API = import.meta.env.VITE_API_URL;
+
 export default function ErrorDashboard() {
   const { id } = useParams();
 
   const [student, setStudent] = useState(null);
   const [history, setHistory] = useState([]);
   const [search, setSearch] = useState("");
-
-  const navigate = useNavigate();
 
 const fileInputRef = useRef(null);
 
@@ -98,51 +98,89 @@ const analyzeAssessment = async () => {
     alert("Please upload a file first.");
     return;
   }
+  if (!id) {
+    alert("Please open the Error Analyser from a student dashboard.");
+    return;
+  }
 
   setUploading(true);
 
   const formData = new FormData();
-  formData.append("file", selectedFile);
+  formData.append("assignment", selectedFile);
+  formData.append("studentId", id);
 
   try {
-    // Replace with your backend endpoint
-    // const res = await fetch("/api/analyze", {
-    //   method: "POST",
-    //   body: formData,
-    // });
-    //
-    // const data = await res.json();
-    // navigate(`/error-report/${data.id}`);
+    const searchResponse = await fetch(
+      `${API}/api/error-analyser/students?q=${encodeURIComponent(id)}`,
+    );
+    const searchData = await searchResponse.json();
+    const existingProfile = searchData.data?.find((profile) => profile.studentId === id);
+    if (!existingProfile) {
+      const createResponse = await fetch(`${API}/api/error-analyser/students`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ studentId: id, name: id }),
+      });
+      if (!createResponse.ok && createResponse.status !== 409) {
+        const createData = await createResponse.json();
+        throw new Error(createData.error || "Unable to create the Error Analyser student profile.");
+      }
+    }
 
-    // Temporary demo navigation
-    setTimeout(() => {
-      setUploading(false);
-      navigate("/error-report/demo");
-    }, 1500);
+    const uploadResponse = await fetch(
+      `${API}/api/error-analyser/uploads/writing-sample`,
+      { method: "POST", body: formData },
+    );
+    const uploadData = await uploadResponse.json();
+    if (!uploadResponse.ok) throw new Error(uploadData.error || "Upload failed.");
+
+    const reportId = uploadData.data?.report?._id;
+    if (!reportId) throw new Error("The upload response did not include a report ID.");
+    const analyseResponse = await fetch(
+      `${API}/api/error-analyser/reports/${reportId}/analyze`,
+      { method: "POST" },
+    );
+    const analyseData = await analyseResponse.json();
+    if (!analyseResponse.ok) throw new Error(analyseData.error || "Analysis failed.");
+
+    removeFile();
+    await loadDashboard();
 
   } catch (err) {
     console.error(err);
+    alert(err.message);
+  } finally {
     setUploading(false);
   }
 };
 
   const loadDashboard = async () => {
-    /*
-    Example:
-
-    const res = await fetch(`/api/error/${id}/dashboard`);
-    const data = await res.json();
-
-    setStudent(data.student);
-    setHistory(data.history);
-    */
+    if (!id) return;
+    try {
+      const [studentResponse, reportsResponse] = await Promise.all([
+        fetch(`${API}/api/error-analyser/students?q=${encodeURIComponent(id)}`),
+        fetch(`${API}/api/error-analyser/students/${encodeURIComponent(id)}/reports`),
+      ]);
+      const studentData = await studentResponse.json();
+      const reportsData = await reportsResponse.json();
+      setStudent(studentData.data?.find((profile) => profile.studentId === id) || { studentId: id, name: id });
+      const reports = reportsResponse.ok ? reportsData.data || [] : [];
+      setHistory(reports.map((report) => ({
+        ...report,
+        errorType: report.interventionRecommendation?.dominantPattern || "Writing analysis",
+        aiSummary: report.interventionRecommendation?.overview || `${report.summary?.errorCount || 0} errors detected`,
+        diagnosisRequired: false,
+      })));
+    } catch (error) {
+      console.error("Unable to load Error Analyser history:", error);
+    }
   };
 
     // end analyzeAssessment
 
   useEffect(() => {
     loadDashboard();
-  }, []);
+  }, [id]);
 
   return (
     <div className="landing-page">
