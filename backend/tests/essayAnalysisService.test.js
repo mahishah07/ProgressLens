@@ -4,6 +4,7 @@ const {
     detectCommonTypos,
     detectComparisonErrors,
     isLikelyLetterReversal,
+    isLikelyPhoneticError,
   } = require("../src/services/essayAnalysisService");
   
   describe("Essay analysis service", () => {
@@ -30,6 +31,15 @@ const {
       const result = isLikelyLetterReversal("dog", "bog");
   
       expect(result).toBe(true);
+    });
+
+    test("isLikelyPhoneticError should detect phonetic spelling", () => {
+      expect(isLikelyPhoneticError("night", "nite")).toBe(true);
+    });
+
+    test("detectComparisonErrors should classify spelling substitution", () => {
+      const errors = detectComparisonErrors("apple", "axple");
+      expect(errors[0].type).toBe("SPELLING_ERROR");
     });
   
     test("detectComparisonErrors should detect insertion", () => {

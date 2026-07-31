@@ -1,10 +1,7 @@
-// Import Supertest
 const request = require("supertest");
-// Import the Express app
 const app = require("../src/app");
 
 describe("Basic server test", () => {
-  // Test GET /
   test("GET / should return API running message", async () => {
     const response = await request(app).get("/");
 
@@ -12,7 +9,6 @@ describe("Basic server test", () => {
     expect(response.body.message).toBe("DAS Error Pattern Analysis API is running");
   });
 
-  // Test GET /api/health
   test("GET /api/health should return backend status ok", async () => {
     const response = await request(app).get("/api/health");
 
@@ -21,7 +17,6 @@ describe("Basic server test", () => {
     expect(response.body.message).toBe("Backend is running");
   });
 
-  // Test unknown route
   test("Unknown route should return 404", async () => {
     const response = await request(app).get("/wrong-route");
 

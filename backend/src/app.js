@@ -1,32 +1,29 @@
-require("dotenv").config(); //read env variables from .env file
+const express = require("express");
+const cors = require("cors");
+const multer = require("multer");
+require("./config/env");
+const routes = require("./routes");
+const uploadRoutes = require("./routes/uploadRoutes");
 
-const express = require("express"); // Import Express, which helps us build the backend server
-const multer = require("multer"); // Import Multer so we can recognise Multer upload errors
-const uploadRoutes = require("./routes/uploadRoutes"); // Import our upload routes from uploadRoutes.js
-const app = express(); // Create the Express app
+const app = express();
+app.use(cors());
+app.use(express.json({ limit: "1mb" }));
 
-app.use(express.json()); // Allow the backend to read JSON data if needed later
+app.get("/", (req, res) => res.status(200).json({ message: "DAS Error Pattern Analysis API is running" }));
+app.use(routes);
+app.use("/api/uploads", uploadRoutes);
 
-app.get("/", (req, res) => { // Create a simple homepage route to check if backend is working
-  res.send("ProgressLens backend is running"); // Send this text when someone visits http://localhost:5000
+app.use((req, res) => res.status(404).json({ error: "Route not found" }));
+app.use((error, req, res, next) => {
+  let statusCode = error.statusCode || 500;
+  if (error instanceof multer.MulterError) statusCode = 400;
+  if (error.name === "ValidationError" || error.name === "CastError") statusCode = 400;
+  if (process.env.NODE_ENV !== "test" && statusCode >= 500) console.error(error);
+  return res.status(statusCode).json({
+    success: false,
+    error: statusCode >= 500 ? "Writing sample processing failed." : error.message,
+    ...(process.env.NODE_ENV === "development" && statusCode >= 500 ? { details: error.message } : {}),
+  });
 });
 
-app.get("/health", (req, res) => { // Create another simple test route
-  res.json({ message: "Backend is healthy" }); // Send a JSON response to show backend is alive
-});
-
-app.use("/api/uploads", uploadRoutes); // Connect all upload routes under /api/uploads
-
-app.use((err, req, res, next) => { // This catches errors from Multer or other backend code
-  if (err instanceof multer.MulterError) { // Check if the error came from Multer
-    return res.status(400).json({ error: err.message }); // Send Multer error back to the user
-  }
-
-  if (err.message) { // Check if the error has a readable message
-    return res.status(400).json({ error: err.message }); // Send that error message back to the user
-  }
-
-  return res.status(500).json({ error: "Something went wrong" }); // Send a general error if we do not know what happened
-});
-
-module.exports = app; // Export the app so server.js can use it
+module.exports = app;

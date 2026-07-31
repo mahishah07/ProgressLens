@@ -1,50 +1,20 @@
-// Import the OCR function.
-// This function sends the uploaded PDF to Azure and gets back text.
-const { extractTextFromPdf } = require("../services/ocrService");
-const { cleanOcrText } = require("../services/textCleanService");
-const { checkSpelling } = require("../services/spellCheckService");
+const { processWritingSample } = require("../services/reportPipelineService");
 
-// This function runs after Multer successfully saves the uploaded PDF.
-const uploadAssignment = async (req, res) => {
+async function uploadAssignment(req, res, next) {
   try {
-    // If no file was uploaded, return an error.
-    if (!req.file) {
-      return res.status(400).json({
-        error: "No PDF file uploaded",
-      });
+    if (!req.file) return res.status(400).json({ success: false, error: "No writing sample uploaded." });
+    if (typeof req.body.studentId !== "string" || !req.body.studentId.trim()) {
+      return res.status(400).json({ success: false, error: "studentId is required." });
     }
-
-    // Save basic information about the uploaded PDF.
-    const uploadedFileInfo = {
-      originalName: req.file.originalname,
-      savedName: req.file.filename,
-      fileType: req.file.mimetype,
-      fileSize: req.file.size,
-      savedPath: req.file.path,
-    };
-
-    // Send the saved PDF to Azure OCR.
-    // Azure will extract handwriting/printed text.
-    const extractedText = await extractTextFromPdf(req.file.path);
-    const cleanedText = cleanOcrText(extractedText);
-    const spellingErrors = await checkSpelling(cleanedText);
-
-    // Return upload info + extracted text.
-    return res.status(201).json({
-      message: "PDF uploaded and text extracted successfully",
-      file: uploadedFileInfo,
-      cleanedText: cleanedText,
-      spellingErrors: spellingErrors,
+    const result = await processWritingSample({
+      studentId: req.body.studentId.trim(),
+      expectedText: req.body.expectedText || "",
+      file: req.file,
     });
+    return res.status(201).json({ success: true, message: "Writing sample uploaded, scanned, analysed, and saved.", data: result });
   } catch (error) {
-    // If Azure or upload processing fails, show error details.
-    return res.status(500).json({
-      error: "Failed to upload PDF or extract text",
-      details: error.message,
-    });
+    return next(error);
   }
-};
+}
 
-module.exports = {
-  uploadAssignment,
-};
+module.exports = { uploadAssignment };

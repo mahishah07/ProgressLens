@@ -1,42 +1,38 @@
-const multer = require("multer"); // Import Multer so we can handle file uploads
+const fs = require("fs");
+const path = require("path");
+const multer = require("multer");
 
-const path = require("path"); // Import path so we can safely create folder/file paths
+const uploadFolder = path.join(process.cwd(), "uploads", "assignments");
+fs.mkdirSync(uploadFolder, { recursive: true });
 
-const fs = require("fs"); // Import fs so we can check and create folders
-
-const uploadFolder = path.join(process.cwd(), "uploads", "assignments"); // Decide where uploaded PDFs will be stored
-
-if (!fs.existsSync(uploadFolder)) { // Check if the uploads/assignments folder does not exist
-  fs.mkdirSync(uploadFolder, { recursive: true }); // Create the folder if it does not exist
-}
-
-const storage = multer.diskStorage({ // Tell Multer to store files on disk, not just memory
-  destination: (req, file, cb) => { // Decide which folder the uploaded file should go into
-    cb(null, uploadFolder); // Save the uploaded file inside uploads/assignments
-  },
-
-  filename: (req, file, cb) => { // Decide what name the uploaded file should have
-    const safeName = file.originalname.replace(/\s+/g, "_"); // Replace spaces in original filename with underscores
-    const finalName = `${Date.now()}-${safeName}`; // Add current timestamp so filenames do not clash
-    cb(null, finalName); // Tell Multer to use this final filename
+const storage = multer.diskStorage({
+  destination: (req, file, callback) => callback(null, uploadFolder),
+  filename: (req, file, callback) => {
+    const safeName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, "_");
+    callback(null, `${Date.now()}-${safeName}`);
   },
 });
 
-const fileFilter = (req, file, cb) => { // This function checks whether the uploaded file is allowed
-  const isPdfMimeType = file.mimetype === "application/pdf"; // Check if the file says it is a PDF
-  const isPdfExtension = path.extname(file.originalname).toLowerCase() === ".pdf"; // Check if the filename ends with .pdf
+const allowedFiles = new Map([
+  [".pdf", "application/pdf"],
+  [".png", "image/png"],
+  [".jpg", "image/jpeg"],
+  [".jpeg", "image/jpeg"],
+  [".tif", "image/tiff"],
+  [".tiff", "image/tiff"],
+  [".bmp", "image/bmp"],
+]);
 
-  if (isPdfMimeType && isPdfExtension) { // Only accept the file if both checks say PDF
-    cb(null, true); // Accept the file
-  } else { // If the file is not a PDF
-    cb(new Error("Only PDF files are allowed")); // Reject the file with this error message
-  }
-};
-
-const upload = multer({ // Create the final Multer upload middleware
-  storage: storage, // Use the disk storage settings above
-  fileFilter: fileFilter, // Use the PDF-only checker above
-  limits: { fileSize: 10 * 1024 * 1024 }, // Limit file size to 10MB
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024, files: 1 },
+  fileFilter: (req, file, callback) => {
+    const extension = path.extname(file.originalname).toLowerCase();
+    if (allowedFiles.get(extension) === file.mimetype) return callback(null, true);
+    const error = new Error("Only PDF, PNG, JPEG, TIFF, and BMP writing samples are allowed.");
+    error.statusCode = 415;
+    return callback(error);
+  },
 });
 
-module.exports = upload; // Export upload so routes can use it
+module.exports = upload;
