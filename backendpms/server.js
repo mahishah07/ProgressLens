@@ -1,7 +1,9 @@
 const path = require("path");
-require("dotenv").config({ path: path.join(__dirname, "../.env") });
+require("dotenv").config({ path: path.join(__dirname, ".env"), override: true });
 const express = require("express");
 const cors = require("cors");
+const mongoose = require("mongoose");
+const { createCorsOptions } = require("../config/cors");
 const connectDB = require("./src/pms/config/db");
 const { notFound, errorHandler } = require("./src/pms/error/errorHandling");
 const studentRoutes = require("./src/pms/routes/studentRoutes");
@@ -21,9 +23,10 @@ try {
   console.warn("Google Sheets integration is disabled because googleapis is not installed.");
 }
 
-function createApp() {
+function createApp(options = {}) {
   const app = express();
-  app.use(cors());
+  app.disable("x-powered-by");
+  app.use(cors(createCorsOptions(options.env || process.env)));
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   app.get("/", (req, res) => res.json({ message: "DAS Progress Monitoring System API is running" }));
@@ -40,12 +43,23 @@ function createApp() {
 }
 
 const app = createApp();
+let server = null;
 
 async function startServer() {
   await connectDB();
   if (process.env.NODE_ENV === "production" && sheetsSync) sheetsSync.startPolling(30);
   const port = Number(process.env.PMS_PORT || 5001);
-  return app.listen(port, "0.0.0.0", () => console.log(`Progress Monitoring API running on port ${port}`));
+  if (server) return server;
+  server = app.listen(port, "0.0.0.0", () => console.log(`Progress Monitoring API running on port ${port}`));
+  return server;
+}
+
+async function stopServer() {
+  if (server) {
+    await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+    server = null;
+  }
+  if (mongoose.connection.readyState !== 0) await mongoose.disconnect();
 }
 
 if (require.main === module) {
@@ -53,6 +67,13 @@ if (require.main === module) {
     console.error(`Unable to start Progress Monitoring: ${error.message}`);
     process.exitCode = 1;
   });
+  const shutdown = async (signal) => {
+    console.log(`${signal} received; stopping Progress Monitoring.`);
+    await stopServer();
+    process.exit(0);
+  };
+  process.once("SIGINT", () => shutdown("SIGINT"));
+  process.once("SIGTERM", () => shutdown("SIGTERM"));
 }
 
-module.exports = { app, createApp, startServer };
+module.exports = { app, createApp, startServer, stopServer };

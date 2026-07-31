@@ -1,12 +1,14 @@
 const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
+const { createCorsOptions } = require("../../config/cors");
 require("./config/env");
 const routes = require("./routes");
 
-function createApp({ apiPrefix = "/api", serviceName = "DAS Error Pattern Analysis API is running" } = {}) {
+function createApp({ apiPrefix = "/api", serviceName = "DAS Error Pattern Analysis API is running", env = process.env } = {}) {
   const app = express();
-  app.use(cors());
+  app.disable("x-powered-by");
+  app.use(cors(createCorsOptions(env)));
   app.use(express.json({ limit: "1mb" }));
 
   app.get("/", (req, res) => res.status(200).json({ message: serviceName }));

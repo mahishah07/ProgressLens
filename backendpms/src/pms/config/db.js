@@ -1,24 +1,17 @@
 const mongoose = require("mongoose");
 
 const connectDB = async () => {
-	try {
-		const conn = await mongoose.connect(process.env.MONGODB_URI, {
+	const mongoUri = process.env.MONGODB_URI_PMS || process.env.PMS_MONGODB_URI || process.env.MONGODB_URI;
+	if (!mongoUri) throw new Error("MONGODB_URI_PMS is not configured for Progress Monitoring.");
+	const conn = await mongoose.connect(mongoUri, {
 			maxPoolSize: 5,
 			minPoolSize: 1,
 			serverSelectionTimeoutMS: 5000,
 			socketTimeoutMS: 45000,
 			family: 4,
-		});
-		console.log(`MongoDB connected: ${conn.connection.host}`);
-	} catch (err) {
-		console.error(`MongoDB connection failed: ${err.message}`);
-		setTimeout(connectDB, 5000);
-	}
+	});
+	console.log(`Progress Monitoring MongoDB connected: ${conn.connection.host}`);
+	return conn;
 };
-
-mongoose.connection.on("disconnected", () => {
-	console.log("MongoDB disconnected, retrying...");
-	setTimeout(connectDB, 5000);
-});
 
 module.exports = connectDB;
