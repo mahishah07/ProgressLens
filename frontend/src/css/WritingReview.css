@@ -1,0 +1,274 @@
+.wr-page {
+	display: flex;
+	min-height: 100vh;
+	background: #f5f6fa;
+}
+.wr-main {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	overflow-y: auto;
+}
+.wr-topbar {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	padding: 0.75rem 2rem;
+	background: white;
+	border-bottom: 1px solid #eee;
+	position: sticky;
+	top: 0;
+	z-index: 10;
+}
+.wr-topbar h2 {
+	font-size: 1.1rem;
+	font-weight: 700;
+	color: #1a3c6e;
+	margin: 0;
+}
+.wr-topbar-mid {
+	font-size: 0.9rem;
+	color: #555;
+}
+.wr-ai-badge {
+	margin-left: auto;
+	background: #f0f9ff;
+	border: 1px solid #bae6fd;
+	color: #0369a1;
+	padding: 0.3rem 0.75rem;
+	border-radius: 99px;
+	font-size: 0.8rem;
+	font-weight: 600;
+}
+.wr-content {
+	display: grid;
+	grid-template-columns: 1fr 1.4fr;
+	gap: 1.5rem;
+	padding: 1.5rem 2rem;
+	align-items: start;
+}
+.wr-right {
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+}
+.wr-panel {
+	background: white;
+	padding: 1.25rem;
+	border-radius: 12px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+.wr-panel-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 1rem;
+}
+.wr-panel-header h3 {
+	font-size: 0.95rem;
+	font-weight: 700;
+	margin: 0;
+}
+.wr-panel-actions {
+	display: flex;
+	gap: 0.5rem;
+}
+.wr-panel-actions button {
+	width: 30px;
+	height: 30px;
+	border-radius: 6px;
+	border: 1px solid #eee;
+	background: white;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+}
+.wr-legend {
+	display: flex;
+	gap: 0.75rem;
+}
+.wr-legend-item {
+	display: flex;
+	align-items: center;
+	gap: 0.3rem;
+	font-size: 0.75rem;
+	color: #555;
+}
+.wr-legend-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+}
+.wr-original-doc {
+	background: #fafafa;
+	border-radius: 8px;
+	padding: 1.25rem;
+	min-height: 280px;
+}
+.wr-doc-title {
+	font-style: italic;
+	font-size: 1rem;
+	font-weight: 600;
+	margin: 0 0 0.75rem;
+	text-align: center;
+}
+.wr-doc-text {
+	font-size: 0.9rem;
+	line-height: 1.8;
+	color: #333;
+	margin: 0 0 1rem;
+}
+.wr-underline-red {
+	text-decoration: underline;
+	text-decoration-color: #ef4444;
+}
+.wr-illustration-placeholder {
+	border: 2px dashed #ddd;
+	border-radius: 8px;
+	padding: 2rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	color: #bbb;
+	font-size: 0.8rem;
+	text-align: center;
+}
+.wr-annotated-text {
+	font-size: 0.9rem;
+	line-height: 2;
+	color: #333;
+	background: #fffbeb;
+	border-radius: 8px;
+	padding: 1rem;
+	min-height: 120px;
+}
+.wr-annotated-error {
+	cursor: default;
+}
+.wr-queue-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 1rem;
+}
+.wr-queue-header h3 {
+	font-size: 0.95rem;
+	font-weight: 700;
+	margin: 0;
+	color: #1a3c6e;
+}
+.wr-queue-badge {
+	background: #1a3c6e;
+	color: white;
+	font-size: 0.75rem;
+	padding: 0.2rem 0.6rem;
+	border-radius: 99px;
+	font-weight: 600;
+}
+.wr-queue-body {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
+}
+.wr-queue-label {
+	font-size: 0.7rem;
+	font-weight: 600;
+	color: #888;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	margin: 0 0 0.5rem;
+}
+.wr-error-display {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+	flex-wrap: wrap;
+}
+.wr-original-word {
+	background: #fee2e2;
+	color: #991b1b;
+	padding: 0.3rem 0.6rem;
+	border-radius: 6px;
+	font-size: 0.85rem;
+	font-weight: 600;
+}
+.wr-arrow {
+	color: #888;
+	font-size: 1rem;
+}
+.wr-corrected-word {
+	background: #dcfce7;
+	color: #166534;
+	padding: 0.3rem 0.6rem;
+	border-radius: 6px;
+	font-size: 0.85rem;
+	font-weight: 600;
+}
+.wr-actions {
+	display: flex;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+}
+.wr-action-btn {
+	display: flex;
+	align-items: center;
+	gap: 0.3rem;
+	padding: 0.45rem 0.9rem;
+	border-radius: 8px;
+	font-size: 0.8rem;
+	font-weight: 600;
+	cursor: pointer;
+	border: none;
+}
+.wr-accept {
+	background: #dcfce7;
+	color: #166534;
+}
+.wr-reject {
+	background: #fee2e2;
+	color: #991b1b;
+}
+.wr-edit {
+	background: #f3e8ff;
+	color: #6b21a8;
+}
+.wr-category select {
+	width: 100%;
+	padding: 0.5rem 0.75rem;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	font-size: 0.85rem;
+	background: white;
+	cursor: pointer;
+}
+.wr-queue-right {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+.wr-queue-right textarea {
+	flex: 1;
+	padding: 0.75rem;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	font-size: 0.85rem;
+	resize: none;
+	min-height: 80px;
+	font-family: inherit;
+	color: #555;
+}
+.wr-finalize-btn {
+	background: #1a3c6e;
+	color: white;
+	border: none;
+	border-radius: 8px;
+	padding: 0.6rem 1rem;
+	font-size: 0.85rem;
+	font-weight: 600;
+	cursor: pointer;
+	align-self: flex-end;
+}

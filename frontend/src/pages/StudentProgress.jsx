@@ -296,14 +296,10 @@ export default function StudentProgress() {
 								generate clinical insights to tailor individual educational
 								plans.
 							</p>
-<<<<<<< HEAD
 							<button
 								className="sp-option-btn-outline"
-								onClick={() => navigate("/error-pattern-analysis")}
+								onClick={() => navigate("/error-dashboard")}
 							>
-=======
-							<button className="sp-option-btn-outline" onClick={() => navigate("/error-dashboard")}>
->>>>>>> 5fa6d9e502ba118e67ff657e009084cf48abfa67
 								Open Error Pattern Analysis
 							</button>
 						</div>

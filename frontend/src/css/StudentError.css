@@ -1,0 +1,280 @@
+.sea-page {
+	display: flex;
+	min-height: 100vh;
+	background: #f5f6fa;
+}
+.sea-main {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	overflow-y: auto;
+}
+.sea-topbar {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	padding: 0.75rem 2rem;
+	background: white;
+	border-bottom: 1px solid #eee;
+	position: sticky;
+	top: 0;
+	z-index: 10;
+}
+.sea-topbar h2 {
+	font-size: 1.1rem;
+	font-weight: 700;
+	color: #1a3c6e;
+	margin: 0;
+	flex: 1;
+}
+.sea-topbar-search {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	background: #f5f6fa;
+	border: 1px solid #eee;
+	border-radius: 99px;
+	padding: 0.4rem 1rem;
+	font-size: 0.85rem;
+	color: #888;
+}
+.sea-topbar-search input {
+	border: none;
+	background: transparent;
+	outline: none;
+	font-size: 0.85rem;
+	width: 160px;
+}
+.sea-topbar-avatar {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background: #f97316;
+	color: white;
+	font-size: 0.75rem;
+	font-weight: 700;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.sea-content {
+	padding: 1.5rem 2rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+}
+.sea-student-header {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	background: white;
+	padding: 1.25rem 1.5rem;
+	border-radius: 12px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+.sea-student-avatar {
+	width: 56px;
+	height: 56px;
+	border-radius: 12px;
+	background: #e0e7ff;
+	color: #1a3c6e;
+	font-size: 1rem;
+	font-weight: 700;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.sea-student-info h1 {
+	font-size: 1.4rem;
+	font-weight: 700;
+	margin: 0;
+}
+.sea-student-info p {
+	font-size: 0.85rem;
+	color: #888;
+	margin: 0.2rem 0 0;
+}
+.sea-student-actions {
+	display: flex;
+	gap: 0.75rem;
+	margin-left: auto;
+}
+.sea-btn-secondary {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.55rem 1.25rem;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	background: white;
+	font-size: 0.85rem;
+	cursor: pointer;
+}
+.sea-btn-primary {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.55rem 1.25rem;
+	border: none;
+	border-radius: 8px;
+	background: #1a3c6e;
+	color: white;
+	font-size: 0.85rem;
+	font-weight: 600;
+	cursor: pointer;
+}
+.sea-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1.5rem;
+}
+.sea-card {
+	background: white;
+	padding: 1.5rem;
+	border-radius: 12px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+.sea-card-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 1rem;
+}
+.sea-card-header h3 {
+	font-size: 1rem;
+	font-weight: 700;
+	margin: 0;
+}
+.sea-date {
+	font-size: 0.8rem;
+	color: #888;
+}
+.sea-text-block {
+	font-size: 0.9rem;
+	line-height: 1.9;
+	color: #333;
+	background: #fafafa;
+	padding: 1rem;
+	border-radius: 8px;
+	min-height: 180px;
+}
+.sea-error {
+	position: relative;
+	cursor: default;
+	font-weight: 500;
+}
+.sea-error-visual {
+	color: #ef4444;
+	text-decoration: underline;
+	text-decoration-style: wavy;
+}
+.sea-error-phonological {
+	color: #a855f7;
+	text-decoration: underline;
+	text-decoration-style: wavy;
+}
+.sea-error-grammar {
+	color: #22c55e;
+	text-decoration: underline;
+}
+.sea-tooltip {
+	position: absolute;
+	bottom: 100%;
+	left: 50%;
+	transform: translateX(-50%);
+	background: #1a1a1a;
+	color: white;
+	font-size: 0.75rem;
+	padding: 0.3rem 0.6rem;
+	border-radius: 6px;
+	white-space: nowrap;
+	pointer-events: none;
+	z-index: 10;
+	margin-bottom: 4px;
+}
+.sea-legend {
+	display: flex;
+	gap: 1rem;
+	margin-top: 0.75rem;
+	flex-wrap: wrap;
+}
+.sea-legend-item {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	font-size: 0.8rem;
+	color: #555;
+}
+.sea-legend-dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	display: inline-block;
+}
+.sea-donut {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+}
+.sea-donut h3 {
+	font-size: 1rem;
+	font-weight: 700;
+	margin: 0;
+	align-self: flex-start;
+}
+.sea-donut-legend {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.5rem;
+	width: 100%;
+}
+.sea-donut-item {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	font-size: 0.8rem;
+	color: #555;
+}
+.sea-donut-dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+.sea-ai-card {
+	background: #1a3c6e;
+	color: white;
+	padding: 1.5rem;
+	border-radius: 12px;
+}
+.sea-ai-card h3 {
+	font-size: 1rem;
+	font-weight: 700;
+	margin: 0 0 0.75rem;
+}
+.sea-ai-card p {
+	font-size: 0.9rem;
+	line-height: 1.6;
+	margin: 0 0 1rem;
+	opacity: 0.95;
+}
+.sea-ai-card strong {
+	color: #93c5fd;
+}
+.sea-interventions {
+	background: rgba(255, 255, 255, 0.1);
+	padding: 1rem;
+	border-radius: 8px;
+}
+.sea-interventions-label {
+	font-size: 0.7rem;
+	letter-spacing: 0.08em;
+	opacity: 0.7;
+	margin: 0 0 0.5rem;
+}
+.sea-interventions p {
+	font-size: 0.85rem;
+	margin: 0.25rem 0;
+	opacity: 0.9;
+}
