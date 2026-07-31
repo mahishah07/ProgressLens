@@ -1,7 +1,22 @@
+const mongoose = require("mongoose");
 const studentRepository = require("../repositories/studentRepository");
 const reportRepository = require("../repositories/reportRepository");
+const writingSampleRepository = require("../repositories/writingSampleRepository");
 const { buildErrorChartData } = require("../services/chartService");
 const { analyseReportWithOpenAi } = require("../services/interventionRecommendationService");
+
+function formatRecommendation(recommendation) {
+  const sections = [recommendation.overview, `Dominant pattern: ${recommendation.dominantPattern}`];
+  for (const intervention of recommendation.interventions) {
+    sections.push(
+      `${intervention.title}: ${intervention.rationale}`,
+      `Activities: ${intervention.activities.join("; ")}`,
+      `Frequency: ${intervention.frequency}`
+    );
+  }
+  if (recommendation.educatorCaution) sections.push(`Educator note: ${recommendation.educatorCaution}`);
+  return sections.filter(Boolean).join("\n");
+}
 
 async function getReport(req, res, next) {
   try {
@@ -38,6 +53,7 @@ async function analyseReport(req, res, next) {
     const chartData = report.chartData?.length ? report.chartData : buildErrorChartData(report.errorCounts);
     const openAiAnalysis = await analyseReportWithOpenAi({
       studentId: report.student.studentId,
+      sourceText: report.writingSample.cleanedText || report.writingSample.ocrText,
       errors: report.errors,
       tokens: report.tokens,
       errorCounts: report.errorCounts,
@@ -53,14 +69,36 @@ async function analyseReport(req, res, next) {
         correctionSource: "openai",
       };
     });
-    const updated = await reportRepository.saveOpenAiAnalysis(
-      report._id,
-      report.writingSample._id,
-      errors,
-      openAiAnalysis.recommendation
-    );
+    let updated;
+    await mongoose.connection.transaction(async (session) => {
+      updated = await reportRepository.saveOpenAiAnalysis(
+        report._id,
+        report.writingSample._id,
+        errors,
+        openAiAnalysis.correctedText,
+        openAiAnalysis.recommendation,
+        session
+      );
+      const writingSample = await writingSampleRepository.markAnalysed(report.writingSample._id, {
+        expectedText: openAiAnalysis.correctedText,
+        recommendedIntervention: formatRecommendation(openAiAnalysis.recommendation),
+      }, session);
+      if (!updated || !writingSample) throw new Error("Analysis could not be saved to both records.");
+    });
     return res.json({ success: true, data: updated });
   } catch (error) { return next(error); }
 }
 
-module.exports = { getReport, listReports, reviewReport, analyseReport };
+async function downloadWritingSample(req, res, next) {
+  try {
+    const sample = await writingSampleRepository.findFileById(req.params.sampleId);
+    if (!sample) return res.status(404).json({ success: false, error: "Writing sample not found." });
+    if (!sample.fileData) return res.status(410).json({ success: false, error: "The stored file is not available for this writing sample." });
+    res.setHeader("Content-Type", sample.mimeType);
+    res.setHeader("Content-Length", String(sample.fileSize));
+    res.setHeader("Content-Disposition", `attachment; filename*=UTF-8''${encodeURIComponent(sample.originalName)}`);
+    return res.send(sample.fileData);
+  } catch (error) { return next(error); }
+}
+
+module.exports = { getReport, listReports, reviewReport, analyseReport, downloadWritingSample, formatRecommendation };

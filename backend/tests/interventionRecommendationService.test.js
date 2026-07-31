@@ -33,6 +33,7 @@ describe("Intervention recommendation service", () => {
 
   test("generates one correction per report error with the same IDs", async () => {
     const output = {
+      correctedText: "Last Saturday I went.",
       corrections: [{ errorId: "error-1", expectedCorrection: "Saturday", explanation: "Correct spelling in context." }],
       recommendation: {
         overview: "Practise spelling patterns.",
@@ -44,11 +45,13 @@ describe("Intervention recommendation service", () => {
     const client = { responses: { parse: jest.fn().mockResolvedValue({ output_parsed: output }) } };
     const result = await analyseReportWithOpenAi({
       studentId: "DAS-001",
+      sourceText: "last saterday i went",
       errors: [{ _id: "error-1", type: "SPELLING_ERROR", category: "Spelling", actual: "saterday", actualIndex: 1 }],
       tokens: ["last", "saterday", "i", "went"],
       errorCounts: { spelling: 1, total: 1 },
       chartData: [],
     }, { client, model: "test-model" });
+    expect(result.correctedText).toBe(output.correctedText);
     expect(result.corrections).toEqual(output.corrections);
     expect(result.recommendation).toMatchObject({ status: "completed", model: "test-model" });
   });
@@ -56,6 +59,7 @@ describe("Intervention recommendation service", () => {
   test("rejects corrections that do not match the report error IDs", async () => {
     const client = { responses: { parse: jest.fn().mockResolvedValue({
       output_parsed: {
+        correctedText: "word",
         corrections: [{ errorId: "wrong-id", expectedCorrection: "word", explanation: "reason" }],
         recommendation: {
           overview: "Overview",
@@ -67,6 +71,7 @@ describe("Intervention recommendation service", () => {
     }) } };
     await expect(analyseReportWithOpenAi({
       studentId: "DAS-001",
+      sourceText: "wrod",
       errors: [{ _id: "error-1", type: "SPELLING_ERROR", category: "Spelling", actual: "wrod" }],
       tokens: [],
       errorCounts: { spelling: 1, total: 1 },

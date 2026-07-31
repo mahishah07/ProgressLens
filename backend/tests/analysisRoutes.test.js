@@ -32,4 +32,14 @@ describe("Analysis API routes", () => {
     expect(Array.isArray(response.body.data.errors)).toBe(true);
     expect(response.body.data.summary.errorCount).toBeGreaterThan(0);
   });
+
+  test("POST /api/analyze should be a compatible alias", async () => {
+    const response = await request(app)
+      .post("/api/analyze")
+      .send({ essayText: "Teh dog ran home.", expectedText: "The dog ran home." });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.data.summary.errorCount).toBeGreaterThan(0);
+  });
 });

@@ -14,6 +14,7 @@ describe("End-to-end report pipeline", () => {
       reportRepository: { create: jest.fn().mockResolvedValue(reportDocument) },
       extractText: jest.fn().mockResolvedValue("The bog ran nite."),
       checkSpelling: jest.fn().mockResolvedValue([]),
+      readFile: jest.fn().mockResolvedValue(Buffer.from("pdf bytes")),
     };
     const file = { path: "/tmp/essay.pdf", originalname: "essay.pdf", filename: "saved.pdf", mimetype: "application/pdf", size: 123 };
 
@@ -27,7 +28,10 @@ describe("End-to-end report pipeline", () => {
     expect(savedReport.errorCounts.letterReversal).toBe(1);
     expect(savedReport.errorCounts.phonetic).toBe(1);
     expect(savedReport.chartData.find((item) => item.key === "letterReversal").percentage).toBe(50);
-    expect(dependencies.writingSampleRepository.markAnalysed).toHaveBeenCalledWith("sample-id");
+    expect(dependencies.writingSampleRepository.create).toHaveBeenCalledWith(
+      expect.objectContaining({ fileData: Buffer.from("pdf bytes"), status: "uploaded" })
+    );
+    expect(dependencies.writingSampleRepository.markAnalysed).not.toHaveBeenCalled();
     expect(result.report._id).toBe("report-id");
   });
 

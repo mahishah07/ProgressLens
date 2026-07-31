@@ -17,6 +17,7 @@ const recommendationSchema = z.object({
 });
 
 const reportAnalysisSchema = z.object({
+  correctedText: z.string().min(1),
   corrections: z.array(z.object({
     errorId: z.string(),
     expectedCorrection: z.string(),
@@ -65,7 +66,7 @@ function createErrorContext(error, tokens) {
   return tokens.slice(Math.max(0, index - 4), index + 5).join(" ");
 }
 
-async function analyseReportWithOpenAi({ studentId, errors, tokens, errorCounts, chartData }, dependencies = {}) {
+async function analyseReportWithOpenAi({ studentId, sourceText, errors, tokens, errorCounts, chartData }, dependencies = {}) {
   const apiKey = dependencies.apiKey ?? openAiApiKey;
   const model = dependencies.model || openAiModel;
   if (!apiKey && !dependencies.client) {
@@ -92,11 +93,11 @@ async function analyseReportWithOpenAi({ studentId, errors, tokens, errorCounts,
     input: [
       {
         role: "system",
-        content: "You support educators reviewing primary-school writing. For every supplied error ID, provide the most likely expected correction using its category, local suggestion, reference answer, and short context. Preserve every error ID exactly and return one correction per error. Also provide practical literacy interventions from the aggregate error pattern. Do not diagnose dyslexia or any medical condition. The educator must review all corrections and recommendations.",
+        content: "You support educators reviewing primary-school writing. Return correctedText as a complete corrected transcription of sourceText: preserve the student's meaning and wording while correcting clear OCR, spelling, punctuation, and grammar errors. Do not add new ideas. For every supplied error ID, provide the most likely expected correction using its category, local suggestion, reference answer, and short context. Preserve every error ID exactly and return one correction per error. Also provide practical literacy interventions from the aggregate error pattern. Do not diagnose dyslexia or any medical condition. The educator must review all corrections and recommendations.",
       },
       {
         role: "user",
-        content: JSON.stringify({ errors: requestedErrors, errorCounts, chartData }),
+        content: JSON.stringify({ sourceText, errors: requestedErrors, errorCounts, chartData }),
       },
     ],
     text: { format: zodTextFormat(reportAnalysisSchema, "writing_report_analysis") },
@@ -110,6 +111,7 @@ async function analyseReportWithOpenAi({ studentId, errors, tokens, errorCounts,
   }
 
   return {
+    correctedText: response.output_parsed.correctedText,
     corrections: response.output_parsed.corrections,
     recommendation: {
       status: "completed",

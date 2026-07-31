@@ -1,3 +1,4 @@
+const fs = require("fs");
 const { extractTextFromPdf } = require("./ocrService");
 const { cleanOcrText } = require("./textCleanService");
 const { checkSpelling } = require("./spellCheckService");
@@ -35,6 +36,7 @@ async function processWritingSample(input, dependencies = {}) {
   const reports = dependencies.reportRepository || reportRepository;
   const ocr = dependencies.extractText || extractTextFromPdf;
   const spellCheck = dependencies.checkSpelling || checkSpelling;
+  const readFile = dependencies.readFile || fs.promises.readFile;
 
   const student = await students.findByStudentId(input.studentId);
   if (!student) {
@@ -57,6 +59,7 @@ async function processWritingSample(input, dependencies = {}) {
   );
   const chartData = buildErrorChartData(analysis.errorCounts);
   const ocrCompletedAt = new Date();
+  const fileData = input.file.buffer || await readFile(input.file.path);
   const writingSample = await samples.create({
     student: student._id,
     originalName: input.file.originalname,
@@ -64,6 +67,7 @@ async function processWritingSample(input, dependencies = {}) {
     savedPath: input.file.path,
     mimeType: input.file.mimetype,
     fileSize: input.file.size,
+    fileData,
     ocrText: extractedText,
     cleanedText,
     status: "uploaded",
@@ -81,11 +85,12 @@ async function processWritingSample(input, dependencies = {}) {
     chartData,
     analysedAt: new Date(),
   });
-  await samples.markAnalysed(writingSample._id);
+  const writingSampleResponse = writingSample.toObject ? writingSample.toObject() : { ...writingSample };
+  delete writingSampleResponse.fileData;
 
   return {
     student: { id: student._id, studentId: student.studentId, name: student.name },
-    writingSample: writingSample.toObject ? writingSample.toObject() : writingSample,
+    writingSample: writingSampleResponse,
     report: report.toObject ? report.toObject() : report,
   };
 }

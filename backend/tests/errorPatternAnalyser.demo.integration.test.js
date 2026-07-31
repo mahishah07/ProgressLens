@@ -1,5 +1,7 @@
+const mongoose = require("mongoose");
 const studentRepository = require("../src/repositories/studentRepository");
 const reportRepository = require("../src/repositories/reportRepository");
+const writingSampleRepository = require("../src/repositories/writingSampleRepository");
 const { processWritingSample } = require("../src/services/reportPipelineService");
 const { analyseReportWithOpenAi } = require("../src/services/interventionRecommendationService");
 
@@ -14,6 +16,12 @@ jest.mock("../src/repositories/reportRepository", () => ({
   findByStudent: jest.fn(),
   updateReview: jest.fn(),
   saveOpenAiAnalysis: jest.fn(),
+}));
+
+jest.mock("../src/repositories/writingSampleRepository", () => ({
+  create: jest.fn(),
+  markAnalysed: jest.fn(),
+  findFileById: jest.fn(),
 }));
 
 jest.mock("../src/services/reportPipelineService", () => ({
@@ -81,6 +89,7 @@ const report = {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mongoose.connection.transaction = jest.fn(async (callback) => callback("test-session"));
 });
 
 describe("Error Pattern Analyser demo integration", () => {
@@ -117,7 +126,7 @@ describe("Error Pattern Analyser demo integration", () => {
   test("IT-03 uploads and links a writing sample to the selected student", async () => {
     processWritingSample.mockResolvedValue({
       student,
-      writingSample: { _id: "sample-db-id", status: "analysed" },
+      writingSample: { _id: "sample-db-id", status: "uploaded" },
       report: { _id: "report-db-id", writingSample: "sample-db-id" },
     });
 
@@ -138,6 +147,7 @@ describe("Error Pattern Analyser demo integration", () => {
   test("IT-04 and IT-12 analyse errors and save corrections and recommendations on the same sample", async () => {
     reportRepository.findById.mockResolvedValue(report);
     analyseReportWithOpenAi.mockResolvedValue({
+      correctedText: "Last Saturday I went to the park.",
       corrections: [{
         errorId: "error-db-id",
         expectedCorrection: "Saturday",
@@ -160,14 +170,16 @@ describe("Error Pattern Analyser demo integration", () => {
       },
     });
     reportRepository.saveOpenAiAnalysis.mockImplementation(
-      async (reportId, writingSampleId, errors, recommendation) => ({
+      async (reportId, writingSampleId, errors, expectedText, recommendation) => ({
         ...report,
         _id: reportId,
         writingSample: { ...report.writingSample, _id: writingSampleId },
         errors,
+        expectedText,
         interventionRecommendation: recommendation,
       })
     );
+    writingSampleRepository.markAnalysed.mockResolvedValue({ status: "analysed" });
 
     const response = await request(app).post("/api/reports/report-db-id/analyse");
 
@@ -182,8 +194,57 @@ describe("Error Pattern Analyser demo integration", () => {
       "report-db-id",
       "sample-db-id",
       expect.arrayContaining([expect.objectContaining({ _id: "error-db-id" })]),
-      expect.objectContaining({ status: "completed" })
+      "Last Saturday I went to the park.",
+      expect.objectContaining({ status: "completed" }),
+      "test-session"
     );
+    expect(writingSampleRepository.markAnalysed).toHaveBeenCalledWith(
+      "sample-db-id",
+      expect.objectContaining({
+        expectedText: "Last Saturday I went to the park.",
+        recommendedIntervention: expect.stringContaining("Word mapping"),
+      }),
+      "test-session"
+    );
+  });
+
+  test("IT-04b supports the frontend analyze spelling and dashboard route", async () => {
+    reportRepository.findById.mockResolvedValue(report);
+    analyseReportWithOpenAi.mockResolvedValue({
+      correctedText: "Last Saturday I went to the park.",
+      corrections: [{ errorId: "error-db-id", expectedCorrection: "Saturday", explanation: "Correct spelling." }],
+      recommendation: {
+        status: "completed",
+        overview: "Practise spelling.",
+        dominantPattern: "Spelling",
+        interventions: [{ title: "Word mapping", rationale: "Builds recall.", activities: ["Map Saturday"], frequency: "Weekly" }],
+        educatorCaution: "Review first.",
+      },
+    });
+    reportRepository.saveOpenAiAnalysis.mockResolvedValue(report);
+    writingSampleRepository.markAnalysed.mockResolvedValue({ status: "analysed" });
+
+    const analyseResponse = await request(app).post("/api/reports/report-db-id/analyze");
+    expect(analyseResponse.statusCode).toBe(200);
+
+    reportRepository.findById.mockResolvedValue(report);
+    const dashboardResponse = await request(app).get("/api/error/report-db-id/dashboard");
+    expect(dashboardResponse.statusCode).toBe(200);
+    expect(dashboardResponse.body.data._id).toBe("report-db-id");
+  });
+
+  test("IT-04c downloads the file stored in MongoDB", async () => {
+    writingSampleRepository.findFileById.mockResolvedValue({
+      originalName: "student work.pdf",
+      mimeType: "application/pdf",
+      fileSize: 9,
+      fileData: Buffer.from("pdf-bytes"),
+    });
+
+    const response = await request(app).get("/api/writing-samples/sample-db-id/file");
+    expect(response.statusCode).toBe(200);
+    expect(response.headers["content-type"]).toContain("application/pdf");
+    expect(response.body).toEqual(Buffer.from("pdf-bytes"));
   });
 
   test("IT-05 does not persist partial results when OpenAI fails", async () => {

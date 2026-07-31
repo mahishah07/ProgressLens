@@ -3,6 +3,6 @@ const { analyseEssayController } = require("../controllers/analysisController");
 
 const router = express.Router();
 
-router.post("/analyse", analyseEssayController);
+router.post(["/analyse", "/analyze"], analyseEssayController);
 
 module.exports = router;

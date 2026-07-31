@@ -11,7 +11,7 @@ async function uploadAssignment(req, res, next) {
       expectedText: req.body.expectedText || "",
       file: req.file,
     });
-    return res.status(201).json({ success: true, message: "Writing sample uploaded, scanned, analysed, and saved.", data: result });
+    return res.status(201).json({ success: true, message: "Writing sample uploaded, scanned, and saved. It is ready for analysis.", data: result });
   } catch (error) {
     return next(error);
   }
