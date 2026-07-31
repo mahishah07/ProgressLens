@@ -3,12 +3,14 @@ const healthRoutes = require("./healthRoutes");
 const analysisRoutes = require("./analysisRoutes");
 const studentRoutes = require("./studentRoutes");
 const reportRoutes = require("./reportRoutes");
+const uploadRoutes = require("./uploadRoutes");
 
 const router = express.Router();
 
-router.use("/api", healthRoutes);
-router.use("/api", analysisRoutes);
-router.use("/api", studentRoutes);
-router.use("/api", reportRoutes);
+router.use(healthRoutes);
+router.use(analysisRoutes);
+router.use(studentRoutes);
+router.use(reportRoutes);
+router.use("/uploads", uploadRoutes);
 
 module.exports = router;

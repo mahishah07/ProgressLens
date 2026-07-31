@@ -3,13 +3,17 @@
   "version": "1.0.0",
   "private": true,
   "description": "Backend APIs for the DAS Progress Monitoring System and Error Pattern Analyser",
-  "main": "backend/src/server.js",
+  "main": "server.js",
   "type": "commonjs",
   "scripts": {
-    "start": "node backend/src/server.js",
-    "start:pms": "node server.js",
-    "dev": "nodemon backend/src/server.js",
-    "dev:pms": "nodemon server.js",
+    "start": "node server.js",
+    "start:gateway": "node gateway/server.js",
+    "start:pms": "node backendpms/server.js",
+    "start:error-analyser": "node backend/src/server.js",
+    "dev": "nodemon server.js",
+    "dev:gateway": "nodemon gateway/server.js",
+    "dev:pms": "nodemon backendpms/server.js",
+    "dev:error-analyser": "nodemon backend/src/server.js",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand"
   },
   "dependencies": {
