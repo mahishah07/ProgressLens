@@ -25,6 +25,7 @@ const analysisReportSchema = new mongoose.Schema(
   {
     student: { type: mongoose.Schema.Types.ObjectId, ref: "StudentProfile", required: true, index: true },
     writingSample: { type: mongoose.Schema.Types.ObjectId, ref: "WritingSample", required: true, unique: true },
+    answerKey: { type: mongoose.Schema.Types.ObjectId, ref: "AnswerKey", default: null, index: true },
     expectedText: { type: String, default: "" },
     tokens: [{ type: String }],
     sentences: [{ type: String }],

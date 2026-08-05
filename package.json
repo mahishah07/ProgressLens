@@ -15,6 +15,7 @@
     "dev:gateway": "nodemon gateway/server.js",
     "dev:pms": "nodemon backendpms/server.js",
     "dev:error-analyser": "nodemon backend/src/server.js",
+    "demo:answer-key": "node scripts/demo-answer-key.js",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand"
   },
   "dependencies": {

@@ -43,4 +43,35 @@ describe("End-to-end report pipeline", () => {
     await expect(processWritingSample({ studentId: "missing", file: {} }, dependencies)).rejects.toMatchObject({ statusCode: 404 });
     expect(dependencies.extractText).not.toHaveBeenCalled();
   });
+
+  test("loads the answer key and compares only the handwritten student text", async () => {
+    const student = { _id: "student-id", studentId: "121606", name: "Student 121606" };
+    const dependencies = {
+      studentRepository: { findByStudentId: jest.fn().mockResolvedValue(student) },
+      answerKeyRepository: { findById: jest.fn().mockResolvedValue({ _id: "key-id", expectedText: "He ran. Fox hunts." }) },
+      writingSampleRepository: { create: jest.fn().mockResolvedValue({ _id: "sample-id", toObject: () => ({ _id: "sample-id" }) }) },
+      reportRepository: { create: jest.fn().mockResolvedValue({ _id: "report-id", toObject: () => ({ _id: "report-id" }) }) },
+      extractDocument: jest.fn().mockResolvedValue({ content: "printed prompts and handwriting", handwrittenText: "he run fox hunt" }),
+      checkSpelling: jest.fn().mockResolvedValue([]),
+      readFile: jest.fn().mockResolvedValue(Buffer.from("image")),
+    };
+
+    await processWritingSample({
+      studentId: "121606",
+      answerKeyId: "key-id",
+      file: { path: "/tmp/student.jpg", originalname: "student.jpg", filename: "student.jpg", mimetype: "image/jpeg", size: 5 },
+    }, dependencies);
+
+    expect(dependencies.writingSampleRepository.create).toHaveBeenCalledWith(expect.objectContaining({
+      answerKey: "key-id",
+      handwrittenText: "he run fox hunt",
+      cleanedText: "he run fox hunt",
+      fileData: Buffer.from("image"),
+    }));
+    expect(dependencies.reportRepository.create).toHaveBeenCalledWith(expect.objectContaining({
+      answerKey: "key-id",
+      expectedText: "He ran. Fox hunts.",
+      errorCounts: expect.objectContaining({ total: 2 }),
+    }));
+  });
 });

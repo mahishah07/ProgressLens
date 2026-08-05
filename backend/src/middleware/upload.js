@@ -1,17 +1,5 @@
-const fs = require("fs");
 const path = require("path");
 const multer = require("multer");
-
-const uploadFolder = path.join(process.cwd(), "uploads", "assignments");
-fs.mkdirSync(uploadFolder, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (req, file, callback) => callback(null, uploadFolder),
-  filename: (req, file, callback) => {
-    const safeName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, "_");
-    callback(null, `${Date.now()}-${safeName}`);
-  },
-});
 
 const allowedFiles = new Map([
   [".pdf", "application/pdf"],
@@ -24,7 +12,7 @@ const allowedFiles = new Map([
 ]);
 
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024, files: 1 },
   fileFilter: (req, file, callback) => {
     const extension = path.extname(file.originalname).toLowerCase();
