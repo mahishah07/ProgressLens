@@ -96,12 +96,10 @@ export default function WritingReview() {
 	const [current, setCurrent] = useState(0);
 	const [note, setNote] = useState("");
 	const [category, setCategory] = useState(errors[0].category);
-	const [statuses, setStatuses] = useState({});
 
 	const err = errors[current];
 
-	const handleAction = (action) => {
-		setStatuses((p) => ({ ...p, [err.id]: action }));
+	const handleAction = () => {
 		if (current < errors.length - 1) setCurrent(current + 1);
 	};
 

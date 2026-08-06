@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import "./../css/ProgressReport.css";
 import {
 	LayoutDashboard,
@@ -8,7 +8,6 @@ import {
 	FileText,
 	Bell,
 	Settings,
-	ArrowLeft,
 	Download,
 	Mail,
 	Share2,
@@ -38,12 +37,58 @@ ChartJS.register(
 	Legend,
 );
 
-const API = import.meta.env.VITE_API_URL;
+const API = import.meta.env.VITE_PMS_API;
+
+function Sidebar() {
+	return (
+		<aside className="sidebar">
+			<div className="logo-section">
+				<div className="logo-circle">DAS</div>
+				<div>
+					<h2>DAS Teacher</h2>
+					<p>Educational Professional</p>
+				</div>
+			</div>
+			<nav>
+				<Link to="/">
+					<LayoutDashboard size={20} />
+					<span>Dashboard</span>
+				</Link>
+				<a href="#">
+					<TrendingUp size={20} />
+					<span>Progress Monitoring</span>
+				</a>
+				<a href="#">
+					<BarChart3 size={20} />
+					<span>Error Pattern Analysis</span>
+				</a>
+				<a className="active">
+					<FileText size={20} />
+					<span>Reports</span>
+				</a>
+				<a href="#">
+					<Bell size={20} />
+					<span>Notifications</span>
+				</a>
+				<a href="#">
+					<Settings size={20} />
+					<span>Settings</span>
+				</a>
+			</nav>
+			<div className="sidebar-footer">
+				<div className="avatar-small">SR</div>
+				<div>
+					<p className="footer-name">S. Richards</p>
+					<p className="footer-role">Profile</p>
+				</div>
+			</div>
+		</aside>
+	);
+}
 
 export default function ProgressReport() {
 	const [searchParams] = useSearchParams();
 	const studentId = searchParams.get("studentId");
-	const navigate = useNavigate();
 
 	const [report, setReport] = useState(null);
 	const [student, setStudent] = useState(null);
@@ -54,10 +99,13 @@ export default function ProgressReport() {
 	const [error, setError] = useState(null);
 	const [editing, setEditing] = useState(false);
 	const [editedComments, setEditedComments] = useState("");
+	const [reportId] = useState(
+		() => `DAS-${new Date().getFullYear()}-PR-${Math.floor(Math.random() * 9000) + 1000}`,
+	);
 
 	useEffect(() => {
 		if (!studentId) return;
-		setLoading(true);
+		const loadingTimer = setTimeout(() => setLoading(true), 0);
 
 		Promise.all([
 			fetch(`${API}/api/students/${studentId}`).then((r) => r.json()),
@@ -103,7 +151,8 @@ export default function ProgressReport() {
 			.catch((err) => {
 				setError(err.message);
 				setLoading(false);
-			});
+			})
+			.finally(() => clearTimeout(loadingTimer));
 	}, [studentId]);
 
 	const generateReport = async () => {
@@ -172,65 +221,20 @@ export default function ProgressReport() {
 		if (!dashboard?.latestAssessment?.skillScores) return null;
 		const scores = dashboard.latestAssessment.skillScores;
 		const entries = Object.entries(scores)
-			.filter(([_, v]) => v !== null)
+			.filter(([, v]) => v !== null)
 			.slice(0, 6);
 		return {
 			labels: entries.map(([k]) => k.replace(/([A-Z])/g, " $1").trim()),
 			datasets: [
 				{
 					label: "Proficiency",
-					data: entries.map(([_, v]) => v),
+					data: entries.map(([, v]) => v),
 					borderColor: "#7c3aed",
 					backgroundColor: "rgba(124,58,237,0.2)",
 				},
 			],
 		};
 	};
-
-	const Sidebar = () => (
-		<aside className="sidebar">
-			<div className="logo-section">
-				<div className="logo-circle">DAS</div>
-				<div>
-					<h2>DAS Teacher</h2>
-					<p>Educational Professional</p>
-				</div>
-			</div>
-			<nav>
-				<Link to="/">
-					<LayoutDashboard size={20} />
-					<span>Dashboard</span>
-				</Link>
-				<a href="#">
-					<TrendingUp size={20} />
-					<span>Progress Monitoring</span>
-				</a>
-				<a href="#">
-					<BarChart3 size={20} />
-					<span>Error Pattern Analysis</span>
-				</a>
-				<a className="active">
-					<FileText size={20} />
-					<span>Reports</span>
-				</a>
-				<a href="#">
-					<Bell size={20} />
-					<span>Notifications</span>
-				</a>
-				<a href="#">
-					<Settings size={20} />
-					<span>Settings</span>
-				</a>
-			</nav>
-			<div className="sidebar-footer">
-				<div className="avatar-small">SR</div>
-				<div>
-					<p className="footer-name">S. Richards</p>
-					<p className="footer-role">Profile</p>
-				</div>
-			</div>
-		</aside>
-	);
 
 	if (loading || generating)
 		return (
@@ -256,7 +260,6 @@ export default function ProgressReport() {
 
 	const lineData = buildLineData();
 	const radarData = buildRadarData();
-	const reportId = `DAS-${new Date().getFullYear()}-PR-${Math.floor(Math.random() * 9000) + 1000}`;
 
 	return (
 		<div className="pr-page">

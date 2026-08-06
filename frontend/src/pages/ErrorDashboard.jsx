@@ -1,5 +1,5 @@
 import "./../css/ErrorDashboard.css";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import {
   LayoutDashboard,
@@ -15,9 +15,10 @@ import {
   Eye,
 } from "lucide-react";
 
-const API = import.meta.env.VITE_API_URL;
+const API = import.meta.env.VITE_ERROR_API;
 
 export default function ErrorDashboard() {
+  const navigate = useNavigate();
   const { id } = useParams();
 
   const [student, setStudent] = useState(null);
@@ -111,12 +112,12 @@ const analyzeAssessment = async () => {
 
   try {
     const searchResponse = await fetch(
-      `${API}/api/error-analyser/students?q=${encodeURIComponent(id)}`,
+      `${API}/api/students?q=${encodeURIComponent(id)}`,
     );
     const searchData = await searchResponse.json();
     const existingProfile = searchData.data?.find((profile) => profile.studentId === id);
     if (!existingProfile) {
-      const createResponse = await fetch(`${API}/api/error-analyser/students`, {
+      const createResponse = await fetch(`${API}/api/students`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ studentId: id, name: id }),
@@ -128,23 +129,28 @@ const analyzeAssessment = async () => {
     }
 
     const uploadResponse = await fetch(
-      `${API}/api/error-analyser/uploads/writing-sample`,
+      `${API}/api/uploads/writing-sample`,
       { method: "POST", body: formData },
     );
     const uploadData = await uploadResponse.json();
+    console.log("Upload response:", uploadData);
     if (!uploadResponse.ok) throw new Error(uploadData.error || "Upload failed.");
 
     const reportId = uploadData.data?.report?._id;
     if (!reportId) throw new Error("The upload response did not include a report ID.");
     const analyseResponse = await fetch(
-      `${API}/api/error-analyser/reports/${reportId}/analyze`,
+      `${API}/api/reports/${reportId}/analyze`,
       { method: "POST" },
     );
     const analyseData = await analyseResponse.json();
+    console.log("Analyse response:", analyseData);
     if (!analyseResponse.ok) throw new Error(analyseData.error || "Analysis failed.");
 
     removeFile();
     await loadDashboard();
+
+    console.log("Navigating with reportId:", reportId);
+    navigate(`/student-errors/${reportId}`);
 
   } catch (err) {
     console.error(err);
@@ -158,8 +164,8 @@ const analyzeAssessment = async () => {
     if (!id) return;
     try {
       const [studentResponse, reportsResponse] = await Promise.all([
-        fetch(`${API}/api/error-analyser/students?q=${encodeURIComponent(id)}`),
-        fetch(`${API}/api/error-analyser/students/${encodeURIComponent(id)}/reports`),
+        fetch(`${API}/api/students?q=${encodeURIComponent(id)}`),
+        fetch(`${API}/api/students/${encodeURIComponent(id)}/reports`),
       ]);
       const studentData = await studentResponse.json();
       const reportsData = await reportsResponse.json();

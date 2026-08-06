@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import "../css/StudentError.css";
 import {
@@ -11,47 +12,10 @@ import {
 	Search,
 	Eye,
 	FileBarChart2,
-} from "lucide-react";
+} 
+from "lucide-react";
 
-const sampleText = [
-	{ word: "Yesterday", error: null },
-	{ word: " I ", error: null },
-	{ word: "went", error: null },
-	{ word: " to ", error: null },
-	{ word: "the ", error: null },
-	{ word: "p-a-r-c", error: "visual", tooltip: "Spelling: park" },
-	{ word: " with ", error: null },
-	{ word: "my ", error: null },
-	{ word: "dog", error: "grammar", tooltip: "Missing article: my dog" },
-	{ word: ". We ", error: null },
-	{ word: "saw", error: null },
-	{ word: " a ", error: null },
-	{ word: "rabit", error: "visual", tooltip: "Spelling: rabbit" },
-	{ word: " running ", error: null },
-	{ word: "fast.", error: null },
-	{ word: " The ", error: null },
-	{ word: "son", error: "phonological", tooltip: "Phonological: sun" },
-	{ word: " was ", error: null },
-	{ word: "very ", error: null },
-	{ word: "hot.", error: null },
-	{ word: " I ", error: null },
-	{ word: "eat", error: "grammar", tooltip: "Grammar: ate" },
-	{ word: " my ", error: null },
-	{ word: "lunch ", error: null },
-	{ word: "under ", error: null },
-	{ word: "a ", error: null },
-	{ word: "tree.", error: null },
-	{ word: " It ", error: null },
-	{ word: "was ", error: null },
-	{ word: "a ", error: null },
-	{ word: "h-a-p-p-y", error: "visual", tooltip: "Spelling: happy" },
-	{ word: " day ", error: null },
-	{ word: "but ", error: null },
-	{ word: "I ", error: null },
-	{ word: "felt ", error: null },
-	{ word: "ti-r-e-d", error: "phonological", tooltip: "Phonological: tired" },
-	{ word: " after.", error: null },
-];
+console.log(import.meta.env);
 
 const errorColors = {
 	visual: "#ef4444",
@@ -59,66 +23,123 @@ const errorColors = {
 	grammar: "#22c55e",
 };
 
-const donutData = [
+/*const donutData = [
 	{ label: "Letter Reversals", value: 35, color: "#1a3c6e" },
 	{ label: "Spelling", value: 28, color: "#a855f7" },
 	{ label: "Grammar", value: 22, color: "#22c55e" },
 	{ label: "Missing Letters", value: 15, color: "#c4b5fd" },
-];
+];*/
 
 function DonutChart({ data }) {
-	const total = data.reduce((a, b) => a + b.value, 0);
-	let offset = 0;
-	const r = 60,
-		cx = 80,
-		cy = 80,
-		stroke = 24;
+	const total = data.reduce((a, b) => a + b.count, 0);
+
+	const r = 60;
+	const cx = 80;
+	const cy = 80;
+	const stroke = 24;
 	const circ = 2 * Math.PI * r;
+
+	const circles = data.reduce(
+		(acc, d, i) => {
+			const dash = (d.count / total) * circ;
+			const gap = circ - dash;
+
+			const circle = (
+				<circle
+					key={i}
+					cx={cx}
+					cy={cy}
+					r={r}
+					fill="none"
+					stroke={d.color}
+					strokeWidth={stroke}
+					strokeDasharray={`${dash} ${gap}`}
+					strokeDashoffset={-acc.offset}
+					style={{
+						transform: "rotate(-90deg)",
+						transformOrigin: "80px 80px",
+					}}
+				/>
+			);
+
+			return {
+				offset: acc.offset + dash,
+				elements: [...acc.elements, circle],
+			};
+		},
+		{ offset: 0, elements: [] }
+	).elements;
 
 	return (
 		<svg width="160" height="160" viewBox="0 0 160 160">
-			{data.map((d, i) => {
-				const dash = (d.value / total) * circ;
-				const gap = circ - dash;
-				const el = (
-					<circle
-						key={i}
-						cx={cx}
-						cy={cy}
-						r={r}
-						fill="none"
-						stroke={d.color}
-						strokeWidth={stroke}
-						strokeDasharray={`${dash} ${gap}`}
-						strokeDashoffset={-offset}
-						style={{
-							transform: "rotate(-90deg)",
-							transformOrigin: "80px 80px",
-						}}
-					/>
-				);
-				offset += dash;
-				return el;
-			})}
+			{circles}
+
 			<text
 				x={cx}
-				y={cy - 6}
+				y={cy}
 				textAnchor="middle"
 				fontSize="18"
 				fontWeight="700"
-				fill="#1a3c6e"
 			>
-				35%
-			</text>
-			<text x={cx} y={cy + 12} textAnchor="middle" fontSize="10" fill="#888">
-				REVERSALS
+				{total}
 			</text>
 		</svg>
 	);
 }
 
 export default function StudentErrorAnalysis() {
-	const [tooltip, setTooltip] = useState(null);
+    console.log("Component rendered");
+
+    const { reportId } = useParams();
+
+    const API = import.meta.env.VITE_ERROR_API;
+
+    console.log("reportId =", reportId);
+    console.log("API =", API);
+
+    const [report, setReport] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+	useEffect(() => {
+    console.log("inside useEffect");
+
+    async function loadReport() {
+        console.log("inside loadReport");
+
+        try {
+            const response = await fetch(`${API}/api/reports/${reportId}`);
+
+            console.log("response =", response);
+
+            const text = await response.text();
+
+            console.log("body =", text);
+
+            const json = JSON.parse(text);
+
+            if (json.success) {
+                setReport(json.data);
+            } else {
+                setReport(null);
+            }
+        } catch (err) {
+            console.error(err);
+            setReport(null);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    loadReport();
+}, [API, reportId]);
+
+	if (loading) {
+    return <h2>Loading...</h2>;
+	}
+	if (!report) {
+		return <h2>Report not found.</h2>;
+	}
+	const donutData = report.chartData ?? [];
 
 	return (
 		<div className="sea-page">
@@ -180,8 +201,8 @@ export default function StudentErrorAnalysis() {
 					<div className="sea-student-header">
 						<div className="sea-student-avatar">ST</div>
 						<div className="sea-student-info">
-							<h1>Sarah Tan</h1>
-							<p>ID: DAS-2024-0892 &bull; Band 3</p>
+							<h1>{report.student.firstName} {report.student.lastName}</h1>
+							<p>ID: {report.student.studentId}</p>
 						</div>
 						<div className="sea-student-actions">
 							<button className="sea-btn-secondary">
@@ -196,41 +217,31 @@ export default function StudentErrorAnalysis() {
 					<div className="sea-grid">
 						{/* Writing sample */}
 						<div className="sea-card sea-writing">
-							<div className="sea-card-header">
-								<h3>≡ Latest Writing Sample</h3>
-								<span className="sea-date">Dated: Oct 24, 2023</span>
-							</div>
-							<div className="sea-text-block">
-								{sampleText.map((t, i) =>
-									t.error ? (
-										<span
-											key={i}
-											className={`sea-error sea-error-${t.error}`}
-											onMouseEnter={() => setTooltip({ i, text: t.tooltip })}
-											onMouseLeave={() => setTooltip(null)}
-											style={{ position: "relative" }}
-										>
-											{t.word}
-											{tooltip?.i === i && (
-												<span className="sea-tooltip">{t.tooltip}</span>
-											)}
-										</span>
-									) : (
-										<span key={i}>{t.word}</span>
-									),
-								)}
-							</div>
-							<div className="sea-legend">
-								{Object.entries(errorColors).map(([type, color]) => (
-									<span key={type} className="sea-legend-item">
-										<span
+    						<div className="sea-card-header">
+        						<h3>≡ Writing Sample</h3>
+        						<span className="sea-date">
+            						Dated: {new Date(report.createdAt).toLocaleDateString()}
+        						</span>
+    						</div>
+
+    						<div className="sea-text-block">
+        						<p>
+            						{report.writingSample.cleanedText ||
+                					report.writingSample.ocrText}
+        						</p>
+    						</div>
+
+    						<div className="sea-legend">
+        						{Object.entries(errorColors).map(([type, color]) => (
+            						<span key={type} className="sea-legend-item">
+                						<span
 											className="sea-legend-dot"
 											style={{ background: color }}
-										/>
-										{type.charAt(0).toUpperCase() + type.slice(1)} Errors
-									</span>
-								))}
-							</div>
+                						/>
+                						{type.charAt(0).toUpperCase() + type.slice(1)} Errors
+            						</span>
+        						))}
+    						</div>
 						</div>
 
 						{/* Donut chart */}
@@ -257,15 +268,24 @@ export default function StudentErrorAnalysis() {
 					<div className="sea-ai-card">
 						<h3>✦ AI Pattern Analysis</h3>
 						<p>
-							Sarah consistently struggles with{" "}
-							<strong>visual-spatial letter forms</strong>, specifically b/d and
-							p/q reversals. This pattern suggests a need for multisensory
-							visual tracking exercises.
+							{report.interventionRecommendation.overview}
 						</p>
 						<div className="sea-interventions">
 							<p className="sea-interventions-label">SUGGESTED INTERVENTIONS</p>
-							<p>✓ Sandpaper letter tracing for b/d differentiation.</p>
-							<p>✓ Phonemic awareness focus on vowel digraphs.</p>
+							{report.interventionRecommendation.interventions.map((item, i) => (
+								<div key={i}>
+									<p>
+										<strong>{item.title}</strong>
+									</p>
+									<p>{item.rationale}</p>
+									<p>
+										Activities: {item.activities.join(", ")}
+									</p>
+									<p>
+										Frequency: {item.frequency}
+									</p>
+								</div>
+							))}
 						</div>
 					</div>
 				</div>

@@ -2,12 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import "./../css/StudentProgress.css";
 import {
-	LayoutDashboard,
-	TrendingUp,
-	BarChart3,
 	FileText,
-	Bell,
-	Settings,
 	ArrowLeft,
 	TrendingUp as TrendIcon,
 	FileBarChart,
@@ -38,7 +33,7 @@ ChartJS.register(
 	Legend,
 );
 
-const API = import.meta.env.VITE_API_URL;
+const API = import.meta.env.VITE_PMS_API;
 const SHEET_URL = import.meta.env.VITE_GOOGLE_SHEET_URL;
 
 export default function StudentProgress() {
@@ -55,19 +50,32 @@ export default function StudentProgress() {
 
 	useEffect(() => {
 		if (!id) return;
-		setLoading(true);
-		setError(null);
-		fetch(`${API}/api/progress/${id}/overview`)
-			.then((r) => r.json())
-			.then((data) => {
+		const controller = new AbortController();
+
+		const loadOverview = async () => {
+			try {
+				setLoading(true);
+				setError(null);
+				const response = await fetch(`${API}/api/progress/${id}/overview`, {
+					signal: controller.signal,
+				});
+				const data = await response.json();
 				if (data.message) throw new Error(data.message);
 				setOverview(data);
-				setLoading(false);
-			})
-			.catch((err) => {
-				setError(err.message);
-				setLoading(false);
-			});
+			} catch (err) {
+				if (err.name !== "AbortError") {
+					setError(err.message);
+				}
+			} finally {
+				if (!controller.signal.aborted) {
+					setLoading(false);
+				}
+			}
+		};
+
+		loadOverview();
+
+		return () => controller.abort();
 	}, [id]);
 
 	const loadDashboard = () => {
@@ -139,13 +147,13 @@ export default function StudentProgress() {
 	const buildRadarData = () => {
 		if (!dashboard?.latestAssessment?.skillScores) return null;
 		const scores = dashboard.latestAssessment.skillScores;
-		const entries = Object.entries(scores).filter(([_, v]) => v !== null);
+		const entries = Object.entries(scores).filter(([, v]) => v !== null);
 		return {
 			labels: entries.map(([k]) => SKILL_LABELS[k] || k),
 			datasets: [
 				{
 					label: "Score",
-					data: entries.map(([_, v]) => v),
+					data: entries.map(([, v]) => v),
 					borderColor: "#7c3aed",
 					backgroundColor: "rgba(124, 58, 237, 0.3)",
 				},
@@ -153,55 +161,9 @@ export default function StudentProgress() {
 		};
 	};
 
-	const Sidebar = () => (
-		<aside className="sidebar">
-			<div className="logo-section">
-				<div className="logo-circle">DAS</div>
-				<div>
-					<h2>DAS Teacher</h2>
-					<p>Educational Professional</p>
-				</div>
-			</div>
-			<nav>
-				<Link to="/">
-					<LayoutDashboard size={20} />
-					<span>Dashboard</span>
-				</Link>
-				<a className="active">
-					<TrendingUp size={20} />
-					<span>Progress Monitoring</span>
-				</a>
-				<a href="#">
-					<BarChart3 size={20} />
-					<span>Error Pattern Analysis</span>
-				</a>
-				<a href="#">
-					<FileText size={20} />
-					<span>Reports</span>
-				</a>
-				<a href="#">
-					<Bell size={20} />
-					<span>Notifications</span>
-				</a>
-				<a href="#">
-					<Settings size={20} />
-					<span>Settings</span>
-				</a>
-			</nav>
-			<div className="sidebar-footer">
-				<div className="avatar-small">SR</div>
-				<div>
-					<p className="footer-name">S. Richards</p>
-					<p className="footer-role">Profile</p>
-				</div>
-			</div>
-		</aside>
-	);
-
 	if (loading)
 		return (
 			<div className="sp-page">
-				<Sidebar />
 				<main className="sp-main">
 					<p className="state-msg">Loading...</p>
 				</main>
@@ -211,7 +173,6 @@ export default function StudentProgress() {
 	if (error)
 		return (
 			<div className="sp-page">
-				<Sidebar />
 				<main className="sp-main">
 					<p className="state-msg error">{error}</p>
 				</main>
@@ -221,7 +182,6 @@ export default function StudentProgress() {
 	if (view === "overview")
 		return (
 			<div className="sp-page">
-				<Sidebar />
 				<main className="sp-main">
 					<header className="sp-topbar">
 						<h2>DAS Assessment Portal</h2>
@@ -350,7 +310,6 @@ export default function StudentProgress() {
 
 	return (
 		<div className="sp-page">
-			<Sidebar />
 			<main className="sp-main">
 				<header className="sp-topbar">
 					<h2>DAS Assessment Portal</h2>

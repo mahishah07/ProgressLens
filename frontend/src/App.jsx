@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 import Landing from "./pages/Landing";
 import StudentProgress from "./pages/StudentProgress";
@@ -10,32 +10,30 @@ import DiagnosticReport from "./pages/DiagnosticReport";
 import ErrorDashboard from "./pages/ErrorDashboard";
 
 function App() {
-	return (
-		<Routes>
-			<Route path="/" element={<Landing />} />
+    return (
+        <Routes>
+            <Route path="/" element={<Landing />} />
 
-			<Route path="/student-progress" element={<StudentProgress />} />
+            <Route path="/student-progress" element={<StudentProgress />} />
 
-			<Route path="/assessment-comparison" element={<AssessmentComparison />} />
+            <Route path="/assessment-comparison" element={<AssessmentComparison />} />
 
-			<Route path="/progress-report" element={<ProgressReport />} />
+            <Route path="/progress-report" element={<ProgressReport />} />
 
-			<Route path="/student-errors" element={<StudentError />} />
+            <Route path="/student-errors/:reportId" element={<StudentError />} />
 
-			<Route path="/writing-review" element={<WritingReview />} />
+            <Route path="/writing-review" element={<WritingReview />} />
 
-			<Route path="/diagnostic-report" element={<DiagnosticReport />} />
-			<Route path="/error-report/:reportId" element={<DiagnosticReport />} />
+            <Route path="/diagnostic-report" element={<DiagnosticReport />} />
+            <Route path="/error-report/:reportId" element={<DiagnosticReport />} />
 
-			<Route path="/" element={<Landing />} />
+            <Route path="/error-dashboard" element={<ErrorDashboard />} />
 
-			<Route path="/error-dashboard" element={<ErrorDashboard />} />
+            <Route path="/student/:id" element={<StudentProgress />} />
 
-			<Route path="/student/:id" element={<StudentProgress />} />
-
-			<Route path="/error-dashboard/:id" element={<ErrorDashboard />} />
-		</Routes>
-	);
+            <Route path="/error-dashboard/:id" element={<ErrorDashboard />} />
+        </Routes>
+    );
 }
 
 export default App;

@@ -11,7 +11,7 @@ import {
 	UserPlus,
 } from "lucide-react";
 
-const API = import.meta.env.VITE_API_URL;
+const API = import.meta.env.VITE_PMS_API;
 const SHEET_URL = import.meta.env.VITE_GOOGLE_SHEET_URL;
 
 export default function Landing() {
@@ -34,22 +34,20 @@ export default function Landing() {
 
 	// fetch students whenever filter/search/page changes
 	useEffect(() => {
-		setLoading(true);
-		setError(null);
-
-		let url = "";
-
-		if (search.trim()) {
-			url = `${API}/api/progress/search?studentId=${encodeURIComponent(search.trim())}`;
-		} else if (selectedCentre) {
-			url = `${API}/api/progress/search?centreId=${encodeURIComponent(selectedCentre)}`;
-		} else {
-			url = `${API}/api/students?page=${page}&limit=20`;
-		}
+		const url = search.trim()
+			? `${API}/api/progress/search?studentId=${encodeURIComponent(
+				  search.trim()
+			  )}`
+			: selectedCentre
+			? `${API}/api/progress/search?centreId=${encodeURIComponent(
+				  selectedCentre
+			  )}`
+			: `${API}/api/students?page=${page}&limit=20`;
 
 		fetch(url)
 			.then((r) => r.json())
 			.then((data) => {
+				setError(null);
 				if (Array.isArray(data)) {
 					setStudents(data);
 					setTotalPages(1);
