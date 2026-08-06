@@ -8,6 +8,7 @@ const assessmentSchema = new mongoose.Schema(
 			required: true,
 		},
 		semester: { type: String, trim: true },
+		summaryBand: { type: String, trim: true },
 		newBand: { type: String, trim: true },
 
 		// Picture Naming
