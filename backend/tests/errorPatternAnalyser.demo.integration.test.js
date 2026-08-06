@@ -35,13 +35,28 @@ jest.mock("../src/services/interventionRecommendationService", () => ({
 jest.mock("../src/middleware/upload", () => ({
   single: () => (req, res, next) => {
     req.file = {
+      buffer: Buffer.from("demo writing sample"),
       path: "/tmp/demo-writing-sample.png",
       originalname: "demo-writing-sample.png",
       filename: "demo-writing-sample.png",
       mimetype: "image/png",
       size: 1024,
     };
+
     next();
+  },
+
+  enforceFileSizeLimit: (req, res, next) => {
+    const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
+    if (req.file && req.file.size > MAX_FILE_SIZE) {
+      return res.status(400).json({
+        success: false,
+        error: "File must not exceed 10 MB.",
+      });
+    }
+
+    return next();
   },
 }));
 

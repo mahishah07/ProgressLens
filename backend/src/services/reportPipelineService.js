@@ -35,8 +35,16 @@ async function processWritingSample(input, dependencies = {}) {
   const students = dependencies.studentRepository || studentRepository;
   const samples = dependencies.writingSampleRepository || writingSampleRepository;
   const reports = dependencies.reportRepository || reportRepository;
-  const ocr = dependencies.extractDocument || (dependencies.extractText
-    ? async (filePath) => ({ content: await dependencies.extractText(filePath), handwrittenText: "", tables: [] })
+  const ocr =
+  dependencies.extractDocument ||
+  (dependencies.extractText
+    ? async (file) => ({
+        content: await dependencies.extractText(
+          file.path || file.buffer
+        ),
+        handwrittenText: "",
+        tables: [],
+      })
     : extractDocument);
   const spellCheck = dependencies.checkSpelling || checkSpelling;
   const readFile = dependencies.readFile || fs.promises.readFile;
@@ -61,7 +69,7 @@ async function processWritingSample(input, dependencies = {}) {
     expectedText = answerKey.expectedText;
   }
 
-  const document = await ocr(input.file.buffer || input.file.path);
+  const document = await ocr(input.file);
   const extractedText = document.content || "";
   const handwrittenText = cleanOcrText(document.handwrittenText || "");
   const cleanedText = handwrittenText || cleanOcrText(extractedText);

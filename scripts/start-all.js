@@ -2,6 +2,9 @@ const path = require("path");
 const { spawn } = require("child_process");
 
 const root = path.join(__dirname, "..");
+require("dotenv").config({
+  path: path.join(root, ".env"),
+});
 const services = [
   { name: "pms", file: path.join(root, "backendpms/server.js") },
   { name: "error-analyser", file: path.join(root, "backend/src/server.js") },
