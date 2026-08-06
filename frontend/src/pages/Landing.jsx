@@ -186,7 +186,7 @@ export default function Landing() {
 											Level: {student.schLevel || "—"}
 										</small>
 										<Link
-											to={`/student/${encodeURIComponent(student.studentId)}`}
+											to={`/student/${encodeURIComponent(student._id)}`}
 											className="dashboard-button"
 										>
 											View Dashboard →
