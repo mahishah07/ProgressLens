@@ -14,7 +14,7 @@ import {
 	Sheet,
 	Filter,
 } from "lucide-react";
-import { Line, Radar } from "react-chartjs-2";
+import { Line, Radar, Bar } from "react-chartjs-2";
 import {
 	Chart as ChartJS,
 	CategoryScale,
@@ -51,6 +51,7 @@ export default function StudentProgress() {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 	const [selectedSkills, setSelectedSkills] = useState([]);
+	const [chartType, setChartType] = useState("radar");
 
 	useEffect(() => {
 		if (!id) return;
@@ -106,7 +107,7 @@ export default function StudentProgress() {
 			datasets: [
 				{
 					label: "Score",
-					data: dashboard.progressOverTime.map((p) => p.averageScore || 0),
+					data: dashboard.progressOverTime.map((p) => p.weightedScore ?? null),
 					borderColor: "#1a3c6e",
 					backgroundColor: "rgba(26, 60, 110, 0.1)",
 					tension: 0.3,
@@ -125,9 +126,9 @@ export default function StudentProgress() {
 		fluency: "Fluency",
 		wordSpelling: "Word Spelling",
 		letterFormation: "Letter Formation",
-		ed1: "Edit D1",
-		ed2: "Edit D2",
-		ed3: "Edit D3",
+		ed1: "Edit and Diagram 1",
+		ed2: "Edit and Diagram 2",
+		ed3: "Edit and Diagram 3",
 		narrative: "Narrative Writing",
 		exposition: "Exposition Writing",
 		persuasive: "Persuasive Writing",
@@ -298,7 +299,11 @@ export default function StudentProgress() {
 							</p>
 							<button
 								className="sp-option-btn-outline"
-								onClick={() => navigate(`/error-dashboard/${encodeURIComponent(overview.student.studentId)}`)}
+								onClick={() =>
+									navigate(
+										`/error-dashboard/${encodeURIComponent(overview.student.studentId)}`,
+									)
+								}
 							>
 								Open Error Pattern Analysis
 							</button>
@@ -379,6 +384,12 @@ export default function StudentProgress() {
 					</div>
 					<div className="sp-quick-actions">
 						<button
+							className="sp-compare-btn"
+							onClick={() => navigate(`/assessment-comparison?studentId=${id}`)}
+						>
+							Compare Assessments
+						</button>
+						<button
 							className="sp-qa-primary"
 							onClick={() => navigate(`/progress-report?studentId=${id}`)}
 						>
@@ -399,23 +410,120 @@ export default function StudentProgress() {
 				</div>
 
 				<div className="sp-row">
+					{dashboard.bandScore && (
+						<div className="sp-band-score-card">
+							<div className="sp-band-score-header">
+								<h3>Band Assessment Score</h3>
+								<span
+									className={`sp-band-result ${dashboard.bandScore.passed ? "sp-passed" : "sp-failed"}`}
+								>
+									{dashboard.bandScore.passed ? "✓ PASSED" : "✗ NOT YET"}
+								</span>
+							</div>
+							<div className="sp-band-score-total">
+								<span className="sp-score-num">
+									{dashboard.bandScore.totalScore}%
+								</span>
+								<span className="sp-score-label">/ 90% required</span>
+							</div>
+							{dashboard.bandScore.forgivenessApplied && (
+								<p className="sp-forgiveness-note">Forgiveness rule applied</p>
+							)}
+							<div className="sp-component-grid">
+								{dashboard.bandScore.componentResults
+									.filter((r) => !r.skipped)
+									.map((comp, i) => (
+										<div
+											key={i}
+											className={`sp-comp-item ${comp.passed ? "sp-comp-pass" : "sp-comp-fail"}`}
+										>
+											<span className="sp-comp-name">{comp.name}</span>
+											<span className="sp-comp-score">{comp.score ?? "—"}</span>
+											<span className="sp-comp-status">
+												{comp.passed ? "✓" : "✗"}
+											</span>
+										</div>
+									))}
+							</div>
+							{dashboard.bandScore.failedComponents.length > 0 && (
+								<p className="sp-failed-note">
+									Failed: {dashboard.bandScore.failedComponents.join(", ")}
+								</p>
+							)}
+						</div>
+					)}
+					{/* AI Insight Summary */}
 					<div className="sp-ai-card">
-						<h3>✦ AI Insight Summary</h3>
+						<h3>✦ Student Performance Summary</h3>
 						<p>
-							{dashboard?.latestAssessment?.aiInsights ||
-								"No AI insights generated yet. Click Generate Report to produce insights."}
+							{(() => {
+								const band = dashboard?.currentBandLevel || "—";
+								const score = dashboard?.bandScore?.totalScore;
+								const passed = dashboard?.bandScore?.passed;
+								const strongest = dashboard?.skillBreakdown?.strongest;
+								const weakest = dashboard?.skillBreakdown?.weakest;
+								const history = dashboard?.assessmentHistory;
+
+								// Get latest and previous scores
+								const latest = history?.[history.length - 1];
+								const previous = history?.[history.length - 2];
+								const latestScore = latest?.weightedScore;
+								const previousScore = previous?.weightedScore;
+
+								let improvement = "";
+								if (
+									latestScore !== null &&
+									latestScore !== undefined &&
+									previousScore !== null &&
+									previousScore !== undefined
+								) {
+									const diff = parseFloat(
+										(latestScore - previousScore).toFixed(2),
+									);
+									if (diff > 0)
+										improvement = ` This is an improvement of ${diff}% from their previous assessment (${previousScore}%).`;
+									else if (diff < 0)
+										improvement = ` This is a decrease of ${Math.abs(diff)}% from their previous assessment (${previousScore}%).`;
+									else
+										improvement = ` Their score is unchanged from their previous assessment.`;
+								}
+
+								let summary = `${dashboard?.student?.studentId} is currently at Band ${band}`;
+								if (score !== null && score !== undefined) {
+									summary += `, with a weighted assessment score of ${score}%`;
+									summary += passed
+										? " — meeting the required threshold."
+										: " — below the 90% passing threshold.";
+								}
+								summary += improvement;
+								if (strongest)
+									summary += ` Their strongest skill area is ${strongest}`;
+								if (weakest)
+									summary += `, with ${weakest} identified as a focus area for improvement.`;
+
+								return summary;
+							})()}
 						</p>
 						<div className="sp-tags">
-							<span className="sp-tag">
-								{dashboard?.skillBreakdown?.strongest
-									? `Strongest: ${dashboard.skillBreakdown.strongest}`
-									: "—"}
-							</span>
-							<span className="sp-tag sp-tag-alt">
-								{dashboard?.skillBreakdown?.weakest
-									? `Focus: ${dashboard.skillBreakdown.weakest}`
-									: "—"}
-							</span>
+							{dashboard?.skillBreakdown?.strongest && (
+								<span className="sp-tag">
+									Strongest: {dashboard.skillBreakdown.strongest}
+								</span>
+							)}
+							{dashboard?.skillBreakdown?.weakest && (
+								<span className="sp-tag sp-tag-alt">
+									Focus: {dashboard.skillBreakdown.weakest}
+								</span>
+							)}
+							{dashboard?.bandScore && (
+								<span
+									className={`sp-tag ${dashboard.bandScore.passed ? "" : "sp-tag-warn"}`}
+								>
+									{dashboard.bandScore.passed
+										? "✓ Band Passed"
+										: "✗ Below Threshold"}
+								</span>
+							)}
 						</div>
 					</div>
 
@@ -465,19 +573,49 @@ export default function StudentProgress() {
 					</div>
 
 					<div className="sp-radar-card">
-						<h3>Skill Breakdown</h3>
+						<div className="sp-radar-header">
+							<h3>Skill Breakdown</h3>
+							<div className="sp-chart-toggle">
+								<button
+									className={`sp-toggle-btn ${chartType === "radar" ? "sp-toggle-active" : ""}`}
+									onClick={() => setChartType("radar")}
+								>
+									◎ Spider
+								</button>
+								<button
+									className={`sp-toggle-btn ${chartType === "bar" ? "sp-toggle-active" : ""}`}
+									onClick={() => setChartType("bar")}
+								>
+									▦ Bar
+								</button>
+							</div>
+						</div>
+
 						{radarData ? (
 							<>
-								<Radar
-									data={filteredRadarData()}
-									options={{
-										responsive: true,
-										scales: {
-											r: { min: 0, max: 100, ticks: { stepSize: 20 } },
-										},
-										plugins: { legend: { display: false } },
-									}}
-								/>
+								{chartType === "radar" ? (
+									<Radar
+										data={filteredRadarData()}
+										options={{
+											responsive: true,
+											scales: {
+												r: { min: 0, max: 100, ticks: { stepSize: 20 } },
+											},
+											plugins: { legend: { display: false } },
+										}}
+									/>
+								) : (
+									<Bar
+										data={filteredRadarData()}
+										options={{
+											responsive: true,
+											scales: {
+												y: { min: 0, max: 100, ticks: { stepSize: 20 } },
+											},
+											plugins: { legend: { display: false } },
+										}}
+									/>
+								)}
 								<p className="sp-strongest">
 									Strongest Skill: {dashboard?.skillBreakdown?.strongest || "—"}
 								</p>
@@ -506,19 +644,16 @@ export default function StudentProgress() {
 				<div className="sp-history-card">
 					<div className="sp-history-header">
 						<h3>Assessment History</h3>
-						<button className="sp-filter-btn">
-							<Filter size={14} /> Filter
-						</button>
 					</div>
 					<table className="sp-table">
 						<thead>
 							<tr>
 								<th>DATE</th>
 								<th>SEMESTER</th>
-								<th>BAND</th>
+								<th>STARTING BAND</th>
+								<th>NEW BAND</th>
 								<th>SCORE</th>
 								<th>TEACHER</th>
-								<th>ACTION</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -536,18 +671,26 @@ export default function StudentProgress() {
 									<td>{a.semester || "—"}</td>
 									<td>
 										<span className="sp-band-badge">
-											{a.summaryBand || a.newBand || "—"}
+											{a.summaryBand || "—"}
 										</span>
 									</td>
 									<td>
-										{a.averageScore != null
-											? `${Math.round(a.averageScore)}/100`
-											: "—"}
+										<span
+											className="sp-band-badge"
+											style={{
+												background:
+													a.newBand !== a.summaryBand ? "#dcfce7" : "#eff6ff",
+												color:
+													a.newBand !== a.summaryBand ? "#166534" : "#1a3c6e",
+											}}
+										>
+											{a.newBand || "—"}
+										</span>
+									</td>
+									<td>
+										{a.weightedScore !== null ? `${a.weightedScore}%` : "—"}
 									</td>
 									<td>{a.assessedBy || "—"}</td>
-									<td>
-										<button className="sp-view-details">View details</button>
-									</td>
 								</tr>
 							))}
 						</tbody>
@@ -557,18 +700,6 @@ export default function StudentProgress() {
 				<div className="sp-bottom-bar">
 					<button className="sp-back-btn" onClick={() => setView("overview")}>
 						<ArrowLeft size={16} /> Back to Overview
-					</button>
-					<button
-						className="sp-generate-btn"
-						onClick={() => navigate(`/progress-report?studentId=${id}`)}
-					>
-						<FileText size={16} /> Generate PDF Report
-					</button>
-					<button
-						className="sp-compare-btn"
-						onClick={() => navigate(`/assessment-comparison?studentId=${id}`)}
-					>
-						✦ Compare Assessments
 					</button>
 				</div>
 			</main>
