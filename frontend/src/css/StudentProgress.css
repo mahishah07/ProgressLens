@@ -102,6 +102,19 @@
 .sp-band {
 	color: #1a3c6e;
 }
+.sp-compare-btn {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.6rem 1.25rem;
+	border: none;
+	border-radius: 8px;
+	background: #1a3c6e;
+	color: white;
+	font-size: 0.9rem;
+	font-weight: 600;
+	cursor: pointer;
+}
 
 /* Options */
 .sp-options {
@@ -282,6 +295,10 @@
 .sp-tag-alt {
 	background: #7c3aed;
 }
+.sp-tag-warn {
+	background: #fee2e2;
+	color: #991b1b;
+}
 
 /* Goals card */
 .sp-goals-card {
@@ -369,17 +386,6 @@
 	font-weight: 700;
 	margin: 0;
 }
-.sp-filter-btn {
-	display: flex;
-	align-items: center;
-	gap: 0.4rem;
-	padding: 0.4rem 0.9rem;
-	border: 1px solid #ddd;
-	border-radius: 8px;
-	background: white;
-	font-size: 0.8rem;
-	cursor: pointer;
-}
 .sp-table {
 	width: 100%;
 	border-collapse: collapse;
@@ -411,14 +417,6 @@
 	font-size: 0.75rem;
 	font-weight: 600;
 }
-.sp-view-details {
-	background: none;
-	border: none;
-	color: #1a3c6e;
-	font-size: 0.85rem;
-	cursor: pointer;
-	font-weight: 500;
-}
 
 /* Bottom bar */
 .sp-bottom-bar {
@@ -441,33 +439,6 @@
 	cursor: pointer;
 	text-decoration: none;
 	color: #333;
-}
-.sp-generate-btn {
-	display: flex;
-	align-items: center;
-	gap: 0.4rem;
-	padding: 0.6rem 1.25rem;
-	border: none;
-	border-radius: 8px;
-	background: #1a3c6e;
-	color: white;
-	font-size: 0.9rem;
-	font-weight: 600;
-	cursor: pointer;
-	margin-left: auto;
-}
-.sp-compare-btn {
-	display: flex;
-	align-items: center;
-	gap: 0.4rem;
-	padding: 0.6rem 1.25rem;
-	border: none;
-	border-radius: 8px;
-	background: #1a3c6e;
-	color: white;
-	font-size: 0.9rem;
-	font-weight: 600;
-	cursor: pointer;
 }
 
 /* Back bar (overview) */
@@ -506,4 +477,124 @@
 .sp-skill-checkbox input {
 	accent-color: #7c3aed;
 	cursor: pointer;
+}
+
+.sp-band-score-card {
+	background: white;
+	padding: 1.5rem;
+	border-radius: 12px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.sp-band-score-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 0.75rem;
+}
+.sp-band-score-header h3 {
+	font-size: 1rem;
+	font-weight: 700;
+	margin: 0;
+}
+.sp-band-result {
+	padding: 0.3rem 0.9rem;
+	border-radius: 99px;
+	font-size: 0.8rem;
+	font-weight: 700;
+}
+.sp-passed {
+	background: #dcfce7;
+	color: #166534;
+}
+.sp-failed {
+	background: #fee2e2;
+	color: #991b1b;
+}
+.sp-band-score-total {
+	display: flex;
+	align-items: baseline;
+	gap: 0.5rem;
+	margin-bottom: 0.75rem;
+}
+.sp-score-num {
+	font-size: 2rem;
+	font-weight: 700;
+	color: #1a3c6e;
+}
+.sp-score-label {
+	font-size: 0.85rem;
+	color: #888;
+}
+.sp-forgiveness-note {
+	font-size: 0.8rem;
+	color: #7c3aed;
+	margin: 0 0 0.75rem;
+}
+.sp-component-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 0.5rem;
+	margin-bottom: 0.75rem;
+}
+.sp-comp-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0.4rem 0.75rem;
+	border-radius: 8px;
+	font-size: 0.8rem;
+}
+.sp-comp-pass {
+	background: #f0fdf4;
+}
+.sp-comp-fail {
+	background: #fef2f2;
+}
+.sp-comp-name {
+	color: #555;
+	flex: 1;
+}
+.sp-comp-score {
+	font-weight: 600;
+	color: #333;
+	margin: 0 0.5rem;
+}
+.sp-comp-status {
+	font-weight: 700;
+}
+.sp-comp-pass .sp-comp-status {
+	color: #166534;
+}
+.sp-comp-fail .sp-comp-status {
+	color: #991b1b;
+}
+.sp-failed-note {
+	font-size: 0.8rem;
+	color: #991b1b;
+	margin: 0;
+}
+.sp-radar-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 0.5rem;
+}
+.sp-chart-toggle {
+	display: flex;
+	gap: 0.4rem;
+}
+.sp-toggle-btn {
+	padding: 0.3rem 0.8rem;
+	border-radius: 99px;
+	border: 1px solid #ddd;
+	background: white;
+	font-size: 0.8rem;
+	cursor: pointer;
+	color: #555;
+}
+.sp-toggle-active {
+	background: #1a3c6e;
+	color: white;
+	border-color: #1a3c6e;
 }

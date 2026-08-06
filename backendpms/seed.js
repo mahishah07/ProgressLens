@@ -8,7 +8,19 @@ const Assessment = require("./src/pms/models/Assessment");
 
 const parseDate = (val) => {
 	if (!val || String(val).trim() === "") return null;
-	const d = new Date(val);
+	const str = String(val).trim();
+
+	// Handle DD/MM/YYYY format
+	const ddmmyyyy = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+	if (ddmmyyyy) {
+		const d = new Date(
+			`${ddmmyyyy[3]}-${ddmmyyyy[2].padStart(2, "0")}-${ddmmyyyy[1].padStart(2, "0")}`,
+		);
+		return isNaN(d.getTime()) ? null : d;
+	}
+
+	// Handle M/D/YY format
+	const d = new Date(str);
 	return isNaN(d.getTime()) ? null : d;
 };
 
@@ -44,7 +56,7 @@ const readCSV = (filePath) =>
 
 const run = async () => {
 	try {
-		await mongoose.connect(process.env.MONGODB_URI);
+		await mongoose.connect(process.env.MONGODB_URI_PMS);
 		console.log("MongoDB connected");
 
 		await Student.deleteMany({});
@@ -68,7 +80,7 @@ const run = async () => {
 				age: parseNum(row["Age"]),
 				schLevel: row["SchLevel"]?.trim() || "",
 				enrollmentDate: parseDate(row["EnrollmentDate"]),
-				summaryBand: row["SummaryBand"]?.trim() || null,
+				summaryBand: row["SummaryBand"]?.trim() || "",
 				progress: parseBool(row["Progress"]) ? "Moved up" : "Same level",
 			};
 		}
@@ -99,6 +111,7 @@ const run = async () => {
 			assessments.push({
 				student: mongoId,
 				semester,
+				summaryBand: row["SummaryBand"]?.trim() || "",
 				newBand: row["NewBand"]?.trim() || null,
 
 				pictureNamingScore: parseNum(row["Picture_Naming"]),
@@ -166,7 +179,13 @@ const run = async () => {
 
 				monthsTo48: parseNum(row["No. of months to 48 months"]),
 
-				assessmentDate: parseDate(row["PN_Date"]) || new Date(),
+				assessmentDate:
+					parseDate(row["PN_Date"]) ||
+					parseDate(row["Phonics_Date"]) ||
+					parseDate(row["WRA_Date"]) ||
+					parseDate(row["NW_Date"]) ||
+					parseDate(row["RD_Date"]) ||
+					new Date(),
 				term: semester,
 				assessedBy: row["Teacher_ID"]?.trim() || null,
 			});

@@ -2,12 +2,16 @@ const Assessment = require("../models/Assessment");
 const Student = require("../models/Student");
 const { resolveStudent } = require("./studentIdentityService");
 
+const { calculateBandScore } = require("./bandScoring");
+
 const BAND_ORDER = ["A1", "A2", "A3", "B4", "B5", "B6", "C7", "C8", "C9"];
 
 const getBandIndex = (band) => BAND_ORDER.indexOf(band);
 
 const getSkillScores = (assessment) => ({
+	pictureNaming: assessment.pictureNamingScore ?? null,
 	pictureDescription: assessment.pictureDescriptionScore ?? null,
+	paIdentification: assessment.paIdentificationScore ?? null,
 	phonics: assessment.phonicsScore ?? null,
 	wra: assessment.wraScore ?? null,
 	fluency: assessment.fluencyMark ?? null,
@@ -57,24 +61,33 @@ exports.buildDashboard = async (studentId) => {
 	}
 
 	const latest = assessments[assessments.length - 1];
+	const bandScore = calculateBandScore(
+		latest,
+		latest.summaryBand || student.summaryBand,
+	);
 	const skillScores = getSkillScores(latest);
 	const skillBreakdown = getSkillBreakdown(skillScores);
 	const averageScore = calculateAverageScore(skillScores);
 
-	const progressOverTime = assessments.map((a) => ({
-		semester: a.semester,
-		term: a.term,
-		assessmentDate: a.assessmentDate,
-		averageScore: calculateAverageScore(getSkillScores(a)),
-		summaryBand: a.summaryBand || null,
-	}));
+	const progressOverTime = assessments.map((a) => {
+		const bandLevel = a.summaryBand || student.summaryBand;
+		const scored = calculateBandScore(a, bandLevel);
+		return {
+			semester: a.semester,
+			term: a.term,
+			assessmentDate: a.assessmentDate,
+			weightedScore: scored ? scored.totalScore : null,
+			summaryBand: a.summaryBand || null,
+			newBand: a.newBand || null,
+		};
+	});
 
 	const bandProgression = assessments
-		.filter((a) => a.summaryBand)
+		.filter((a) => a.newBand)
 		.map((a) => ({
 			semester: a.semester,
-			band: a.summaryBand,
-			bandIndex: getBandIndex(a.summaryBand),
+			band: a.newBand,
+			bandIndex: getBandIndex(a.newBand),
 		}));
 
 	return {
@@ -88,7 +101,8 @@ exports.buildDashboard = async (studentId) => {
 			summaryBand: student.summaryBand,
 			progress: student.progress,
 		},
-		currentBandLevel: student.summaryBand,
+		currentBandLevel: student.newBand,
+		bandScore,
 		latestAssessment: {
 			_id: latest._id,
 			semester: latest.semester,
@@ -97,23 +111,31 @@ exports.buildDashboard = async (studentId) => {
 			assessedBy: latest.assessedBy,
 			teacherComments: latest.teacherComments,
 			aiInsights: latest.aiInsights,
-			averageScore,
+			weightedScore: latest.weightedScore,
 			skillScores,
 		},
 		skillBreakdown,
 		progressOverTime,
 		bandProgression,
-		assessmentHistory: assessments.map((a) => ({
-			_id: a._id,
-			semester: a.semester,
-			assessmentDate: a.assessmentDate,
-			newBand: a.newBand,
-			summaryBand: a.summaryBand,
-			assessedBy: a.assessedBy,
-			teacherComments: a.teacherComments,
-			aiInsights: a.aiInsights,
-			averageScore: calculateAverageScore(getSkillScores(a)),
-		})),
+		assessmentHistory: assessments
+			.map((a, index) => {
+				const bandForThisAssessment = a.summaryBand || student.summaryBand;
+				const aScore = calculateBandScore(a, bandForThisAssessment);
+				return {
+					_id: a._id,
+					semester: a.semester,
+					assessmentDate: a.assessmentDate,
+					newBand: a.newBand,
+					summaryBand: a.summaryBand || student.summaryBand,
+					assessedBy: a.assessedBy,
+					teacherComments: a.teacherComments,
+					aiInsights: a.aiInsights,
+					bandScore: aScore,
+					weightedScore: aScore ? aScore.totalScore : null,
+					passed: aScore ? aScore.passed : null,
+				};
+			})
+			.reverse(),
 		totalAssessments: assessments.length,
 	};
 };
@@ -127,9 +149,14 @@ exports.getStudentOverview = async (studentId) => {
 		assessmentDate: -1,
 	});
 
+	const bandScore = latest
+		? calculateBandScore(latest, latest.summaryBand || student.summaryBand)
+		: null;
+
 	return {
 		student,
 		currentBandLevel: student.summaryBand,
+		bandScore,
 		lastAssessmentDate: latest ? latest.assessmentDate : null,
 		lastSemester: latest ? latest.semester : null,
 		assessedBy: latest ? latest.assessedBy : null,
