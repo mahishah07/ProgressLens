@@ -1,8 +1,7 @@
 node_modules
 .env
-.env.example
 *.log
 .DS_Store
-uploads/
-backend/.env
-backendpms/.envcoverage/
+data.csv
+google-credentials.json
+
