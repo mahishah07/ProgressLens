@@ -7,7 +7,6 @@ import {
 	TrendingUp as TrendIcon,
 	FileBarChart,
 	Sheet,
-	Filter,
 } from "lucide-react";
 import { Line, Radar, Bar } from "react-chartjs-2";
 import {
