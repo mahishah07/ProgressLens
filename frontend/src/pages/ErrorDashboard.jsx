@@ -13,9 +13,60 @@ import {
   Upload,
   Image,
   Eye,
+  CalendarDays,
+  FileType2,
+  AlertTriangle,
+  CheckCircle2,
+  Clock3,
+  ArrowRight,
 } from "lucide-react";
 
 const API = import.meta.env.VITE_ERROR_API;
+const PMS_API = import.meta.env.VITE_PMS_API;
+
+const studentResults = (payload) => payload?.students || payload?.data || [];
+
+const formatAssessmentDate = (value) => {
+  if (!value) return "Date unavailable";
+  return new Date(value).toLocaleDateString("en-SG", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+};
+
+const formatFileSize = (bytes) => {
+  if (!Number.isFinite(bytes)) return "File stored";
+  return bytes >= 1024 * 1024
+    ? `${(bytes / 1024 / 1024).toFixed(1)} MB`
+    : `${Math.max(1, Math.round(bytes / 1024))} KB`;
+};
+
+const assessmentName = (assessment) => {
+  if (assessment.answerKey?.title) return assessment.answerKey.title;
+  const originalName = assessment.writingSample?.originalName || "Writing sample";
+  return originalName
+    .replace(/\.[^.]+$/, "")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+};
+
+const writingType = (assessment) => {
+  const name = assessmentName(assessment).toLowerCase();
+  if (name.includes("narrative")) return "Narrative writing";
+  if (name.includes("exposition") || name.includes("expository")) return "Expository writing";
+  if (name.includes("persuasive")) return "Persuasive writing";
+  if (name.includes("diagram")) return "Edit and diagram";
+  return "Writing homework";
+};
+
+const analysisStatus = (assessment) => {
+  if (assessment.reviewStatus === "finalised") return { label: "Finalised", className: "finalised", icon: CheckCircle2 };
+  if (assessment.interventionRecommendation?.status === "completed") return { label: "Analysed", className: "analysed", icon: CheckCircle2 };
+  return { label: "Processing", className: "processing", icon: Clock3 };
+};
 
 export default function ErrorDashboard() {
   const navigate = useNavigate();
@@ -24,6 +75,9 @@ export default function ErrorDashboard() {
   const [student, setStudent] = useState(null);
   const [history, setHistory] = useState([]);
   const [search, setSearch] = useState("");
+  const [sortOrder, setSortOrder] = useState("latest");
+  const [studentSearch, setStudentSearch] = useState("");
+  const [studentSearching, setStudentSearching] = useState(false);
 
 const fileInputRef = useRef(null);
 
@@ -94,6 +148,46 @@ const previewFile = () => {
   window.open(previewURL, "_blank");
 };
 
+const openStudentDashboard = async (event) => {
+  event.preventDefault();
+  const query = studentSearch.trim();
+  if (!query) return;
+
+  setStudentSearching(true);
+  try {
+    const response = await fetch(`${API}/api/students?q=${encodeURIComponent(query)}`);
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Unable to search for students.");
+
+    let profiles = studentResults(data);
+    if (profiles.length === 0) {
+      const pmsResponse = await fetch(
+        `${PMS_API}/api/progress/search?studentId=${encodeURIComponent(query)}`
+      );
+      const pmsData = await pmsResponse.json();
+      if (!pmsResponse.ok) throw new Error(pmsData.message || "Unable to search the student directory.");
+      profiles = Array.isArray(pmsData) ? pmsData : [];
+    }
+    const normalisedQuery = query.toLowerCase();
+    const profile = profiles.find((item) =>
+      item.studentId?.toLowerCase() === normalisedQuery ||
+      item.name?.toLowerCase() === normalisedQuery
+    ) || profiles[0];
+
+    if (!profile?.studentId) {
+      alert(`No student found for “${query}”.`);
+      return;
+    }
+
+    setStudentSearch("");
+    navigate(`/error-dashboard/${encodeURIComponent(profile.studentId)}`);
+  } catch (error) {
+    alert(error.message);
+  } finally {
+    setStudentSearching(false);
+  }
+};
+
 const analyzeAssessment = async () => {
   if (!selectedFile) {
     alert("Please upload a file first.");
@@ -115,7 +209,7 @@ const analyzeAssessment = async () => {
       `${API}/api/students?q=${encodeURIComponent(id)}`,
     );
     const searchData = await searchResponse.json();
-    const existingProfile = searchData.data?.find((profile) => profile.studentId === id);
+    const existingProfile = studentResults(searchData).find((profile) => profile.studentId === id);
     if (!existingProfile) {
       const createResponse = await fetch(`${API}/api/students`, {
         method: "POST",
@@ -169,7 +263,7 @@ const analyzeAssessment = async () => {
       ]);
       const studentData = await studentResponse.json();
       const reportsData = await reportsResponse.json();
-      setStudent(studentData.data?.find((profile) => profile.studentId === id) || { studentId: id, name: id });
+      setStudent(studentResults(studentData).find((profile) => profile.studentId === id) || { studentId: id, name: id });
       const reports = reportsResponse.ok ? reportsData.data || [] : [];
       setHistory(reports.map((report) => ({
         ...report,
@@ -187,6 +281,22 @@ const analyzeAssessment = async () => {
   useEffect(() => {
     loadDashboard();
   }, [id]);
+
+  const visibleHistory = history
+    .filter((assessment) => {
+      const query = search.trim().toLowerCase();
+      if (!query) return true;
+      return [assessmentName(assessment), writingType(assessment), assessment.errorType]
+        .some((value) => value.toLowerCase().includes(query));
+    })
+    .sort((left, right) => {
+      if (sortOrder === "highest-risk") {
+        return (right.summary?.errorCount || 0) - (left.summary?.errorCount || 0);
+      }
+      const leftDate = new Date(left.createdAt || left.analysedAt || 0).getTime();
+      const rightDate = new Date(right.createdAt || right.analysedAt || 0).getTime();
+      return sortOrder === "oldest" ? leftDate - rightDate : rightDate - leftDate;
+    });
 
   return (
     <div className="landing-page">
@@ -234,10 +344,17 @@ const analyzeAssessment = async () => {
           <h2>DAS Assessment Portal</h2>
 
           <div className="top-right">
-            <div className="search-box-top">
-              <Search size={18} />
-              <input placeholder="Search student by name or ID..." />
-            </div>
+            <form className="search-box-top" onSubmit={openStudentDashboard}>
+              <button type="submit" aria-label="Open student error dashboard" disabled={studentSearching}>
+                <Search size={18} />
+              </button>
+              <input
+                placeholder={studentSearching ? "Searching..." : "Search student by name or ID..."}
+                value={studentSearch}
+                onChange={(event) => setStudentSearch(event.target.value)}
+                disabled={studentSearching}
+              />
+            </form>
 
             <HelpCircle size={22} />
             <Grid3X3 size={22} />
@@ -247,29 +364,11 @@ const analyzeAssessment = async () => {
 
         {/* ================= Page ================= */}
         <section className="page-content">
-          <h1 className="page-title">Class Error Patterns</h1>
+          <h1 className="page-title">Student Error Pattern Analyser</h1>
 
           <p className="page-subtitle">
             Overview of linguistic and visual-spatial errors across student submissions.
           </p>
-
-          {/* ================= Search ================= */}
-          <div className="toolbar">
-            <div className="assessment-search">
-              <Search size={18} />
-              <input
-                placeholder="Assessment Name"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-
-            <select>
-              <option>Sort by: Latest Date</option>
-              <option>Oldest</option>
-              <option>Highest Risk</option>
-            </select>
-          </div>
 
           {/* ================= Upload ================= */}
           <div className="upload-card">
@@ -380,55 +479,99 @@ const analyzeAssessment = async () => {
           {history.length > 0 && (
             <>
               <div className="history-header">
-                <h2>Assessment History</h2>
-                <button>See Full History</button>
+                <div>
+                  <p className="history-eyebrow">RECENT SUBMISSIONS</p>
+                  <h2>Homework History</h2>
+                  <p className="history-intro">Review homework details, error patterns and analysis status.</p>
+                </div>
+                <span className="history-count">{history.length} {history.length === 1 ? "record" : "records"}</span>
+              </div>
+
+              <div className="toolbar history-toolbar">
+                <div className="assessment-search">
+                  <Search size={18} />
+                  <input
+                    placeholder="Search uploaded homework..."
+                    value={search}
+                    onChange={(event) => setSearch(event.target.value)}
+                  />
+                </div>
+
+                <select value={sortOrder} onChange={(event) => setSortOrder(event.target.value)}>
+                  <option value="latest">Sort by: Latest date</option>
+                  <option value="oldest">Sort by: Oldest</option>
+                  <option value="highest-risk">Sort by: Most errors</option>
+                </select>
               </div>
 
               <div className="history-grid">
-                {history.map((assessment) => (
-                  <div className="history-card" key={assessment._id}>
-                    <div className="history-top">
-                      <div>
-                        <h3>{student?.name}</h3>
-                        <p>ID: {student?.studentId}</p>
+                {visibleHistory.map((assessment) => {
+                  const status = analysisStatus(assessment);
+                  const StatusIcon = status.icon;
+                  const errorCount = assessment.summary?.errorCount || assessment.errorCounts?.total || 0;
+                  const dominantPattern = assessment.errorType || "Writing analysis";
+                  const file = assessment.writingSample || {};
+
+                  return (
+                    <article className="history-card" key={assessment._id}>
+                      <div className="history-card-accent" />
+                      <div className="history-top">
+                        <div className="history-title-block">
+                          <span className="history-type">{writingType(assessment)}</span>
+                          <h3>{assessmentName(assessment)}</h3>
+                        </div>
+                        <span className={`history-status ${status.className}`}>
+                          <StatusIcon size={14} /> {status.label}
+                        </span>
                       </div>
 
-                      <div
-                        className={`risk-dot ${
-                          assessment.diagnosisRequired ? "high" : "low"
-                        }`}
-                      ></div>
-                    </div>
+                      <div className="history-meta-row">
+                        <span><CalendarDays size={15} /> {formatAssessmentDate(assessment.createdAt || assessment.analysedAt)}</span>
+                        <span><FileType2 size={15} /> {file.mimeType === "application/pdf" ? "PDF" : "Image"} · {formatFileSize(file.fileSize)}</span>
+                      </div>
 
-                    <div className="submission-preview">
-                      <img
-                        src={assessment.previewImage}
-                        alt="submission"
-                      />
-                    </div>
+                      <div className="submission-file">
+                        <div className="submission-file-icon"><FileText size={24} /></div>
+                        <div>
+                          <span>STUDENT SUBMISSION</span>
+                          <strong>{file.originalName || "Writing sample"}</strong>
+                        </div>
+                      </div>
 
-                    <div className="assessment-tag">
-                      {assessment.errorType}
-                    </div>
+                      <div className="history-insights">
+                        <div className="history-metric">
+                          <span>Detected errors</span>
+                          <strong>{errorCount}</strong>
+                        </div>
+                        <div className="history-pattern">
+                          <span>Dominant pattern</span>
+                          <strong><AlertTriangle size={15} /> {dominantPattern}</strong>
+                        </div>
+                      </div>
 
-                    <p className="assessment-summary">
-                      {assessment.aiSummary}
-                    </p>
+                      <div className="history-summary-block">
+                        <span>AI educator summary</span>
+                        <p>{assessment.aiSummary}</p>
+                      </div>
 
-                    <Link
-                      to={`/error-report/${assessment._id}`}
-                      className={`report-button ${
-                        assessment.diagnosisRequired ? "danger" : ""
-                      }`}
-                    >
-                      <Eye size={18} />
-                      {assessment.diagnosisRequired
-                        ? "Diagnostic Required"
-                        : "View Report"}
-                    </Link>
-                  </div>
-                ))}
+                      <div className="history-card-footer">
+                        <span>Student {student?.studentId}</span>
+                        <div className="history-card-actions">
+                          <Link to={`/student-errors/${assessment._id}`} className="analysis-button">
+                            <BarChart3 size={17} /> View analysis
+                          </Link>
+                          <Link to={`/error-report/${assessment._id}`} className="report-button">
+                            <Eye size={17} /> View report <ArrowRight size={16} />
+                          </Link>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
               </div>
+              {visibleHistory.length === 0 && (
+                <div className="history-empty-search">No assessments match “{search}”.</div>
+              )}
             </>
           )}
         </section>

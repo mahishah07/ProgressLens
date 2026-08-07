@@ -5,6 +5,7 @@ const {
     detectComparisonErrors,
     isLikelyLetterReversal,
     isLikelyPhoneticError,
+    mergeComparisonErrors,
   } = require("../src/services/essayAnalysisService");
   
   describe("Essay analysis service", () => {
@@ -58,6 +59,27 @@ const {
       const errors = detectComparisonErrors(expectedText, essayText);
   
       expect(errors.some((error) => error.type === "DELETION")).toBe(true);
+    });
+
+    test("mergeComparisonErrors upgrades a generic spelling error without losing its report ID", () => {
+      const existing = [{
+        _id: "error-id",
+        type: "SPELLING_ERROR",
+        category: "Spelling",
+        actual: "bog",
+        actualIndex: 1,
+        expectedCorrection: "dog",
+      }];
+      const comparison = detectComparisonErrors("the dog", "the bog");
+      const merged = mergeComparisonErrors(existing, comparison);
+
+      expect(merged).toHaveLength(1);
+      expect(merged[0]).toMatchObject({
+        _id: "error-id",
+        type: "LETTER_REVERSAL",
+        category: "Letter reversal",
+        expectedCorrection: "dog",
+      });
     });
   
     test("analyseEssay should return summary and errors", () => {

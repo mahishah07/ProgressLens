@@ -3,6 +3,7 @@ const studentRepository = require("../repositories/studentRepository");
 const reportRepository = require("../repositories/reportRepository");
 const writingSampleRepository = require("../repositories/writingSampleRepository");
 const { buildErrorChartData } = require("../services/chartService");
+const { detectComparisonErrors, mergeComparisonErrors, countErrors } = require("../services/essayAnalysisService");
 const { analyseReportWithOpenAi } = require("../services/interventionRecommendationService");
 
 function formatRecommendation(recommendation) {
@@ -51,16 +52,17 @@ async function analyseReport(req, res, next) {
     const report = await reportRepository.findById(req.params.reportId);
     if (!report) return res.status(404).json({ success: false, error: "Report not found." });
     const chartData = report.chartData?.length ? report.chartData : buildErrorChartData(report.errorCounts);
+    const sourceText = report.writingSample.cleanedText || report.writingSample.ocrText;
     const openAiAnalysis = await analyseReportWithOpenAi({
       studentId: report.student.studentId,
-      sourceText: report.writingSample.cleanedText || report.writingSample.ocrText,
+      sourceText,
       errors: report.errors,
       tokens: report.tokens,
       errorCounts: report.errorCounts,
       chartData,
     });
     const corrections = new Map(openAiAnalysis.corrections.map((correction) => [correction.errorId, correction]));
-    const errors = report.errors.map((error) => {
+    let errors = report.errors.map((error) => {
       const correction = corrections.get(String(error._id));
       return {
         ...error,
@@ -69,6 +71,15 @@ async function analyseReport(req, res, next) {
         correctionSource: "openai",
       };
     });
+    if (!report.answerKey) {
+      errors = mergeComparisonErrors(
+        errors,
+        detectComparisonErrors(openAiAnalysis.correctedText, sourceText)
+      );
+    }
+    const errorCounts = countErrors(errors);
+    const updatedChartData = buildErrorChartData(errorCounts);
+    const summary = { ...report.summary, errorCount: errors.length };
     let updated;
     await mongoose.connection.transaction(async (session) => {
       updated = await reportRepository.saveOpenAiAnalysis(
@@ -77,7 +88,8 @@ async function analyseReport(req, res, next) {
         errors,
         openAiAnalysis.correctedText,
         openAiAnalysis.recommendation,
-        session
+        session,
+        { errorCounts, chartData: updatedChartData, summary }
       );
       const writingSample = await writingSampleRepository.markAnalysed(report.writingSample._id, {
         expectedText: openAiAnalysis.correctedText,

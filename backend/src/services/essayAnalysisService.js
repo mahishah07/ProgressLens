@@ -107,6 +107,34 @@ function deduplicateErrors(errors) {
   });
 }
 
+function mergeComparisonErrors(existingErrors, comparisonErrors) {
+  const merged = existingErrors.map((error) => ({ ...error }));
+
+  for (const comparisonError of comparisonErrors) {
+    const matchIndex = merged.findIndex((error) => comparisonError.actual === null
+      ? error.type === "DELETION" && error.expectedIndex === comparisonError.expectedIndex && error.expected === comparisonError.expected
+      : error.actualIndex === comparisonError.actualIndex && error.actual === comparisonError.actual
+    );
+
+    if (matchIndex >= 0) {
+      merged[matchIndex] = {
+        ...merged[matchIndex],
+        ...comparisonError,
+        expectedCorrection: merged[matchIndex].expectedCorrection || comparisonError.expected || comparisonError.suggestion,
+      };
+    } else {
+      merged.push({
+        ...comparisonError,
+        expectedCorrection: comparisonError.expected || comparisonError.suggestion,
+        correctionExplanation: comparisonError.message,
+        correctionSource: "openai",
+      });
+    }
+  }
+
+  return deduplicateErrors(merged);
+}
+
 function countErrors(errors) {
   const counts = { spelling: 0, phonetic: 0, insertion: 0, deletion: 0, letterReversal: 0, total: errors.length };
   for (const error of errors) {
@@ -133,4 +161,5 @@ function analyseEssay({ essayText, expectedText }) {
 module.exports = {
   analyseEssay, detectRepeatedWords, detectCommonTypos, detectComparisonErrors,
   isLikelyLetterReversal, isLikelyPhoneticError, buildDiffOperations, countErrors,
+  mergeComparisonErrors,
 };

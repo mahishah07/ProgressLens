@@ -211,7 +211,12 @@ describe("Error Pattern Analyser demo integration", () => {
       expect.arrayContaining([expect.objectContaining({ _id: "error-db-id" })]),
       "Last Saturday I went to the park.",
       expect.objectContaining({ status: "completed" }),
-      "test-session"
+      "test-session",
+      expect.objectContaining({
+        errorCounts: expect.objectContaining({ total: 1 }),
+        chartData: expect.any(Array),
+        summary: expect.objectContaining({ errorCount: 1 }),
+      })
     );
     expect(writingSampleRepository.markAnalysed).toHaveBeenCalledWith(
       "sample-db-id",
@@ -221,6 +226,52 @@ describe("Error Pattern Analyser demo integration", () => {
       }),
       "test-session"
     );
+  });
+
+  test("IT-04d derives reversal, phonetic and deletion categories for narrative writing", async () => {
+    const narrativeReport = {
+      ...report,
+      writingSample: { _id: "narrative-sample-id", cleanedText: "the bog went nite" },
+      tokens: ["the", "bog", "went", "nite"],
+      errors: [
+        { _id: "bog-error", type: "SPELLING_ERROR", category: "Spelling", actual: "bog", actualIndex: 1, message: "Spelling error." },
+        { _id: "nite-error", type: "SPELLING_ERROR", category: "Spelling", actual: "nite", actualIndex: 3, message: "Spelling error." },
+      ],
+      summary: { wordCount: 4, sentenceCount: 1, errorCount: 2 },
+      errorCounts: { spelling: 2, phonetic: 0, insertion: 0, deletion: 0, letterReversal: 0, total: 2 },
+      chartData: [],
+      answerKey: null,
+    };
+    reportRepository.findById.mockResolvedValue(narrativeReport);
+    analyseReportWithOpenAi.mockResolvedValue({
+      correctedText: "the dog went home at night",
+      corrections: [
+        { errorId: "bog-error", expectedCorrection: "dog", explanation: "Letter form correction." },
+        { errorId: "nite-error", expectedCorrection: "night", explanation: "Phonetic spelling correction." },
+      ],
+      recommendation: {
+        status: "completed",
+        overview: "Practise sound and letter mapping.",
+        dominantPattern: "Mixed transcription errors",
+        interventions: [{ title: "Word mapping", rationale: "Builds sound-symbol accuracy.", activities: ["Map words"], frequency: "Weekly" }],
+        educatorCaution: "Review first.",
+      },
+    });
+    reportRepository.saveOpenAiAnalysis.mockResolvedValue(narrativeReport);
+    writingSampleRepository.markAnalysed.mockResolvedValue({ status: "analysed" });
+
+    const response = await request(app).post("/api/reports/report-db-id/analyse");
+
+    expect(response.statusCode).toBe(200);
+    const savedErrors = reportRepository.saveOpenAiAnalysis.mock.calls[0][2];
+    const savedMetrics = reportRepository.saveOpenAiAnalysis.mock.calls[0][6];
+    expect(savedErrors).toEqual(expect.arrayContaining([
+      expect.objectContaining({ _id: "bog-error", type: "LETTER_REVERSAL" }),
+      expect.objectContaining({ _id: "nite-error", type: "PHONETIC_ERROR" }),
+      expect.objectContaining({ type: "DELETION" }),
+    ]));
+    expect(savedMetrics.errorCounts).toMatchObject({ letterReversal: 1, phonetic: 1, deletion: 2, total: 4 });
+    expect(savedMetrics.chartData.find((item) => item.key === "deletion").count).toBe(2);
   });
 
   test("IT-04b supports the frontend analyze spelling and dashboard route", async () => {

@@ -10,7 +10,6 @@ import {
 	Bell,
 	Settings,
 	Search,
-	Eye,
 	FileBarChart2,
 } 
 from "lucide-react";
@@ -177,13 +176,6 @@ export default function StudentErrorAnalysis() {
 						<span>Settings</span>
 					</a>
 				</nav>
-				<div className="sidebar-footer">
-					<div className="avatar-small">SR</div>
-					<div>
-						<p className="footer-name">S. Richards</p>
-						<p className="footer-role">Profile</p>
-					</div>
-				</div>
 			</aside>
 
 			<main className="sea-main">
@@ -202,12 +194,9 @@ export default function StudentErrorAnalysis() {
 						<div className="sea-student-avatar">ST</div>
 						<div className="sea-student-info">
 							<h1>{report.student.firstName} {report.student.lastName}</h1>
-							<p>ID: {report.student.studentId}</p>
+							<p>{report.student.studentId}</p>
 						</div>
 						<div className="sea-student-actions">
-							<button className="sea-btn-secondary">
-								<Eye size={16} /> Manual Writing
-							</button>
 							<button className="sea-btn-primary">
 								<FileBarChart2 size={16} /> Generate Report
 							</button>
@@ -246,7 +235,7 @@ export default function StudentErrorAnalysis() {
 
 						{/* Donut chart */}
 						<div className="sea-card sea-donut">
-							<h3>Most Common Error Types</h3>
+          <h3>Error Type Classification</h3>
 							<div className="sea-donut-chart">
 								<DonutChart data={donutData} />
 							</div>

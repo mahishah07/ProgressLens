@@ -28,7 +28,7 @@ async function findStudent(req, res, next) {
 
         return res.json({
             success: true,
-            students
+            data: students
         });
 
     } catch (error) {
