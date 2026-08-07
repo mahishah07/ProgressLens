@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import "../css/StudentError.css";
 import {
@@ -90,14 +90,61 @@ export default function StudentErrorAnalysis() {
     console.log("Component rendered");
 
     const { reportId } = useParams();
+    const navigate = useNavigate();
 
     const API = import.meta.env.VITE_ERROR_API;
+    const PMS_API = import.meta.env.VITE_PMS_API;
 
     console.log("reportId =", reportId);
     console.log("API =", API);
 
     const [report, setReport] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [studentSearch, setStudentSearch] = useState("");
+    const [studentSearching, setStudentSearching] = useState(false);
+
+	const openStudentDashboard = async (event) => {
+		event.preventDefault();
+		const query = studentSearch.trim();
+		if (!query) return;
+
+		setStudentSearching(true);
+		try {
+			const response = await fetch(`${API}/api/students?q=${encodeURIComponent(query)}`);
+			const data = await response.json();
+			if (!response.ok) throw new Error(data.error || "Unable to search for students.");
+
+			let profiles = data?.students || data?.data || [];
+			if (profiles.length === 0 && PMS_API) {
+				const pmsResponse = await fetch(
+					`${PMS_API}/api/progress/search?studentId=${encodeURIComponent(query)}`
+				);
+				const pmsData = await pmsResponse.json();
+				if (!pmsResponse.ok) throw new Error(pmsData.message || "Unable to search the student directory.");
+				profiles = Array.isArray(pmsData) ? pmsData : [];
+			}
+
+			const normalisedQuery = query.toLowerCase();
+			const profile = profiles.find((item) => {
+				const fullName = [item.firstName, item.lastName].filter(Boolean).join(" ").toLowerCase();
+				return item.studentId?.toLowerCase() === normalisedQuery
+					|| item.name?.toLowerCase() === normalisedQuery
+					|| fullName === normalisedQuery;
+			}) || profiles[0];
+
+			if (!profile?.studentId) {
+				alert(`No student found for “${query}”.`);
+				return;
+			}
+
+			setStudentSearch("");
+			navigate(`/error-dashboard/${encodeURIComponent(profile.studentId)}`);
+		} catch (error) {
+			alert(error.message);
+		} finally {
+			setStudentSearching(false);
+		}
+	};
 
 	useEffect(() => {
     console.log("inside useEffect");
@@ -181,10 +228,18 @@ export default function StudentErrorAnalysis() {
 			<main className="sea-main">
 				<header className="sea-topbar">
 					<h2>DAS Assessment Portal</h2>
-					<div className="sea-topbar-search">
-						<Search size={16} />
-						<input type="text" placeholder="Search students..." />
-					</div>
+					<form className="sea-topbar-search" onSubmit={openStudentDashboard}>
+						<button type="submit" aria-label="Open student error dashboard" disabled={studentSearching}>
+							<Search size={16} />
+						</button>
+						<input
+							type="text"
+							placeholder={studentSearching ? "Searching..." : "Search student by name or ID..."}
+							value={studentSearch}
+							onChange={(event) => setStudentSearch(event.target.value)}
+							disabled={studentSearching}
+						/>
+					</form>
 					<div className="sea-topbar-avatar">MF</div>
 				</header>
 
