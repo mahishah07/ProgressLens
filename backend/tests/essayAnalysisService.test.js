@@ -87,6 +87,19 @@ const {
       });
     });
 
+    test("detectComparisonErrors should classify every capitalization-only difference as grammar", () => {
+      const expected = "NW - The sun rises into the sky while I walk towards the food centre.";
+      const actual = "NW - The Sun rises into the Sky while I walk towards the Food centre.";
+      const errors = detectComparisonErrors(expected, actual);
+
+      expect(errors.filter((error) => error.type === "CAPITALIZATION_ERROR")).toEqual([
+        expect.objectContaining({ actual: "Sun", expected: "sun", category: "Grammar" }),
+        expect.objectContaining({ actual: "Sky", expected: "sky", category: "Grammar" }),
+        expect.objectContaining({ actual: "Food", expected: "food", category: "Grammar" }),
+      ]);
+      expect(countErrors(errors)).toMatchObject({ grammar: 3, total: 3 });
+    });
+
     test("mergeComparisonErrors upgrades a generic spelling error without losing its report ID", () => {
       const existing = [{
         _id: "error-id",

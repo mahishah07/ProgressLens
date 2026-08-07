@@ -115,8 +115,37 @@ function convertDiffToErrors(operations) {
   });
 }
 
+function tokenizeWordsPreservingCase(text) {
+  return typeof text === "string" ? text.match(/[A-Za-z]+(?:['’][A-Za-z]+)*/g) || [] : [];
+}
+
 function detectComparisonErrors(expectedText, actualText) {
-  return convertDiffToErrors(buildDiffOperations(tokenizeWords(expectedText), tokenizeWords(actualText)));
+  const expectedTokens = tokenizeWordsPreservingCase(expectedText);
+  const actualTokens = tokenizeWordsPreservingCase(actualText);
+  const operations = buildDiffOperations(
+    expectedTokens.map((token) => token.toLowerCase()),
+    actualTokens.map((token) => token.toLowerCase())
+  );
+  const errors = convertDiffToErrors(operations);
+  const capitalizationErrors = operations.flatMap((operation) => {
+    if (operation.type !== "MATCH") return [];
+    const expected = expectedTokens[operation.expectedIndex];
+    const actual = actualTokens[operation.actualIndex];
+    if (!expected || !actual || expected === actual) return [];
+    return [{
+      type: "CAPITALIZATION_ERROR",
+      category: "Grammar",
+      message: `Capitalization error: expected "${expected}", but found "${actual}".`,
+      expected,
+      actual,
+      suggestion: expected,
+      expectedCorrection: expected,
+      expectedIndex: operation.expectedIndex,
+      actualIndex: operation.actualIndex,
+      tokenIndex: operation.actualIndex,
+    }];
+  });
+  return errors.concat(capitalizationErrors);
 }
 
 function deduplicateErrors(errors) {
@@ -197,7 +226,7 @@ function countErrors(errors) {
     if (["INSERTION", "REPETITION"].includes(error.type)) counts.insertion += 1;
     if (error.type === "DELETION") counts.deletion += 1;
     if (error.type === "LETTER_REVERSAL") counts.letterReversal += 1;
-    if (error.type === "GRAMMAR_ERROR") counts.grammar += 1;
+    if (["GRAMMAR_ERROR", "CAPITALIZATION_ERROR"].includes(error.type)) counts.grammar += 1;
   }
   return counts;
 }
