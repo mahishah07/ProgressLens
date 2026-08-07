@@ -530,14 +530,6 @@ const analyzeAssessment = async () => {
                         <span><FileType2 size={15} /> {file.mimeType === "application/pdf" ? "PDF" : "Image"} · {formatFileSize(file.fileSize)}</span>
                       </div>
 
-                      <div className="submission-file">
-                        <div className="submission-file-icon"><FileText size={24} /></div>
-                        <div>
-                          <span>STUDENT SUBMISSION</span>
-                          <strong>{file.originalName || "Writing sample"}</strong>
-                        </div>
-                      </div>
-
                       <div className="history-insights">
                         <div className="history-metric">
                           <span>Detected errors</span>
@@ -555,7 +547,6 @@ const analyzeAssessment = async () => {
                       </div>
 
                       <div className="history-card-footer">
-                        <span>Student {student?.studentId}</span>
                         <div className="history-card-actions">
                           <Link to={`/student-errors/${assessment._id}`} className="analysis-button">
                             <BarChart3 size={17} /> View analysis

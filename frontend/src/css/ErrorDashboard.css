@@ -446,34 +446,6 @@ body{
     gap:6px;
 }
 
-.submission-file{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    padding:14px;
-    margin:16px 0;
-    background:#f7f9fc;
-    border:1px solid #e6ebf1;
-    border-radius:13px;
-    min-width:0;
-}
-
-.submission-file-icon{
-    width:42px;
-    height:42px;
-    flex:0 0 42px;
-    display:grid;
-    place-items:center;
-    color:#165db8;
-    background:#e7f0fc;
-    border-radius:10px;
-}
-
-.submission-file > div:last-child{
-    min-width:0;
-}
-
-.submission-file span,
 .history-summary-block > span{
     display:block;
     color:#7a8799;
@@ -481,15 +453,6 @@ body{
     font-weight:800;
     letter-spacing:.75px;
     margin-bottom:4px;
-}
-
-.submission-file strong{
-    display:block;
-    color:#243247;
-    font-size:13px;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
 }
 
 .history-insights{
@@ -503,6 +466,9 @@ body{
 .history-pattern{
     border-radius:13px;
     padding:13px;
+    height:170px;
+    box-sizing:border-box;
+    overflow:hidden;
 }
 
 .history-metric{
@@ -572,6 +538,7 @@ body{
     display:flex;
     align-items:center;
     gap:8px;
+    margin-left:auto;
 }
 
 .analysis-button,
@@ -645,6 +612,7 @@ body{
 @media (max-width: 620px){
     .history-header{flex-direction:column;gap:14px;}
     .history-insights{grid-template-columns:1fr;}
+    .history-metric,.history-pattern{height:auto;min-height:120px;}
     .history-card-footer{align-items:flex-start;flex-direction:column;}
     .history-card-actions{width:100%;}
     .analysis-button,.report-button{flex:1;}
