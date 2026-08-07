@@ -11,4 +11,9 @@ describe("Error pie chart data", () => {
   test("handles a report with no errors", () => {
     expect(buildErrorChartData({}).every((item) => item.percentage === 0)).toBe(true);
   });
+
+  test("includes grammar errors in chart data", () => {
+    const grammar = buildErrorChartData({ grammar: 2, spelling: 1 }).find((item) => item.key === "grammar");
+    expect(grammar).toMatchObject({ label: "Grammar", count: 2, percentage: 66.7 });
+  });
 });

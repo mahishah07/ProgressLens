@@ -29,6 +29,22 @@ function isLikelyPhoneticError(expectedWord, actualWord) {
   return expectedCode.length > 0 && expectedCode === actualCode;
 }
 
+function isSubsequence(shorterWord, longerWord) {
+  let shorterIndex = 0;
+  for (const letter of longerWord) {
+    if (letter === shorterWord[shorterIndex]) shorterIndex += 1;
+  }
+  return shorterIndex === shorterWord.length;
+}
+
+function hasDeletedLetters(expectedWord, actualWord) {
+  return expectedWord.length > actualWord.length && isSubsequence(actualWord, expectedWord);
+}
+
+function hasInsertedLetters(expectedWord, actualWord) {
+  return actualWord.length > expectedWord.length && isSubsequence(expectedWord, actualWord);
+}
+
 function detectRepeatedWords(tokens) {
   return tokens.flatMap((token, index) => index > 0 && token === tokens[index - 1]
     ? [{ type: "REPETITION", category: "Insertion", message: `Repeated word "${token}" detected.`, actual: token, tokenIndex: index, actualIndex: index }]
@@ -86,6 +102,12 @@ function convertDiffToErrors(operations) {
     if (isLikelyLetterReversal(operation.expected, operation.actual)) {
       return [{ ...shared, type: "LETTER_REVERSAL", category: "Letter reversal", message: `Possible letter reversal: expected "${operation.expected}", but found "${operation.actual}".` }];
     }
+    if (hasDeletedLetters(operation.expected, operation.actual)) {
+      return [{ ...shared, type: "DELETION", category: "Deletion", message: `Missing letter(s): expected "${operation.expected}", but found "${operation.actual}".` }];
+    }
+    if (hasInsertedLetters(operation.expected, operation.actual)) {
+      return [{ ...shared, type: "INSERTION", category: "Insertion", message: `Extra letter(s): expected "${operation.expected}", but found "${operation.actual}".` }];
+    }
     if (isLikelyPhoneticError(operation.expected, operation.actual)) {
       return [{ ...shared, type: "PHONETIC_ERROR", category: "Phonetic", message: `Phonetically similar spelling: expected "${operation.expected}", but found "${operation.actual}".` }];
     }
@@ -135,14 +157,47 @@ function mergeComparisonErrors(existingErrors, comparisonErrors) {
   return deduplicateErrors(merged);
 }
 
+function mergeGrammarErrors(existingErrors, grammarErrors, tokens = []) {
+  const merged = existingErrors.map((error) => ({ ...error }));
+  for (const grammarError of grammarErrors || []) {
+    const actual = cleanText(grammarError.actual);
+    let actualIndex = Number.isInteger(grammarError.actualIndex) ? grammarError.actualIndex : -1;
+    if (actualIndex < 0 || (tokens[actualIndex] && tokens[actualIndex] !== actual)) {
+      const locatedIndex = tokens.findIndex((token) => token === actual);
+      if (locatedIndex >= 0) actualIndex = locatedIndex;
+    }
+    const grammarRecord = {
+      type: "GRAMMAR_ERROR",
+      category: "Grammar",
+      message: grammarError.explanation,
+      actual: grammarError.actual,
+      expected: grammarError.expectedCorrection,
+      suggestion: grammarError.expectedCorrection,
+      expectedCorrection: grammarError.expectedCorrection,
+      correctionExplanation: grammarError.explanation,
+      correctionSource: "openai",
+      actualIndex: actualIndex >= 0 ? actualIndex : null,
+      tokenIndex: actualIndex >= 0 ? actualIndex : null,
+    };
+    const matchIndex = merged.findIndex((error) =>
+      (actualIndex >= 0 && (error.actualIndex === actualIndex || error.tokenIndex === actualIndex))
+      || (cleanText(error.actual) === actual && error.expectedCorrection === grammarError.expectedCorrection)
+    );
+    if (matchIndex >= 0) merged[matchIndex] = { ...merged[matchIndex], ...grammarRecord };
+    else merged.push(grammarRecord);
+  }
+  return deduplicateErrors(merged);
+}
+
 function countErrors(errors) {
-  const counts = { spelling: 0, phonetic: 0, insertion: 0, deletion: 0, letterReversal: 0, total: errors.length };
+  const counts = { spelling: 0, phonetic: 0, insertion: 0, deletion: 0, letterReversal: 0, grammar: 0, total: errors.length };
   for (const error of errors) {
     if (["SPELLING_ERROR", "COMMON_TYPO"].includes(error.type)) counts.spelling += 1;
     if (error.type === "PHONETIC_ERROR") counts.phonetic += 1;
     if (["INSERTION", "REPETITION"].includes(error.type)) counts.insertion += 1;
     if (error.type === "DELETION") counts.deletion += 1;
     if (error.type === "LETTER_REVERSAL") counts.letterReversal += 1;
+    if (error.type === "GRAMMAR_ERROR") counts.grammar += 1;
   }
   return counts;
 }
@@ -162,4 +217,5 @@ module.exports = {
   analyseEssay, detectRepeatedWords, detectCommonTypos, detectComparisonErrors,
   isLikelyLetterReversal, isLikelyPhoneticError, buildDiffOperations, countErrors,
   mergeComparisonErrors,
+  mergeGrammarErrors,
 };

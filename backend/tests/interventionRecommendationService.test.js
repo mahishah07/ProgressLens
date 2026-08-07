@@ -35,6 +35,7 @@ describe("Intervention recommendation service", () => {
     const output = {
       correctedText: "Last Saturday I went.",
       corrections: [{ errorId: "error-1", expectedCorrection: "Saturday", explanation: "Correct spelling in context." }],
+      grammarErrors: [{ actual: "go", expectedCorrection: "went", explanation: "Past tense is required.", actualIndex: 3 }],
       recommendation: {
         overview: "Practise spelling patterns.",
         dominantPattern: "Spelling",
@@ -53,6 +54,7 @@ describe("Intervention recommendation service", () => {
     }, { client, model: "test-model" });
     expect(result.correctedText).toBe(output.correctedText);
     expect(result.corrections).toEqual(output.corrections);
+    expect(result.grammarErrors).toEqual(output.grammarErrors);
     expect(result.recommendation).toMatchObject({ status: "completed", model: "test-model" });
   });
 
