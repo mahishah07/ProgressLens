@@ -218,7 +218,8 @@ export default function StudentProgress() {
 							<div className="sp-meta-item">
 								<span className="sp-meta-label">Assigned Band</span>
 								<span className="sp-meta-value sp-band">
-									✦ {overview?.currentBandLevel || "—"}
+									✦
+									{overview?.latestNewBand || overview?.currentBandLevel || "—"}
 								</span>
 							</div>
 							<div className="sp-meta-item">
@@ -336,7 +337,10 @@ export default function StudentProgress() {
 									: "—"}
 							</span>
 							<span className="sp-band-tag">
-								✦ {dashboard?.currentBandLevel || "—"}
+								✦{" "}
+								{dashboard?.latestAssessment?.newBand ||
+									dashboard?.currentBandLevel ||
+									"—"}
 							</span>
 							<span>Teacher: {dashboard?.student?.teacherId || "—"}</span>
 						</div>
@@ -353,9 +357,6 @@ export default function StudentProgress() {
 							onClick={() => navigate(`/progress-report?studentId=${id}`)}
 						>
 							<FileText size={16} /> Generate Report
-						</button>
-						<button className="sp-qa-secondary">
-							<Filter size={16} /> View Assessments
 						</button>
 						<a
 							href={SHEET_URL}
@@ -416,7 +417,10 @@ export default function StudentProgress() {
 						<h3>✦ Student Performance Summary</h3>
 						<p>
 							{(() => {
-								const band = dashboard?.currentBandLevel || "—";
+								const band =
+									dashboard?.latestAssessment?.newBand ||
+									dashboard?.currentBandLevel ||
+									"—";
 								const score = dashboard?.bandScore?.totalScore;
 								const passed = dashboard?.bandScore?.passed;
 								const strongest = dashboard?.skillBreakdown?.strongest;
@@ -447,12 +451,12 @@ export default function StudentProgress() {
 										improvement = ` Their score is unchanged from their previous assessment.`;
 								}
 
-								let summary = `${dashboard?.student?.studentId} is currently at Band ${band}`;
+								let summary = `${dashboard?.student?.studentId} is currently at Band Level ${band}`;
 								if (score !== null && score !== undefined) {
 									summary += `, with a weighted assessment score of ${score}%`;
 									summary += passed
-										? " — meeting the required threshold."
-										: " — below the 90% passing threshold.";
+										? " : meeting the required threshold."
+										: " : below the 90% passing threshold.";
 								}
 								summary += improvement;
 								if (strongest)
@@ -552,29 +556,44 @@ export default function StudentProgress() {
 
 						{radarData ? (
 							<>
-								{chartType === "radar" ? (
-									<Radar
-										data={filteredRadarData()}
-										options={{
-											responsive: true,
-											scales: {
-												r: { min: 0, max: 100, ticks: { stepSize: 20 } },
-											},
-											plugins: { legend: { display: false } },
-										}}
-									/>
-								) : (
-									<Bar
-										data={filteredRadarData()}
-										options={{
-											responsive: true,
-											scales: {
-												y: { min: 0, max: 100, ticks: { stepSize: 20 } },
-											},
-											plugins: { legend: { display: false } },
-										}}
-									/>
-								)}
+								<div style={{ height: "300px", position: "relative" }}>
+									{chartType === "radar" ? (
+										<Radar
+											data={filteredRadarData()}
+											options={{
+												responsive: true,
+												maintainAspectRatio: false,
+												scales: {
+													r: {
+														min: 0,
+														max: (() => {
+															const data =
+																filteredRadarData()?.datasets?.[0]?.data || [];
+															const highest = Math.max(
+																...data.filter((v) => v !== null),
+															);
+															return isFinite(highest) ? highest + 5 : 100;
+														})(),
+														ticks: { stepSize: 5 },
+													},
+												},
+												plugins: { legend: { display: false } },
+											}}
+										/>
+									) : (
+										<Bar
+											data={filteredRadarData()}
+											options={{
+												responsive: true,
+												maintainAspectRatio: false,
+												scales: {
+													y: { min: 0, max: 100, ticks: { stepSize: 20 } },
+												},
+												plugins: { legend: { display: false } },
+											}}
+										/>
+									)}
+								</div>
 								<p className="sp-strongest">
 									Strongest Skill: {dashboard?.skillBreakdown?.strongest || "—"}
 								</p>
@@ -602,7 +621,22 @@ export default function StudentProgress() {
 
 				<div className="sp-history-card">
 					<div className="sp-history-header">
-						<h3>Assessment History</h3>
+						<h2>Assessment History</h2>
+						<div
+							style={{
+								display: "flex",
+								gap: "0.5rem",
+								background: "#1b3c6e",
+								color: "white",
+							}}
+						>
+							<button
+								className="sp-view-assessments-btn"
+								onClick={() => navigate(`/student/${id}/assessments`)}
+							>
+								View Assessments →
+							</button>
+						</div>
 					</div>
 					<table className="sp-table">
 						<thead>

@@ -347,6 +347,9 @@
 	padding: 1.5rem;
 	border-radius: 12px;
 	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+	min-height: 500px;
+	display: flex;
+	flex-direction: column;
 }
 .sp-chart-card h3,
 .sp-radar-card h3 {
@@ -416,6 +419,22 @@
 	border-radius: 99px;
 	font-size: 0.75rem;
 	font-weight: 600;
+}
+.sp-view-assessments-btn {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.6rem 1.25rem;
+	border: none;
+	border-radius: 20px;
+	background: #1a3c6e;
+	color: white;
+	font-size: 0.9rem;
+	font-weight: 600;
+	cursor: pointer;
+}
+.sp-view-assessments-btn:hover {
+	opacity: 0.9;
 }
 
 /* Bottom bar */

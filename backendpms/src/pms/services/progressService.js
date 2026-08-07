@@ -106,6 +106,7 @@ exports.buildDashboard = async (studentId) => {
 		latestAssessment: {
 			_id: latest._id,
 			semester: latest.semester,
+			newBand: latest.newBand,
 			term: latest.term,
 			assessmentDate: latest.assessmentDate,
 			assessedBy: latest.assessedBy,
@@ -156,6 +157,7 @@ exports.getStudentOverview = async (studentId) => {
 	return {
 		student,
 		currentBandLevel: student.summaryBand,
+		latestNewBand: latest ? latest.newBand : null,
 		bandScore,
 		lastAssessmentDate: latest ? latest.assessmentDate : null,
 		lastSemester: latest ? latest.semester : null,
