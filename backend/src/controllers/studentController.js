@@ -13,11 +13,27 @@ async function createStudent(req, res, next) {
 }
 
 async function findStudent(req, res, next) {
-  try {
-    const query = String(req.query.q || "").trim();
-    if (!query) return res.status(400).json({ success: false, error: "Search query q is required." });
-    return res.json({ success: true, data: await studentRepository.search(query) });
-  } catch (error) { return next(error); }
+    try {
+
+        const query = String(req.query.q || "").trim();
+
+        if (!query) {
+            return res.status(400).json({
+                success: false,
+                error: "Search query q is required."
+            });
+        }
+
+        const students = await studentRepository.search(query);
+
+        return res.json({
+            success: true,
+            students
+        });
+
+    } catch (error) {
+        next(error);
+    }
 }
 
 module.exports = { createStudent, findStudent };

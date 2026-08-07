@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import "./../css/Landing.css";
 import {
 	LayoutDashboard,
-	FileText,
 	Bell,
 	Settings,
 	Search,
@@ -18,11 +17,25 @@ export default function Landing() {
 	const [students, setStudents] = useState([]);
 	const [centres, setCentres] = useState([]);
 	const [selectedCentre, setSelectedCentre] = useState("");
+	const [searchInput, setSearchInput] = useState("");
 	const [search, setSearch] = useState("");
 	const [page, setPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
+
+	useEffect(() => {
+    const timer = setTimeout(() => {
+        if (
+            searchInput.length >= 4 ||
+            searchInput.length === 0
+        ) {
+            setSearch(searchInput.trim());
+        }
+    }, 400);
+
+    return () => clearTimeout(timer);
+}, [searchInput]);
 
 	// fetch centres for filter dropdown
 	useEffect(() => {
@@ -34,33 +47,37 @@ export default function Landing() {
 
 	// fetch students whenever filter/search/page changes
 	useEffect(() => {
-		const url = search.trim()
-			? `${API}/api/progress/search?studentId=${encodeURIComponent(
-				  search.trim()
-			  )}`
+		const url = search
+			? `${API}/api/progress/search?studentId=${encodeURIComponent(search)}`
 			: selectedCentre
 			? `${API}/api/progress/search?centreId=${encodeURIComponent(
 				  selectedCentre
 			  )}`
 			: `${API}/api/students?page=${page}&limit=20`;
 
-		fetch(url)
-			.then((r) => r.json())
-			.then((data) => {
-				setError(null);
-				if (Array.isArray(data)) {
-					setStudents(data);
-					setTotalPages(1);
-				} else {
-					setStudents(data.students || []);
-					setTotalPages(data.pages || 1);
-				}
-				setLoading(false);
-			})
-			.catch(() => {
-				setError("Failed to load students. Make sure the backend is running.");
-				setLoading(false);
-			});
+		const loadStudents = () => {
+			setLoading(true);
+
+			fetch(url)
+				.then((r) => r.json())
+				.then((data) => {
+					setError(null);
+					if (Array.isArray(data)) {
+						setStudents(data);
+						setTotalPages(1);
+					} else {
+						setStudents(data.students || []);
+						setTotalPages(data.pages || 1);
+					}
+					setLoading(false);
+				})
+				.catch(() => {
+					setError("Failed to load students. Make sure the backend is running.");
+					setLoading(false);
+				});
+		};
+
+		loadStudents();
 	}, [search, selectedCentre, page]);
 
 	const getInitials = (studentId) => {
@@ -89,10 +106,6 @@ export default function Landing() {
 						<span>Dashboard</span>
 					</a>
 					<a href="#">
-						<FileText size={20} />
-						<span>Reports</span>
-					</a>
-					<a href="#">
 						<Bell size={20} />
 						<span>Notifications</span>
 					</a>
@@ -109,8 +122,8 @@ export default function Landing() {
 					<h2>DAS Assessment Portal</h2>
 					<div className="top-right">
 						<div className="teacher">
-							<span className="teacher-avatar">MF</span>
-							<span>Melissa Foo</span>
+							<span className="teacher-avatar">T1</span>
+							<span>Teacher 1</span>
 						</div>
 					</div>
 				</header>
@@ -128,15 +141,20 @@ export default function Landing() {
 							<input
 								type="text"
 								placeholder="Search by Student ID..."
-								value={search}
+								value={searchInput}
 								onChange={(e) => {
-									setSearch(e.target.value);
+									const value = e.target.value.replace(/\D/g, "");
+									setSearchInput(value);
+									if (value !=="") {
+										setSelectedCentre("");
+									}
 									setPage(1);
 								}}
 							/>
 						</div>
 						<select
 							value={selectedCentre}
+							disabled={!!search}
 							onChange={(e) => {
 								setSelectedCentre(e.target.value);
 								setPage(1);
@@ -165,24 +183,37 @@ export default function Landing() {
 
 					{/* Cards */}
 					{!loading && !error && (
-						<>
-							<div className="student-grid">
+    					<>
+        					<div className="student-grid">
+
+            					{/* Register card */}
+								{! search &&
+            					<div className="student-card add-card">
+									<UserPlus size={32} />
+									<p>Register New Student</p>
+								</div> }
+
+								{/* Existing students */}
 								{students.map((student) => (
 									<div className="student-card" key={student._id}>
 										<div className="avatar">
 											{getInitials(student.studentId)}
 										</div>
-										<h3>{student.studentId}</h3>
+
+                    					<h3>{student.studentId}</h3>
+
 										<p>
 											{student.summaryBand
 												? `Band ${student.summaryBand}`
 												: "No band assigned"}
 										</p>
+
 										<small>
 											Centre: {student.centreId || "—"}
 											<br />
 											Level: {student.schLevel || "—"}
 										</small>
+
 										<Link
 											to={`/student/${encodeURIComponent(student._id)}`}
 											className="dashboard-button"
@@ -191,35 +222,46 @@ export default function Landing() {
 										</Link>
 									</div>
 								))}
-
-								<div className="student-card add-card">
-									<UserPlus size={32} />
-									<p>Register New Student</p>
-								</div>
+								{search && students.length === 0 && (
+    								<div className="student-card add-card">
+										<h3>No student found</h3>
+										<p>
+											No student with ID <strong>{search}</strong> exists.
+										</p>
+										<p>
+											You can register this student below.
+										</p>
+										<button>
+											Register New Student
+										</button>
+									</div>
+								)}
 							</div>
 
-							{/* Pagination — only show when not filtering */}
-							{!search && !selectedCentre && totalPages > 1 && (
-								<div className="pagination">
-									<button
-										onClick={() => setPage((p) => Math.max(1, p - 1))}
-										disabled={page === 1}
-									>
-										← Prev
-									</button>
-									<span>
-										Page {page} of {totalPages}
-									</span>
-									<button
-										onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-										disabled={page === totalPages}
-									>
-										Next →
-									</button>
-								</div>
-							)}
-						</>
-					)}
+								{/* Pagination */}
+								{!search && !selectedCentre && totalPages > 1 && (
+									<div className="pagination">
+										<button
+											onClick={() => setPage((p) => Math.max(1, p - 1))}
+											disabled={page === 1}
+										>
+											← Prev
+										</button>
+
+										<span>
+											Page {page} of {totalPages}
+										</span>
+
+										<button
+											onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+											disabled={page === totalPages}
+										>
+											Next →
+										</button>
+									</div>
+								)}
+							</>
+						)}
 				</section>
 			</main>
 		</div>

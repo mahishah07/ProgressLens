@@ -1,33 +1,50 @@
 {
-  "name": "frontend",
+  "name": "progresslens-backend",
+  "version": "1.0.0",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "description": "Backend APIs for the DAS Progress Monitoring System and Error Pattern Analyser",
+  "main": "server.js",
+  "type": "commonjs",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "start": "node scripts/start-all.js",
+    "start:all": "node scripts/start-all.js",
+    "start:gateway": "node gateway/server.js",
+    "start:pms": "node backendpms/server.js",
+    "start:error-analyser": "node backend/src/server.js",
+    "dev": "node scripts/start-all.js",
+    "dev:gateway": "nodemon gateway/server.js",
+    "dev:pms": "nodemon backendpms/server.js",
+    "dev:error-analyser": "nodemon backend/src/server.js",
+    "demo:answer-key": "node scripts/demo-answer-key.js",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand"
   },
   "dependencies": {
-    "axios": "^1.18.1",
-    "chart.js": "^4.5.1",
-    "lucide-react": "^1.24.0",
-    "react": "^19.2.7",
-    "react-chartjs-2": "^5.3.1",
-    "react-dom": "^19.2.7",
-    "react-is": "^19.2.7",
-    "react-router-dom": "^7.18.1"
+    "@azure/ai-form-recognizer": "^5.1.0",
+    "cors": "^2.8.6",
+    "csv-parser": "^3.2.1",
+    "dictionary-en": "^4.0.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "googleapis": "^173.0.0",
+    "mongodb": "^7.5.0",
+    "mongoose": "^9.8.1",
+    "morgan": "^1.10.0",
+    "multer": "^2.2.0",
+    "natural": "^8.1.1",
+    "nspell": "^2.1.5",
+    "openai": "^7.1.0",
+    "recharts": "^3.10.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "@types/react": "^19.2.17",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.3",
-    "eslint": "^10.6.0",
-    "eslint-plugin-react-hooks": "^7.1.1",
-    "eslint-plugin-react-refresh": "^0.5.3",
-    "globals": "^17.7.0",
-    "vite": "^8.2.0"
+    "jest": "^30.4.2",
+    "mongodb-memory-server": "^11.2.0",
+    "nodemon": "^3.1.14",
+    "supertest": "^7.2.2"
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "^mime-types$": "<rootDir>/node_modules/mime-types/index.js"
+    }
   }
 }
