@@ -222,6 +222,64 @@
 	margin: 0;
 	align-self: flex-start;
 }
+.sea-chart-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	width: 100%;
+}
+.sea-chart-toggle {
+	display: inline-flex;
+	gap: 4px;
+	padding: 3px;
+	border: 1px solid #d8dee8;
+	border-radius: 999px;
+	background: #f7f9fc;
+}
+.sea-chart-toggle button {
+	padding: 0.35rem 0.7rem;
+	border: 0;
+	border-radius: 999px;
+	background: transparent;
+	color: #5d6675;
+	font-size: 0.75rem;
+	font-weight: 600;
+	cursor: pointer;
+}
+.sea-chart-toggle button.active {
+	background: #1a3c6e;
+	color: white;
+}
+.sea-bar-chart {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 0.75rem;
+	width: 100%;
+	min-height: 160px;
+}
+.sea-bar-label {
+	display: flex;
+	justify-content: space-between;
+	gap: 1rem;
+	margin-bottom: 0.3rem;
+	color: #4b5565;
+	font-size: 0.78rem;
+}
+.sea-bar-label strong { color: #111827; }
+.sea-bar-track {
+	height: 10px;
+	overflow: hidden;
+	border-radius: 999px;
+	background: #edf0f4;
+}
+.sea-bar-fill {
+	height: 100%;
+	min-width: 0;
+	border-radius: inherit;
+	transition: width 220ms ease;
+}
 .sea-donut-legend {
 	display: grid;
 	grid-template-columns: 1fr 1fr;

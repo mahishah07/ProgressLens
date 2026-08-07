@@ -31,6 +31,7 @@ const errorColors = {
 
 function DonutChart({ data }) {
 	const total = data.reduce((a, b) => a + b.count, 0);
+	const [hoveredItem, setHoveredItem] = useState(null);
 
 	const r = 60;
 	const cx = 80;
@@ -40,6 +41,7 @@ function DonutChart({ data }) {
 
 	const circles = data.reduce(
 		(acc, d, i) => {
+			if (!d.count || total === 0) return acc;
 			const dash = (d.count / total) * circ;
 			const gap = circ - dash;
 
@@ -54,11 +56,18 @@ function DonutChart({ data }) {
 					strokeWidth={stroke}
 					strokeDasharray={`${dash} ${gap}`}
 					strokeDashoffset={-acc.offset}
+					onMouseEnter={() => setHoveredItem(d)}
+					onMouseLeave={() => setHoveredItem(null)}
 					style={{
 						transform: "rotate(-90deg)",
 						transformOrigin: "80px 80px",
+						cursor: "pointer",
+						opacity: hoveredItem && hoveredItem.key !== d.key ? 0.4 : 1,
+						transition: "opacity 160ms ease",
 					}}
-				/>
+				>
+					<title>{`${d.label}: ${d.count}`}</title>
+				</circle>
 			);
 
 			return {
@@ -80,9 +89,31 @@ function DonutChart({ data }) {
 				fontSize="18"
 				fontWeight="700"
 			>
-				{total}
+				{hoveredItem?.count ?? total}
+			</text>
+			<text x={cx} y={cy + 17} textAnchor="middle" fontSize="8" fill="#667085">
+				{hoveredItem?.label || "Total errors"}
 			</text>
 		</svg>
+	);
+}
+
+function ErrorBarChart({ data }) {
+	const maximum = Math.max(1, ...data.map((item) => item.count));
+	return (
+		<div className="sea-bar-chart">
+			{data.map((item) => (
+				<div className="sea-bar-row" key={item.key}>
+					<div className="sea-bar-label"><span>{item.label}</span><strong>{item.count}</strong></div>
+					<div className="sea-bar-track">
+						<div
+							className="sea-bar-fill"
+							style={{ width: `${(item.count / maximum) * 100}%`, background: item.color }}
+						/>
+					</div>
+				</div>
+			))}
+		</div>
 	);
 }
 
@@ -102,6 +133,7 @@ export default function StudentErrorAnalysis() {
     const [loading, setLoading] = useState(true);
     const [studentSearch, setStudentSearch] = useState("");
     const [studentSearching, setStudentSearching] = useState(false);
+    const [chartView, setChartView] = useState("donut");
 
 	const openStudentDashboard = async (event) => {
 		event.preventDefault();
@@ -290,10 +322,16 @@ export default function StudentErrorAnalysis() {
 
 						{/* Donut chart */}
 						<div className="sea-card sea-donut">
-          <h3>Error Type Classification</h3>
-							<div className="sea-donut-chart">
-								<DonutChart data={donutData} />
+							<div className="sea-chart-header">
+								<h3>Error Type Classification</h3>
+								<div className="sea-chart-toggle" aria-label="Chart view">
+									<button className={chartView === "donut" ? "active" : ""} onClick={() => setChartView("donut")} type="button">◉ Donut</button>
+									<button className={chartView === "bar" ? "active" : ""} onClick={() => setChartView("bar")} type="button">▥ Bar</button>
+								</div>
 							</div>
+							{chartView === "donut" ? (
+								<div className="sea-donut-chart"><DonutChart data={donutData} /></div>
+							) : <ErrorBarChart data={donutData} />}
 							<div className="sea-donut-legend">
 								{donutData.map((d, i) => (
 									<div key={i} className="sea-donut-item">

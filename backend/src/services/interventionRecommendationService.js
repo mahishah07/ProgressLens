@@ -4,6 +4,96 @@ const { z } = require("zod");
 const { zodTextFormat } = require("openai/helpers/zod");
 const { openAiApiKey, openAiModel } = require("../config/env");
 
+const errorCountsSchema = z
+  .object({
+    spelling: z
+      .number()
+      .int()
+      .min(0)
+      .max(10000),
+
+    phonetic: z
+      .number()
+      .int()
+      .min(0)
+      .max(10000),
+
+    insertion: z
+      .number()
+      .int()
+      .min(0)
+      .max(10000),
+
+    deletion: z
+      .number()
+      .int()
+      .min(0)
+      .max(10000),
+
+    letterReversal: z
+      .number()
+      .int()
+      .min(0)
+      .max(10000),
+
+    total: z
+      .number()
+      .int()
+      .min(0)
+      .max(50000),
+  })
+  .superRefine((counts, context) => {
+    const calculatedTotal =
+      counts.spelling +
+      counts.phonetic +
+      counts.insertion +
+      counts.deletion +
+      counts.letterReversal;
+
+    if (
+      counts.total !== calculatedTotal
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["total"],
+        message:
+          "Total must equal the sum of all error categories.",
+      });
+    }
+  });
+
+const recommendationInputSchema =
+  z.object({
+    studentId: z
+      .string()
+      .trim()
+      .min(1)
+      .max(100),
+
+    errorCounts: errorCountsSchema,
+
+    chartData: z.array(
+      z.object({
+        key: z.string().min(1),
+        label: z.string().min(1),
+
+        count: z
+          .number()
+          .int()
+          .min(0),
+
+        percentage: z
+          .number()
+          .min(0)
+          .max(100),
+
+        color: z
+          .string()
+          .optional(),
+      })
+    ),
+  });
+
 const recommendationSchema = z.object({
   overview: z.string(),
   dominantPattern: z.string(),
@@ -36,34 +126,102 @@ function createSafetyIdentifier(studentId) {
   return crypto.createHash("sha256").update(String(studentId)).digest("hex").slice(0, 32);
 }
 
-async function generateInterventionRecommendation({ studentId, errorCounts, chartData }, dependencies = {}) {
-  const apiKey = dependencies.apiKey ?? openAiApiKey;
-  const model = dependencies.model || openAiModel;
-  if (!apiKey && !dependencies.client) {
-    return { status: "not_configured", overview: "", dominantPattern: "", interventions: [], educatorCaution: "", model, generatedAt: null, error: "OPENAI_API_KEY is not configured." };
+async function generateInterventionRecommendation(
+  input,
+  dependencies = {}
+) {
+  const {
+    studentId,
+    errorCounts,
+    chartData,
+  } = recommendationInputSchema.parse(
+    input
+  );
+
+  const apiKey =
+    dependencies.apiKey ?? openAiApiKey;
+
+  const model =
+    dependencies.model || openAiModel;
+
+  if (
+    !apiKey &&
+    !dependencies.client
+  ) {
+    return {
+      status: "not_configured",
+      overview: "",
+      dominantPattern: "",
+      interventions: [],
+      educatorCaution: "",
+      model,
+      generatedAt: null,
+      error:
+        "OPENAI_API_KEY is not configured.",
+    };
   }
 
-  const client = dependencies.client || new OpenAI({ apiKey });
-  const response = await client.responses.parse({
-    model,
-    reasoning: { effort: "low" },
-    safety_identifier: createSafetyIdentifier(studentId),
-    store: false,
-    input: [
-      {
-        role: "system",
-        content: "You support educators reviewing primary-school writing. Use only the supplied aggregate error data. Provide practical literacy activities, not a medical diagnosis. Do not claim the student has dyslexia or any disorder. Recommendations require educator review.",
-      },
-      {
-        role: "user",
-        content: `Create an intervention recommendation from this error analysis:\n${JSON.stringify({ errorCounts, chartData })}`,
-      },
-    ],
-    text: { format: zodTextFormat(recommendationSchema, "intervention_recommendation") },
-  });
+  const client =
+    dependencies.client ||
+    new OpenAI({
+      apiKey,
+    });
 
-  if (!response.output_parsed) throw new Error("OpenAI returned no structured recommendation.");
-  return { status: "completed", ...response.output_parsed, model, generatedAt: new Date(), error: "" };
+  const response =
+    await client.responses.parse({
+      model,
+
+      reasoning: {
+        effort: "low",
+      },
+
+      safety_identifier:
+        createSafetyIdentifier(studentId),
+
+      store: false,
+
+      input: [
+        {
+          role: "system",
+
+          content:
+            "You support educators reviewing primary-school writing. Use only the supplied aggregate error data. Provide practical literacy activities, not a medical diagnosis. Do not claim the student has dyslexia or any disorder. Recommendations require educator review.",
+        },
+
+        {
+          role: "user",
+
+          content:
+            `Create an intervention recommendation from this error analysis:\n${
+              JSON.stringify({
+                errorCounts,
+                chartData,
+              })
+            }`,
+        },
+      ],
+
+      text: {
+        format: zodTextFormat(
+          recommendationSchema,
+          "intervention_recommendation"
+        ),
+      },
+    });
+
+  if (!response.output_parsed) {
+    throw new Error(
+      "OpenAI returned no structured recommendation."
+    );
+  }
+
+  return {
+    status: "completed",
+    ...response.output_parsed,
+    model,
+    generatedAt: new Date(),
+    error: "",
+  };
 }
 
 function createErrorContext(error, tokens) {
@@ -136,4 +294,6 @@ module.exports = {
   createSafetyIdentifier,
   recommendationSchema,
   reportAnalysisSchema,
+  errorCountsSchema,
+  recommendationInputSchema,
 };
