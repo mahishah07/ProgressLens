@@ -71,7 +71,7 @@ describe("End-to-end report pipeline", () => {
     expect(dependencies.reportRepository.create).toHaveBeenCalledWith(expect.objectContaining({
       answerKey: "key-id",
       expectedText: "He ran. Fox hunts.",
-      errorCounts: expect.objectContaining({ total: 2 }),
+      errorCounts: expect.objectContaining({ phonetic: 1, deletion: 1, grammar: 2, total: 4, }),
     }));
   });
 });

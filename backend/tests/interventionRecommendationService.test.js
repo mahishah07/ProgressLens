@@ -6,7 +6,7 @@ const {
 
 describe("Intervention recommendation service", () => {
   test("returns not_configured without an API key", async () => {
-    const result = await generateInterventionRecommendation({ studentId: "DAS-001", errorCounts: {}, chartData: [] }, { apiKey: "" });
+    const result = await generateInterventionRecommendation({ studentId: "DAS-001", errorCounts: {spelling: 0, phonetic: 0, insertion: 0, deletion: 0, letterReversal: 0, total: 0,}, chartData: [] }, { apiKey: "" });
     expect(result.status).toBe("not_configured");
   });
 
@@ -19,7 +19,7 @@ describe("Intervention recommendation service", () => {
     };
     const client = { responses: { parse: jest.fn().mockResolvedValue({ output_parsed: parsed }) } };
     const result = await generateInterventionRecommendation(
-      { studentId: "DAS-001", errorCounts: { phonetic: 4, total: 4 }, chartData: [] },
+      { studentId: "DAS-001", errorCounts: { spelling: 0, phonetic: 4, insertion: 0, deletion: 0, letterReversal: 0, total: 4, }, chartData: [] },
       { client, model: "test-model" }
     );
     expect(result).toMatchObject({ status: "completed", model: "test-model", ...parsed });
