@@ -4,6 +4,8 @@ const CHART_CATEGORIES = [
   { key: "phonetic", label: "Phonetic", color: "#B965F5" },
   { key: "insertion", label: "Insertions", color: "#E39000" },
   { key: "deletion", label: "Deletions", color: "#00695C" },
+  { key: "tense", label: "Tense", color: "#D94F70" },
+  { key: "capitalisation", label: "Capitalisation", color: "#2F80ED" },
   { key: "grammar", label: "Grammar", color: "#22A06B" },
 ];
 

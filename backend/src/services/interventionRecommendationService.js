@@ -36,6 +36,10 @@ const errorCountsSchema = z
       .min(0)
       .max(10000),
 
+    tense: z.number().int().min(0).max(10000).default(0),
+    capitalisation: z.number().int().min(0).max(10000).default(0),
+    grammar: z.number().int().min(0).max(10000).default(0),
+
     total: z
       .number()
       .int()
@@ -48,7 +52,10 @@ const errorCountsSchema = z
       counts.phonetic +
       counts.insertion +
       counts.deletion +
-      counts.letterReversal;
+      counts.letterReversal +
+      counts.tense +
+      counts.capitalisation +
+      counts.grammar;
 
     if (
       counts.total !== calculatedTotal
@@ -114,6 +121,7 @@ const reportAnalysisSchema = z.object({
     explanation: z.string(),
   })),
   grammarErrors: z.array(z.object({
+    category: z.enum(["Tense", "Grammar"]).default("Grammar"),
     actual: z.string().min(1),
     expectedCorrection: z.string().min(1),
     explanation: z.string().min(1),
@@ -257,7 +265,7 @@ async function analyseReportWithOpenAi({ studentId, sourceText, errors, tokens, 
     input: [
       {
         role: "system",
-        content: "You support educators reviewing primary-school writing. Return correctedText as a complete corrected transcription of sourceText: preserve the student's meaning and wording while correcting clear OCR, spelling, punctuation, and grammar errors. Do not add new ideas. For every supplied error ID, provide the most likely expected correction using its category, local suggestion, reference answer, and short context. Preserve every error ID exactly and return one correction per error. Separately return grammarErrors for grammatical issues such as subject-verb agreement, tense, pronoun use, article use, and incorrect word form. Use the zero-based word-token index from sourceText. Include grammar errors even when the same token appears in the supplied errors, but exclude punctuation-only, OCR-only, and simple letter-level spelling issues. Also provide practical literacy interventions from the aggregate error pattern. Do not diagnose dyslexia or any medical condition. The educator must review all corrections and recommendations.",
+        content: "You support educators reviewing primary-school writing. Return correctedText as a complete corrected transcription of sourceText: preserve the student's meaning and wording while correcting clear OCR, spelling, punctuation, and grammar errors. Do not add new ideas. For every supplied error ID, provide the most likely expected correction using its category, local suggestion, reference answer, and short context. Preserve every error ID exactly and return one correction per error. Separately return grammarErrors for grammatical issues such as subject-verb agreement, tense, pronoun use, article use, and incorrect word form. Set category to Tense only when the correction changes or fixes verb tense; otherwise set it to Grammar. Capitalisation is classified separately by the comparison logic and must not be returned as a grammar error. Use the zero-based word-token index from sourceText. Include grammar errors even when the same token appears in the supplied errors, but exclude capitalisation-only, punctuation-only, OCR-only, and simple letter-level spelling issues. Also provide practical literacy interventions from the aggregate error pattern. Do not diagnose dyslexia or any medical condition. The educator must review all corrections and recommendations.",
       },
       {
         role: "user",

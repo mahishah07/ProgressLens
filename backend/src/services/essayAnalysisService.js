@@ -134,7 +134,7 @@ function detectComparisonErrors(expectedText, actualText) {
     if (!expected || !actual || expected === actual) return [];
     return [{
       type: "CAPITALIZATION_ERROR",
-      category: "Grammar",
+      category: "Capitalisation",
       message: `Capitalization error: expected "${expected}", but found "${actual}".`,
       expected,
       actual,
@@ -195,9 +195,11 @@ function mergeGrammarErrors(existingErrors, grammarErrors, tokens = []) {
       const locatedIndex = tokens.findIndex((token) => token === actual);
       if (locatedIndex >= 0) actualIndex = locatedIndex;
     }
+    const isTense = grammarError.category === "Tense"
+      || /\btense\b|past tense|present tense|future tense/i.test(grammarError.explanation || "");
     const grammarRecord = {
-      type: "GRAMMAR_ERROR",
-      category: "Grammar",
+      type: isTense ? "TENSE_ERROR" : "GRAMMAR_ERROR",
+      category: isTense ? "Tense" : "Grammar",
       message: grammarError.explanation,
       actual: grammarError.actual,
       expected: grammarError.expectedCorrection,
@@ -219,14 +221,16 @@ function mergeGrammarErrors(existingErrors, grammarErrors, tokens = []) {
 }
 
 function countErrors(errors) {
-  const counts = { spelling: 0, phonetic: 0, insertion: 0, deletion: 0, letterReversal: 0, grammar: 0, total: errors.length };
+  const counts = { spelling: 0, phonetic: 0, insertion: 0, deletion: 0, letterReversal: 0, tense: 0, capitalisation: 0, grammar: 0, total: errors.length };
   for (const error of errors) {
     if (["SPELLING_ERROR", "COMMON_TYPO"].includes(error.type)) counts.spelling += 1;
     if (error.type === "PHONETIC_ERROR") counts.phonetic += 1;
     if (["INSERTION", "REPETITION"].includes(error.type)) counts.insertion += 1;
     if (error.type === "DELETION") counts.deletion += 1;
     if (error.type === "LETTER_REVERSAL") counts.letterReversal += 1;
-    if (["GRAMMAR_ERROR", "CAPITALIZATION_ERROR"].includes(error.type)) counts.grammar += 1;
+    if (error.type === "TENSE_ERROR") counts.tense += 1;
+    if (error.type === "CAPITALIZATION_ERROR") counts.capitalisation += 1;
+    if (error.type === "GRAMMAR_ERROR") counts.grammar += 1;
   }
   return counts;
 }

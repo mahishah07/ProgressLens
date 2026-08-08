@@ -242,7 +242,8 @@ describe("Error Pattern Analyser demo integration", () => {
 
     errorCounts: expect.objectContaining({
       phonetic: 1,
-      grammar: 2,
+      capitalisation: 2,
+      grammar: 0,
       total: 3,
     }),
 

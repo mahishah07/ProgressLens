@@ -20,6 +20,8 @@ const errorColors = {
 	visual: "#ef4444",
 	phonological: "#a855f7",
 	grammar: "#22c55e",
+	tense: "#d94f70",
+	capitalisation: "#2f80ed",
 };
 
 /*const donutData = [
