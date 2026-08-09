@@ -41,6 +41,9 @@ const analysisReportSchema = new mongoose.Schema(
       insertion: { type: Number, default: 0 },
       deletion: { type: Number, default: 0 },
       letterReversal: { type: Number, default: 0 },
+      tense: { type: Number, default: 0 },
+      capitalisation: { type: Number, default: 0 },
+      grammar: { type: Number, default: 0 },
       total: { type: Number, default: 0 },
     },
     chartData: [{

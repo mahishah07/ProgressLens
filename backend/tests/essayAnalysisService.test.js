@@ -6,6 +6,8 @@ const {
     isLikelyLetterReversal,
     isLikelyPhoneticError,
     mergeComparisonErrors,
+    mergeGrammarErrors,
+    countErrors,
   } = require("../src/services/essayAnalysisService");
   
   describe("Essay analysis service", () => {
@@ -61,6 +63,43 @@ const {
       expect(errors.some((error) => error.type === "DELETION")).toBe(true);
     });
 
+    test("detectComparisonErrors should classify a missing letter as deletion", () => {
+      const errors = detectComparisonErrors("had gone missing", "had gon missing");
+
+      expect(errors).toHaveLength(1);
+      expect(errors[0]).toMatchObject({
+        type: "DELETION",
+        category: "Deletion",
+        expected: "gone",
+        actual: "gon",
+      });
+    });
+
+    test("detectComparisonErrors should classify an extra letter as insertion", () => {
+      const errors = detectComparisonErrors("the dog ran", "the dogg ran");
+
+      expect(errors).toHaveLength(1);
+      expect(errors[0]).toMatchObject({
+        type: "INSERTION",
+        category: "Insertion",
+        expected: "dog",
+        actual: "dogg",
+      });
+    });
+
+    test("detectComparisonErrors should classify every capitalization-only difference as capitalisation", () => {
+      const expected = "NW - The sun rises into the sky while I walk towards the food centre.";
+      const actual = "NW - The Sun rises into the Sky while I walk towards the Food centre.";
+      const errors = detectComparisonErrors(expected, actual);
+
+      expect(errors.filter((error) => error.type === "CAPITALIZATION_ERROR")).toEqual([
+        expect.objectContaining({ actual: "Sun", expected: "sun", category: "Capitalisation" }),
+        expect.objectContaining({ actual: "Sky", expected: "sky", category: "Capitalisation" }),
+        expect.objectContaining({ actual: "Food", expected: "food", category: "Capitalisation" }),
+      ]);
+      expect(countErrors(errors)).toMatchObject({ capitalisation: 3, grammar: 0, total: 3 });
+    });
+
     test("mergeComparisonErrors upgrades a generic spelling error without losing its report ID", () => {
       const existing = [{
         _id: "error-id",
@@ -80,6 +119,24 @@ const {
         category: "Letter reversal",
         expectedCorrection: "dog",
       });
+    });
+
+    test("mergeGrammarErrors classifies and counts a grammar correction", () => {
+      const errors = mergeGrammarErrors([], [{
+        actual: "go",
+        expectedCorrection: "went",
+        explanation: "Past tense is required.",
+        actualIndex: 1,
+      }], ["i", "go", "yesterday"]);
+
+      expect(errors[0]).toMatchObject({
+        type: "TENSE_ERROR",
+        category: "Tense",
+        actual: "go",
+        expectedCorrection: "went",
+        actualIndex: 1,
+      });
+      expect(countErrors(errors)).toMatchObject({ tense: 1, grammar: 0, total: 1 });
     });
   
     test("analyseEssay should return summary and errors", () => {

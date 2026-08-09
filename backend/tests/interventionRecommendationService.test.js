@@ -6,7 +6,7 @@ const {
 
 describe("Intervention recommendation service", () => {
   test("returns not_configured without an API key", async () => {
-    const result = await generateInterventionRecommendation({ studentId: "DAS-001", errorCounts: {}, chartData: [] }, { apiKey: "" });
+    const result = await generateInterventionRecommendation({ studentId: "DAS-001", errorCounts: {spelling: 0, phonetic: 0, insertion: 0, deletion: 0, letterReversal: 0, total: 0,}, chartData: [] }, { apiKey: "" });
     expect(result.status).toBe("not_configured");
   });
 
@@ -19,7 +19,7 @@ describe("Intervention recommendation service", () => {
     };
     const client = { responses: { parse: jest.fn().mockResolvedValue({ output_parsed: parsed }) } };
     const result = await generateInterventionRecommendation(
-      { studentId: "DAS-001", errorCounts: { phonetic: 4, total: 4 }, chartData: [] },
+      { studentId: "DAS-001", errorCounts: { spelling: 0, phonetic: 4, insertion: 0, deletion: 0, letterReversal: 0, total: 4, }, chartData: [] },
       { client, model: "test-model" }
     );
     expect(result).toMatchObject({ status: "completed", model: "test-model", ...parsed });
@@ -35,6 +35,7 @@ describe("Intervention recommendation service", () => {
     const output = {
       correctedText: "Last Saturday I went.",
       corrections: [{ errorId: "error-1", expectedCorrection: "Saturday", explanation: "Correct spelling in context." }],
+      grammarErrors: [{ actual: "go", expectedCorrection: "went", explanation: "Past tense is required.", actualIndex: 3 }],
       recommendation: {
         overview: "Practise spelling patterns.",
         dominantPattern: "Spelling",
@@ -53,6 +54,7 @@ describe("Intervention recommendation service", () => {
     }, { client, model: "test-model" });
     expect(result.correctedText).toBe(output.correctedText);
     expect(result.corrections).toEqual(output.corrections);
+    expect(result.grammarErrors).toEqual(output.grammarErrors);
     expect(result.recommendation).toMatchObject({ status: "completed", model: "test-model" });
   });
 

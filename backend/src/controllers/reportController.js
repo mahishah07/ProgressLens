@@ -3,7 +3,7 @@ const studentRepository = require("../repositories/studentRepository");
 const reportRepository = require("../repositories/reportRepository");
 const writingSampleRepository = require("../repositories/writingSampleRepository");
 const { buildErrorChartData } = require("../services/chartService");
-const { detectComparisonErrors, mergeComparisonErrors, countErrors } = require("../services/essayAnalysisService");
+const { detectComparisonErrors, mergeComparisonErrors, mergeGrammarErrors, countErrors } = require("../services/essayAnalysisService");
 const { analyseReportWithOpenAi } = require("../services/interventionRecommendationService");
 
 function formatRecommendation(recommendation) {
@@ -77,6 +77,7 @@ async function analyseReport(req, res, next) {
         detectComparisonErrors(openAiAnalysis.correctedText, sourceText)
       );
     }
+    errors = mergeGrammarErrors(errors, openAiAnalysis.grammarErrors, report.tokens);
     const errorCounts = countErrors(errors);
     const updatedChartData = buildErrorChartData(errorCounts);
     const summary = { ...report.summary, errorCount: errors.length };

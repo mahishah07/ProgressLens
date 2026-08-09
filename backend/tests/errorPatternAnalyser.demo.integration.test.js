@@ -205,19 +205,53 @@ describe("Error Pattern Analyser demo integration", () => {
       correctionSource: "openai",
     });
     expect(response.body.data.interventionRecommendation.status).toBe("completed");
-    expect(reportRepository.saveOpenAiAnalysis).toHaveBeenCalledWith(
-      "report-db-id",
-      "sample-db-id",
-      expect.arrayContaining([expect.objectContaining({ _id: "error-db-id" })]),
-      "Last Saturday I went to the park.",
-      expect.objectContaining({ status: "completed" }),
-      "test-session",
-      expect.objectContaining({
-        errorCounts: expect.objectContaining({ total: 1 }),
-        chartData: expect.any(Array),
-        summary: expect.objectContaining({ errorCount: 1 }),
-      })
-    );
+    expect(
+  reportRepository.saveOpenAiAnalysis
+).toHaveBeenCalledWith(
+  "report-db-id",
+  "sample-db-id",
+
+  expect.arrayContaining([
+    expect.objectContaining({
+      _id: "error-db-id",
+    }),
+
+    expect.objectContaining({
+      type: "CAPITALIZATION_ERROR",
+      actual: "last",
+      expectedCorrection: "Last",
+    }),
+
+    expect.objectContaining({
+      type: "CAPITALIZATION_ERROR",
+      actual: "i",
+      expectedCorrection: "I",
+    }),
+  ]),
+
+  "Last Saturday I went to the park.",
+
+  expect.objectContaining({
+    status: "completed",
+  }),
+
+  "test-session",
+
+  expect.objectContaining({
+    chartData: expect.any(Array),
+
+    errorCounts: expect.objectContaining({
+      phonetic: 1,
+      capitalisation: 2,
+      grammar: 0,
+      total: 3,
+    }),
+
+    summary: expect.objectContaining({
+      errorCount: 3,
+    }),
+  })
+);
     expect(writingSampleRepository.markAnalysed).toHaveBeenCalledWith(
       "sample-db-id",
       expect.objectContaining({

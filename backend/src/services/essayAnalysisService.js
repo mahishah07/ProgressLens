@@ -1,6 +1,17 @@
 const Metaphone = require("natural/lib/natural/phonetics/metaphone");
 const { cleanText, tokenizeWords, tokenizeSentences } = require("../utils/textProcessing");
 
+const ERROR_PRIORITY = {
+  SPELLING_ERROR: 1,
+  PHONETIC_ERROR: 2,
+  INSERTION: 3,
+  DELETION: 3,
+  LETTER_REVERSAL: 4,
+  CAPITALIZATION_ERROR: 4,
+  TENSE_ERROR: 4,
+  GRAMMAR_ERROR: 4,
+};
+
 const metaphone = new Metaphone();
 const COMMON_TYPOS = {
   teh: "the", recieve: "receive", becuase: "because", alot: "a lot",
@@ -27,6 +38,22 @@ function isLikelyPhoneticError(expectedWord, actualWord) {
   const expectedCode = metaphone.process(expectedWord);
   const actualCode = metaphone.process(actualWord);
   return expectedCode.length > 0 && expectedCode === actualCode;
+}
+
+function isSubsequence(shorterWord, longerWord) {
+  let shorterIndex = 0;
+  for (const letter of longerWord) {
+    if (letter === shorterWord[shorterIndex]) shorterIndex += 1;
+  }
+  return shorterIndex === shorterWord.length;
+}
+
+function hasDeletedLetters(expectedWord, actualWord) {
+  return expectedWord.length > actualWord.length && isSubsequence(actualWord, expectedWord);
+}
+
+function hasInsertedLetters(expectedWord, actualWord) {
+  return actualWord.length > expectedWord.length && isSubsequence(expectedWord, actualWord);
 }
 
 function detectRepeatedWords(tokens) {
@@ -86,6 +113,12 @@ function convertDiffToErrors(operations) {
     if (isLikelyLetterReversal(operation.expected, operation.actual)) {
       return [{ ...shared, type: "LETTER_REVERSAL", category: "Letter reversal", message: `Possible letter reversal: expected "${operation.expected}", but found "${operation.actual}".` }];
     }
+    if (hasDeletedLetters(operation.expected, operation.actual)) {
+      return [{ ...shared, type: "DELETION", category: "Deletion", message: `Missing letter(s): expected "${operation.expected}", but found "${operation.actual}".` }];
+    }
+    if (hasInsertedLetters(operation.expected, operation.actual)) {
+      return [{ ...shared, type: "INSERTION", category: "Insertion", message: `Extra letter(s): expected "${operation.expected}", but found "${operation.actual}".` }];
+    }
     if (isLikelyPhoneticError(operation.expected, operation.actual)) {
       return [{ ...shared, type: "PHONETIC_ERROR", category: "Phonetic", message: `Phonetically similar spelling: expected "${operation.expected}", but found "${operation.actual}".` }];
     }
@@ -93,8 +126,37 @@ function convertDiffToErrors(operations) {
   });
 }
 
+function tokenizeWordsPreservingCase(text) {
+  return typeof text === "string" ? text.match(/[A-Za-z]+(?:['’][A-Za-z]+)*/g) || [] : [];
+}
+
 function detectComparisonErrors(expectedText, actualText) {
-  return convertDiffToErrors(buildDiffOperations(tokenizeWords(expectedText), tokenizeWords(actualText)));
+  const expectedTokens = tokenizeWordsPreservingCase(expectedText);
+  const actualTokens = tokenizeWordsPreservingCase(actualText);
+  const operations = buildDiffOperations(
+    expectedTokens.map((token) => token.toLowerCase()),
+    actualTokens.map((token) => token.toLowerCase())
+  );
+  const errors = convertDiffToErrors(operations);
+  const capitalizationErrors = operations.flatMap((operation) => {
+    if (operation.type !== "MATCH") return [];
+    const expected = expectedTokens[operation.expectedIndex];
+    const actual = actualTokens[operation.actualIndex];
+    if (!expected || !actual || expected === actual) return [];
+    return [{
+      type: "CAPITALIZATION_ERROR",
+      category: "Capitalisation",
+      message: `Capitalization error: expected "${expected}", but found "${actual}".`,
+      expected,
+      actual,
+      suggestion: expected,
+      expectedCorrection: expected,
+      expectedIndex: operation.expectedIndex,
+      actualIndex: operation.actualIndex,
+      tokenIndex: operation.actualIndex,
+    }];
+  });
+  return errors.concat(capitalizationErrors);
 }
 
 function deduplicateErrors(errors) {
@@ -111,21 +173,49 @@ function mergeComparisonErrors(existingErrors, comparisonErrors) {
   const merged = existingErrors.map((error) => ({ ...error }));
 
   for (const comparisonError of comparisonErrors) {
-    const matchIndex = merged.findIndex((error) => comparisonError.actual === null
-      ? error.type === "DELETION" && error.expectedIndex === comparisonError.expectedIndex && error.expected === comparisonError.expected
-      : error.actualIndex === comparisonError.actualIndex && error.actual === comparisonError.actual
+    const matchIndex = merged.findIndex((error) =>
+      comparisonError.actual === null
+        ? error.type === "DELETION" &&
+          error.expectedIndex === comparisonError.expectedIndex &&
+          error.expected === comparisonError.expected
+        : error.actualIndex === comparisonError.actualIndex &&
+          error.actual === comparisonError.actual
     );
 
     if (matchIndex >= 0) {
-      merged[matchIndex] = {
-        ...merged[matchIndex],
-        ...comparisonError,
-        expectedCorrection: merged[matchIndex].expectedCorrection || comparisonError.expected || comparisonError.suggestion,
-      };
+      const existingError = merged[matchIndex];
+
+      const existingPriority =
+        ERROR_PRIORITY[existingError.type] || 0;
+
+      const comparisonPriority =
+        ERROR_PRIORITY[comparisonError.type] || 0;
+
+      if (comparisonPriority > existingPriority) {
+        merged[matchIndex] = {
+          ...existingError,
+          ...comparisonError,
+          _id: existingError._id,
+          expectedCorrection:
+            existingError.expectedCorrection ||
+            comparisonError.expected ||
+            comparisonError.suggestion,
+        };
+      } else {
+        merged[matchIndex] = {
+          ...existingError,
+          expectedCorrection:
+            existingError.expectedCorrection ||
+            comparisonError.expected ||
+            comparisonError.suggestion,
+        };
+      }
     } else {
       merged.push({
         ...comparisonError,
-        expectedCorrection: comparisonError.expected || comparisonError.suggestion,
+        expectedCorrection:
+          comparisonError.expected ||
+          comparisonError.suggestion,
         correctionExplanation: comparisonError.message,
         correctionSource: "openai",
       });
@@ -135,14 +225,84 @@ function mergeComparisonErrors(existingErrors, comparisonErrors) {
   return deduplicateErrors(merged);
 }
 
+function mergeGrammarErrors(existingErrors, grammarErrors, tokens = []) {
+  const merged = existingErrors.map((error) => ({ ...error }));
+
+  for (const grammarError of grammarErrors || []) {
+    const actual = cleanText(grammarError.actual);
+
+    let actualIndex = Number.isInteger(grammarError.actualIndex)
+      ? grammarError.actualIndex
+      : -1;
+
+    if (
+      actualIndex < 0 ||
+      actualIndex >= tokens.length ||
+      cleanText(tokens[actualIndex]) !== actual
+    ) {
+      const locatedIndex = tokens.findIndex(
+        (token) => cleanText(token) === actual
+      );
+
+      if (locatedIndex >= 0) {
+        actualIndex = locatedIndex;
+      }
+    }
+
+    const isTense =
+      grammarError.category === "Tense" ||
+      /\btense\b|past tense|present tense|future tense/i.test(
+        grammarError.explanation || ""
+      );
+
+    const grammarRecord = {
+      type: isTense ? "TENSE_ERROR" : "GRAMMAR_ERROR",
+      category: isTense ? "Tense" : "Grammar",
+      message: grammarError.explanation,
+      actual: grammarError.actual,
+      expected: grammarError.expectedCorrection,
+      suggestion: grammarError.expectedCorrection,
+      expectedCorrection: grammarError.expectedCorrection,
+      correctionExplanation: grammarError.explanation,
+      correctionSource: "openai",
+      actualIndex: actualIndex >= 0 ? actualIndex : null,
+      tokenIndex: actualIndex >= 0 ? actualIndex : null,
+    };
+
+    const matchIndex = merged.findIndex(
+      (error) =>
+        (actualIndex >= 0 &&
+          (error.actualIndex === actualIndex ||
+            error.tokenIndex === actualIndex)) ||
+        (cleanText(error.actual) === actual &&
+          error.expectedCorrection ===
+            grammarError.expectedCorrection)
+    );
+
+    if (matchIndex >= 0) {
+      merged[matchIndex] = {
+        ...merged[matchIndex],
+        ...grammarRecord,
+      };
+    } else {
+      merged.push(grammarRecord);
+    }
+  }
+
+  return deduplicateErrors(merged);
+}
+
 function countErrors(errors) {
-  const counts = { spelling: 0, phonetic: 0, insertion: 0, deletion: 0, letterReversal: 0, total: errors.length };
+  const counts = { spelling: 0, phonetic: 0, insertion: 0, deletion: 0, letterReversal: 0, tense: 0, capitalisation: 0, grammar: 0, total: errors.length };
   for (const error of errors) {
     if (["SPELLING_ERROR", "COMMON_TYPO"].includes(error.type)) counts.spelling += 1;
     if (error.type === "PHONETIC_ERROR") counts.phonetic += 1;
     if (["INSERTION", "REPETITION"].includes(error.type)) counts.insertion += 1;
     if (error.type === "DELETION") counts.deletion += 1;
     if (error.type === "LETTER_REVERSAL") counts.letterReversal += 1;
+    if (error.type === "TENSE_ERROR") counts.tense += 1;
+    if (error.type === "CAPITALIZATION_ERROR") counts.capitalisation += 1;
+    if (error.type === "GRAMMAR_ERROR") counts.grammar += 1;
   }
   return counts;
 }
@@ -162,4 +322,5 @@ module.exports = {
   analyseEssay, detectRepeatedWords, detectCommonTypos, detectComparisonErrors,
   isLikelyLetterReversal, isLikelyPhoneticError, buildDiffOperations, countErrors,
   mergeComparisonErrors,
+  mergeGrammarErrors,
 };
