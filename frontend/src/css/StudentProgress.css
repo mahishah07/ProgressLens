@@ -29,16 +29,16 @@
 }
 
 .sp-title-group {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
 }
 
 .sp-title-group h2 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #1a3c6e;
-    margin: 0;
+	font-size: 1.1rem;
+	font-weight: 700;
+	color: #1a3c6e;
+	margin: 0;
 }
 
 .sp-topbar-sub {
@@ -519,23 +519,23 @@
 	border-radius: 12px;
 	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
-
 .sp-band-score-header {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-bottom: 0.75rem;
+	margin-bottom: 0.9rem;
 }
 .sp-band-score-header h3 {
 	font-size: 1rem;
 	font-weight: 700;
 	margin: 0;
+	color: #1a1a1a;
 }
 .sp-band-result {
 	padding: 0.3rem 0.9rem;
 	border-radius: 99px;
-	font-size: 0.8rem;
-	font-weight: 700;
+	font-size: 0.78rem;
+	font-weight: 600;
 }
 .sp-passed {
 	background: #dcfce7;
@@ -545,39 +545,37 @@
 	background: #fee2e2;
 	color: #991b1b;
 }
+
 .sp-band-score-total {
 	display: flex;
 	align-items: baseline;
 	gap: 0.5rem;
-	margin-bottom: 0.75rem;
+	margin-bottom: 1.1rem;
 }
 .sp-score-num {
-	font-size: 2rem;
+	font-size: 2.1rem;
 	font-weight: 700;
 	color: #1a3c6e;
+	line-height: 1;
 }
 .sp-score-label {
 	font-size: 0.85rem;
 	color: #888;
 }
-.sp-forgiveness-note {
-	font-size: 0.8rem;
-	color: #7c3aed;
-	margin: 0 0 0.75rem;
-}
+
 .sp-component-grid {
 	display: grid;
-	grid-template-columns: repeat(3, 1fr);
-	gap: 0.5rem;
-	margin-bottom: 0.75rem;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 0.6rem;
+	margin-bottom: 0.9rem;
 }
 .sp-comp-item {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	padding: 0.4rem 0.75rem;
+	padding: 0.55rem 0.85rem;
 	border-radius: 8px;
-	font-size: 0.8rem;
+	font-size: 0.85rem;
 }
 .sp-comp-pass {
 	background: #f0fdf4;
@@ -585,17 +583,26 @@
 .sp-comp-fail {
 	background: #fef2f2;
 }
+.sp-comp-skip {
+	background: #f8f8f8;
+	opacity: 0.7;
+}
 .sp-comp-name {
-	color: #555;
+	color: #444;
+	text-transform: capitalize;
 	flex: 1;
 }
 .sp-comp-score {
 	font-weight: 600;
-	color: #333;
-	margin: 0 0.5rem;
+	color: #1a1a1a;
+	margin: 0 0.6rem;
+	font-size: 0.85rem;
 }
 .sp-comp-status {
 	font-weight: 700;
+	font-size: 0.8rem;
+	min-width: 60px;
+	text-align: right;
 }
 .sp-comp-pass .sp-comp-status {
 	color: #166534;
@@ -603,11 +610,45 @@
 .sp-comp-fail .sp-comp-status {
 	color: #991b1b;
 }
-.sp-failed-note {
-	font-size: 0.8rem;
-	color: #991b1b;
-	margin: 0;
+.sp-comp-skip .sp-comp-status {
+	color: #999;
+	font-weight: 500;
 }
+
+.sp-legend {
+	display: flex;
+	gap: 0.6rem;
+}
+.sp-legend-item {
+	font-size: 0.78rem;
+	font-weight: 600;
+	padding: 0.3rem 0.75rem;
+	border-radius: 8px;
+}
+.sp-legend-item-pass {
+	background: #dcfce7;
+	color: #165534;
+}
+.sp-legend-item-fail {
+	background: #fee2e2;
+	color: #991b1b;
+}
+
+.sp-phonics-note {
+	display: flex;
+	justify-content: flex-start;
+	gap: 0.5rem;
+	padding: 0.4rem 0;
+	padding-top: 0.9rem;
+	border-top: 1px solid #f0f0f0;
+	font-size: 0.85rem;
+	color: #000000;
+}
+.sp-phonics-score {
+	font-weight: 600;
+	color: #555;
+}
+
 .sp-radar-header {
 	display: flex;
 	justify-content: space-between;
@@ -631,4 +672,43 @@
 	background: #1a3c6e;
 	color: white;
 	border-color: #1a3c6e;
+}
+.sp-trend-grid-wrapper {
+	overflow-x: auto;
+}
+.sp-trend-grid {
+	border-collapse: collapse;
+	width: 100%;
+	font-size: 0.75rem;
+}
+.sp-trend-grid th,
+.sp-trend-grid td {
+	padding: 0.5rem 0.6rem;
+	text-align: center;
+}
+.sp-trend-grid th {
+	color: #888;
+	font-weight: 600;
+	font-size: 0.7rem;
+}
+.sp-trend-row-label {
+	text-align: left !important;
+	white-space: nowrap;
+	color: #333;
+	font-weight: 500;
+}
+.sp-trend-dot {
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	border-radius: 4px;
+}
+.sp-trend-pass {
+	background: #22c55e;
+}
+.sp-trend-fail {
+	background: #ef4444;
+}
+.sp-trend-not-taken {
+	background: #e5e7eb;
 }

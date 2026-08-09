@@ -64,6 +64,7 @@ exports.buildDashboard = async (studentId) => {
 	const bandScore = calculateBandScore(
 		latest,
 		latest.summaryBand || student.summaryBand,
+		student.schLevel,
 	);
 	const skillScores = getSkillScores(latest);
 	const skillBreakdown = getSkillBreakdown(skillScores);
@@ -71,7 +72,7 @@ exports.buildDashboard = async (studentId) => {
 
 	const progressOverTime = assessments.map((a) => {
 		const bandLevel = a.summaryBand || student.summaryBand;
-		const scored = calculateBandScore(a, bandLevel);
+		const scored = calculateBandScore(a, bandLevel, student.schLevel);
 		return {
 			semester: a.semester,
 			term: a.term,
@@ -79,6 +80,27 @@ exports.buildDashboard = async (studentId) => {
 			weightedScore: scored ? scored.totalScore : null,
 			summaryBand: a.summaryBand || null,
 			newBand: a.newBand || null,
+		};
+	});
+
+	const componentTrend = assessments.map((a, index) => {
+		const bandForThisAssessment = a.summaryBand || student.summaryBand;
+		const scored = calculateBandScore(
+			a,
+			bandForThisAssessment,
+			student.schLevel,
+		);
+		return {
+			semester: a.semester,
+			assessmentDate: a.assessmentDate,
+			components: scored
+				? scored.componentResults.map((c) => ({
+						name: c.name,
+						score: c.score,
+						passMark: c.passMark,
+						result: c.skipped ? null : c.passed ? 1 : 0, // null = not taken, 1 = pass, 0 = fail
+					}))
+				: [],
 		};
 	});
 
@@ -103,6 +125,7 @@ exports.buildDashboard = async (studentId) => {
 		},
 		currentBandLevel: student.newBand,
 		bandScore,
+		componentTrend,
 		latestAssessment: {
 			_id: latest._id,
 			semester: latest.semester,
@@ -112,7 +135,7 @@ exports.buildDashboard = async (studentId) => {
 			assessedBy: latest.assessedBy,
 			teacherComments: latest.teacherComments,
 			aiInsights: latest.aiInsights,
-			weightedScore: latest.weightedScore,
+			weightedScore: bandScore ? bandScore.totalScore : null,
 			skillScores,
 		},
 		skillBreakdown,
@@ -121,7 +144,11 @@ exports.buildDashboard = async (studentId) => {
 		assessmentHistory: assessments
 			.map((a, index) => {
 				const bandForThisAssessment = a.summaryBand || student.summaryBand;
-				const aScore = calculateBandScore(a, bandForThisAssessment);
+				const aScore = calculateBandScore(
+					a,
+					bandForThisAssessment,
+					student.schLevel,
+				);
 				return {
 					_id: a._id,
 					semester: a.semester,
@@ -150,9 +177,11 @@ exports.getStudentOverview = async (studentId) => {
 		assessmentDate: -1,
 	});
 
-	const bandScore = latest
-		? calculateBandScore(latest, latest.summaryBand || student.summaryBand)
-		: null;
+	const bandScore = calculateBandScore(
+		latest,
+		latest.summaryBand || student.summaryBand,
+		student.schLevel,
+	);
 
 	return {
 		student,

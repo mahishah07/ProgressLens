@@ -1,18 +1,32 @@
 /**
  * Band Scoring Logic for DAS Progress Monitoring System
- * Based on CBA Scoring and Summary Band Logic
  * 90% overall pass threshold for all bands
  *
- * For optional component groups (writing, PA/Phonics in B/C):
- * - Weight is redistributed equally across components that were actually taken
- * - Components with no score AND no progress field are skipped
- * - Written Vocab has no field in MongoDB — treated as always passing with full weight
+ * Key rules confirmed with DAS:
+ * - Phonics is NOT a separate scored component (assessed orally, excluded)
+ * - Fluency has no confirmed pass mark yet — always counted as passed for now
+ * - Written Vocab (Band B/C only) is not a separate test — it is tied to the
+ *   overall Writing result: if ALL writing components the student took pass,
+ *   Written Vocab passes and gets full weight; if ANY fail, Written Vocab
+ *   fails and gets 0 weight.
+ * - Reading Comprehension pass marks differ by SchLevel (Primary/Secondary)
+ *   for bands B5 and B6 only.
  */
 
-// Category groups for dynamic redistribution
-const WRITING_COMPONENTS = ["narrative", "exposition", "persuasive"];
-const PHONICS_COMPONENTS_B = ["phonics", "wra", "wordSpelling"]; // B bands PA/Phonics
-const PHONICS_COMPONENTS_C = ["phonics", "wra", "wordSpelling"]; // C bands PA/Phonics
+const WRITING_NAMES = [
+	"editDiagram1",
+	"editDiagram2",
+	"editDiagram3",
+	"narrative",
+	"exposition",
+	"persuasive",
+];
+const PHONICS_GROUP_NAMES = [
+	"wra",
+	"fluency",
+	"wordSpelling",
+	"paIdentification",
+];
 
 const BAND_CONFIG = {
 	// ─── BAND A ───────────────────────────────────────────────────────────────
@@ -22,65 +36,62 @@ const BAND_CONFIG = {
 			{
 				name: "pictureNaming",
 				scoreField: "pictureNamingScore",
-				progressField: "pictureNamingProgress",
 				passMark: 13,
 				weight: 50.0,
 				optional: false,
 			},
 			{
-				name: "phonics",
-				scoreField: "phonicsScore",
-				progressField: "phonicsProgress",
-				passMark: 20,
-				weight: 11.67,
-				optional: false,
-			},
-			{
 				name: "wra",
 				scoreField: "wraScore",
-				progressField: "wraProgress",
 				passMark: 8,
 				weight: 11.67,
 				optional: false,
+				group: "phonics",
+			},
+			{
+				name: "fluency",
+				scoreField: "fluencyMark",
+				passMark: null,
+				weight: 11.67,
+				optional: false,
+				group: "phonics",
 			},
 			{
 				name: "paIdentification",
 				scoreField: "paIdentificationScore",
-				progressField: "paIdentificationProgress",
 				passMark: 8,
 				weight: 11.67,
 				optional: false,
+				group: "phonics",
 			},
 			{
 				name: "letterFormation",
 				scoreField: "letterFormationScore",
-				progressField: "letterFormationProgress",
 				passMark: 20,
 				weight: 3.75,
 				optional: false,
+				group: "writing",
 			},
 			{
 				name: "editDiagram1",
 				scoreField: "ed1Score",
-				progressField: "ed1Progress",
 				passMark: 3,
 				weight: 3.75,
 				optional: false,
+				group: "writing",
 			},
 			{
 				name: "listeningComp",
 				scoreField: "lsComprehensionScore",
-				progressField: "lsComprehensionProgress",
 				passMark: 2,
 				weight: 7.5,
 				optional: false,
 			},
 		],
-		forgiveness: {
-			groupA: ["letterFormation", "editDiagram1"],
-			groupB: ["listeningComp"],
+		dynamicGroups: {
+			phonics: { totalWeight: 35.0 },
+			writing: { totalWeight: 7.5 },
 		},
-		dynamicGroups: null,
 	},
 
 	A2: {
@@ -89,39 +100,37 @@ const BAND_CONFIG = {
 			{
 				name: "pictureDescription",
 				scoreField: "pictureDescriptionScore",
-				progressField: "pictureDescriptionProgress",
 				passMark: 7,
 				weight: 50.0,
 				optional: false,
 			},
 			{
-				name: "phonics",
-				scoreField: "phonicsScore",
-				progressField: "phonicsProgress",
-				passMark: 24,
-				weight: 11.67,
-				optional: false,
-			},
-			{
 				name: "wra",
 				scoreField: "wraScore",
-				progressField: "wraProgress",
 				passMark: 8,
-				weight: 8.75,
+				weight: 11.67,
 				optional: false,
+				group: "phonics",
+			},
+			{
+				name: "fluency",
+				scoreField: "fluencyMark",
+				passMark: null,
+				weight: 11.67,
+				optional: false,
+				group: "phonics",
 			},
 			{
 				name: "wordSpelling",
 				scoreField: "wordSpellingScore",
-				progressField: "wordSpellingProgress",
 				passMark: 8,
-				weight: 14.58,
+				weight: 11.67,
 				optional: false,
+				group: "phonics",
 			},
 			{
 				name: "editDiagram2",
 				scoreField: "ed2Score",
-				progressField: "ed2Progress",
 				passMark: 3,
 				weight: 7.5,
 				optional: false,
@@ -129,16 +138,12 @@ const BAND_CONFIG = {
 			{
 				name: "listeningComp",
 				scoreField: "lsComprehensionScore",
-				progressField: "lsComprehensionProgress",
 				passMark: 3,
 				weight: 7.5,
 				optional: false,
 			},
 		],
-		forgiveness: {
-			groupA: ["editDiagram2", "listeningComp"],
-		},
-		dynamicGroups: null,
+		dynamicGroups: { phonics: { totalWeight: 35.0 } },
 	},
 
 	A3: {
@@ -147,39 +152,37 @@ const BAND_CONFIG = {
 			{
 				name: "pictureDescription",
 				scoreField: "pictureDescriptionScore",
-				progressField: "pictureDescriptionProgress",
 				passMark: 10,
 				weight: 50.0,
 				optional: false,
 			},
 			{
-				name: "phonics",
-				scoreField: "phonicsScore",
-				progressField: "phonicsProgress",
-				passMark: 26,
-				weight: 11.67,
-				optional: false,
-			},
-			{
 				name: "wra",
 				scoreField: "wraScore",
-				progressField: "wraProgress",
 				passMark: 8,
 				weight: 11.67,
 				optional: false,
+				group: "phonics",
+			},
+			{
+				name: "fluency",
+				scoreField: "fluencyMark",
+				passMark: null,
+				weight: 11.67,
+				optional: false,
+				group: "phonics",
 			},
 			{
 				name: "wordSpelling",
 				scoreField: "wordSpellingScore",
-				progressField: "wordSpellingProgress",
 				passMark: 8,
 				weight: 11.67,
 				optional: false,
+				group: "phonics",
 			},
 			{
 				name: "editDiagram3",
 				scoreField: "ed3Score",
-				progressField: "ed3Progress",
 				passMark: 4,
 				weight: 7.5,
 				optional: false,
@@ -187,67 +190,53 @@ const BAND_CONFIG = {
 			{
 				name: "readingComp",
 				scoreField: "rdComprehensionScore",
-				progressField: "rdComprehensionProgress",
 				passMark: 5,
 				weight: 7.5,
 				optional: false,
 			},
 		],
-		forgiveness: {
-			groupA: ["editDiagram3", "readingComp"],
-		},
-		dynamicGroups: null,
+		dynamicGroups: { phonics: { totalWeight: 35.0 } },
 	},
 
 	// ─── BAND B ───────────────────────────────────────────────────────────────
-	// Written Vocab (15%) — no field in MongoDB, always passes
-	// PA/Phonics (50%) — redistributed across components actually taken
-	// Writing (17.5%) — redistributed across writing tests actually taken
-	// Comprehension (17.5%) — readingComp only
-
 	B4: {
 		passingTotal: 90,
 		components: [
 			{
 				name: "writtenVocab",
 				scoreField: null,
-				progressField: null,
 				passMark: 0,
 				weight: 15.0,
 				optional: false,
-				alwaysPass: true,
-			},
-			{
-				name: "phonics",
-				scoreField: "phonicsScore",
-				progressField: "phonicsProgress",
-				passMark: 0,
-				weight: 50.0,
-				optional: true,
-				group: "phonics",
+				tiedToWriting: true,
 			},
 			{
 				name: "wra",
 				scoreField: "wraScore",
-				progressField: "wraProgress",
 				passMark: 8,
-				weight: 50.0,
+				weight: 16.67,
+				optional: false,
+				group: "phonics",
+			},
+			{
+				name: "fluency",
+				scoreField: "fluencyMark",
+				passMark: null,
+				weight: 16.67,
 				optional: false,
 				group: "phonics",
 			},
 			{
 				name: "wordSpelling",
 				scoreField: "wordSpellingScore",
-				progressField: "wordSpellingProgress",
 				passMark: 8,
-				weight: 50.0,
+				weight: 16.67,
 				optional: false,
 				group: "phonics",
 			},
 			{
 				name: "narrative",
 				scoreField: "narrativeScore",
-				progressField: "narrativeProgress",
 				passMark: 10,
 				weight: 17.5,
 				optional: true,
@@ -256,7 +245,6 @@ const BAND_CONFIG = {
 			{
 				name: "exposition",
 				scoreField: "expositionScore",
-				progressField: "expositionProgress",
 				passMark: 10,
 				weight: 17.5,
 				optional: true,
@@ -265,7 +253,6 @@ const BAND_CONFIG = {
 			{
 				name: "persuasive",
 				scoreField: "persuasiveScore",
-				progressField: "persuasiveProgress",
 				passMark: 10,
 				weight: 17.5,
 				optional: true,
@@ -274,13 +261,11 @@ const BAND_CONFIG = {
 			{
 				name: "readingComp",
 				scoreField: "rdComprehensionScore",
-				progressField: "rdComprehensionProgress",
 				passMark: 7,
 				weight: 17.5,
 				optional: false,
 			},
 		],
-		forgiveness: null,
 		dynamicGroups: {
 			phonics: { totalWeight: 50.0 },
 			writing: { totalWeight: 17.5 },
@@ -293,43 +278,38 @@ const BAND_CONFIG = {
 			{
 				name: "writtenVocab",
 				scoreField: null,
-				progressField: null,
 				passMark: 0,
 				weight: 15.0,
 				optional: false,
-				alwaysPass: true,
-			},
-			{
-				name: "phonics",
-				scoreField: "phonicsScore",
-				progressField: "phonicsProgress",
-				passMark: 0,
-				weight: 50.0,
-				optional: true,
-				group: "phonics",
+				tiedToWriting: true,
 			},
 			{
 				name: "wra",
 				scoreField: "wraScore",
-				progressField: "wraProgress",
 				passMark: 8,
-				weight: 50.0,
+				weight: 16.67,
+				optional: false,
+				group: "phonics",
+			},
+			{
+				name: "fluency",
+				scoreField: "fluencyMark",
+				passMark: null,
+				weight: 16.67,
 				optional: false,
 				group: "phonics",
 			},
 			{
 				name: "wordSpelling",
 				scoreField: "wordSpellingScore",
-				progressField: "wordSpellingProgress",
 				passMark: 8,
-				weight: 50.0,
+				weight: 16.67,
 				optional: false,
 				group: "phonics",
 			},
 			{
 				name: "narrative",
 				scoreField: "narrativeScore",
-				progressField: "narrativeProgress",
 				passMark: 12,
 				weight: 17.5,
 				optional: true,
@@ -338,7 +318,6 @@ const BAND_CONFIG = {
 			{
 				name: "exposition",
 				scoreField: "expositionScore",
-				progressField: "expositionProgress",
 				passMark: 12,
 				weight: 17.5,
 				optional: true,
@@ -347,7 +326,6 @@ const BAND_CONFIG = {
 			{
 				name: "persuasive",
 				scoreField: "persuasiveScore",
-				progressField: "persuasiveProgress",
 				passMark: 12,
 				weight: 17.5,
 				optional: true,
@@ -356,13 +334,11 @@ const BAND_CONFIG = {
 			{
 				name: "readingComp",
 				scoreField: "rdComprehensionScore",
-				progressField: "rdComprehensionProgress",
-				passMark: 10,
+				passMark: { Primary: 10, Secondary: 11 },
 				weight: 17.5,
 				optional: false,
 			},
 		],
-		forgiveness: null,
 		dynamicGroups: {
 			phonics: { totalWeight: 50.0 },
 			writing: { totalWeight: 17.5 },
@@ -375,43 +351,38 @@ const BAND_CONFIG = {
 			{
 				name: "writtenVocab",
 				scoreField: null,
-				progressField: null,
 				passMark: 0,
 				weight: 15.0,
 				optional: false,
-				alwaysPass: true,
-			},
-			{
-				name: "phonics",
-				scoreField: "phonicsScore",
-				progressField: "phonicsProgress",
-				passMark: 0,
-				weight: 50.0,
-				optional: true,
-				group: "phonics",
+				tiedToWriting: true,
 			},
 			{
 				name: "wra",
 				scoreField: "wraScore",
-				progressField: "wraProgress",
 				passMark: 8,
-				weight: 50.0,
+				weight: 16.67,
+				optional: false,
+				group: "phonics",
+			},
+			{
+				name: "fluency",
+				scoreField: "fluencyMark",
+				passMark: null,
+				weight: 16.67,
 				optional: false,
 				group: "phonics",
 			},
 			{
 				name: "wordSpelling",
 				scoreField: "wordSpellingScore",
-				progressField: "wordSpellingProgress",
 				passMark: 8,
-				weight: 50.0,
+				weight: 16.67,
 				optional: false,
 				group: "phonics",
 			},
 			{
 				name: "narrative",
 				scoreField: "narrativeScore",
-				progressField: "narrativeProgress",
 				passMark: 14,
 				weight: 17.5,
 				optional: true,
@@ -420,7 +391,6 @@ const BAND_CONFIG = {
 			{
 				name: "exposition",
 				scoreField: "expositionScore",
-				progressField: "expositionProgress",
 				passMark: 14,
 				weight: 17.5,
 				optional: true,
@@ -429,7 +399,6 @@ const BAND_CONFIG = {
 			{
 				name: "persuasive",
 				scoreField: "persuasiveScore",
-				progressField: "persuasiveProgress",
 				passMark: 14,
 				weight: 17.5,
 				optional: true,
@@ -438,13 +407,11 @@ const BAND_CONFIG = {
 			{
 				name: "readingComp",
 				scoreField: "rdComprehensionScore",
-				progressField: "rdComprehensionProgress",
-				passMark: 13,
+				passMark: { Primary: 13, Secondary: 13 },
 				weight: 17.5,
 				optional: false,
 			},
 		],
-		forgiveness: null,
 		dynamicGroups: {
 			phonics: { totalWeight: 50.0 },
 			writing: { totalWeight: 17.5 },
@@ -452,54 +419,44 @@ const BAND_CONFIG = {
 	},
 
 	// ─── BAND C ───────────────────────────────────────────────────────────────
-	// Written Vocab (15%) — always passes
-	// PA/Phonics (35%) — redistributed across components actually taken
-	// Writing (25%) — student takes ONE of narrative/exposition/persuasive
-	// Comprehension (25%) — readingComp only
-
 	C7: {
 		passingTotal: 90,
 		components: [
 			{
 				name: "writtenVocab",
 				scoreField: null,
-				progressField: null,
 				passMark: 0,
 				weight: 15.0,
 				optional: false,
-				alwaysPass: true,
-			},
-			{
-				name: "phonics",
-				scoreField: "phonicsScore",
-				progressField: "phonicsProgress",
-				passMark: 0,
-				weight: 35.0,
-				optional: true,
-				group: "phonics",
+				tiedToWriting: true,
 			},
 			{
 				name: "wra",
 				scoreField: "wraScore",
-				progressField: "wraProgress",
 				passMark: 8,
-				weight: 35.0,
+				weight: 11.67,
+				optional: false,
+				group: "phonics",
+			},
+			{
+				name: "fluency",
+				scoreField: "fluencyMark",
+				passMark: null,
+				weight: 11.67,
 				optional: false,
 				group: "phonics",
 			},
 			{
 				name: "wordSpelling",
 				scoreField: "wordSpellingScore",
-				progressField: "wordSpellingProgress",
 				passMark: 8,
-				weight: 35.0,
+				weight: 11.67,
 				optional: false,
 				group: "phonics",
 			},
 			{
 				name: "narrative",
 				scoreField: "narrativeScore",
-				progressField: "narrativeProgress",
 				passMark: 16,
 				weight: 25.0,
 				optional: true,
@@ -508,7 +465,6 @@ const BAND_CONFIG = {
 			{
 				name: "exposition",
 				scoreField: "expositionScore",
-				progressField: "expositionProgress",
 				passMark: 16,
 				weight: 25.0,
 				optional: true,
@@ -517,7 +473,6 @@ const BAND_CONFIG = {
 			{
 				name: "persuasive",
 				scoreField: "persuasiveScore",
-				progressField: "persuasiveProgress",
 				passMark: 16,
 				weight: 25.0,
 				optional: true,
@@ -526,13 +481,11 @@ const BAND_CONFIG = {
 			{
 				name: "readingComp",
 				scoreField: "rdComprehensionScore",
-				progressField: "rdComprehensionProgress",
 				passMark: 6,
 				weight: 25.0,
 				optional: false,
 			},
 		],
-		forgiveness: null,
 		dynamicGroups: {
 			phonics: { totalWeight: 35.0 },
 			writing: { totalWeight: 25.0 },
@@ -545,43 +498,38 @@ const BAND_CONFIG = {
 			{
 				name: "writtenVocab",
 				scoreField: null,
-				progressField: null,
 				passMark: 0,
 				weight: 15.0,
 				optional: false,
-				alwaysPass: true,
-			},
-			{
-				name: "phonics",
-				scoreField: "phonicsScore",
-				progressField: "phonicsProgress",
-				passMark: 0,
-				weight: 35.0,
-				optional: true,
-				group: "phonics",
+				tiedToWriting: true,
 			},
 			{
 				name: "wra",
 				scoreField: "wraScore",
-				progressField: "wraProgress",
 				passMark: 8,
-				weight: 35.0,
+				weight: 11.67,
+				optional: false,
+				group: "phonics",
+			},
+			{
+				name: "fluency",
+				scoreField: "fluencyMark",
+				passMark: null,
+				weight: 11.67,
 				optional: false,
 				group: "phonics",
 			},
 			{
 				name: "wordSpelling",
 				scoreField: "wordSpellingScore",
-				progressField: "wordSpellingProgress",
 				passMark: 8,
-				weight: 35.0,
+				weight: 11.67,
 				optional: false,
 				group: "phonics",
 			},
 			{
 				name: "narrative",
 				scoreField: "narrativeScore",
-				progressField: "narrativeProgress",
 				passMark: 18,
 				weight: 25.0,
 				optional: true,
@@ -590,7 +538,6 @@ const BAND_CONFIG = {
 			{
 				name: "exposition",
 				scoreField: "expositionScore",
-				progressField: "expositionProgress",
 				passMark: 18,
 				weight: 25.0,
 				optional: true,
@@ -599,7 +546,6 @@ const BAND_CONFIG = {
 			{
 				name: "persuasive",
 				scoreField: "persuasiveScore",
-				progressField: "persuasiveProgress",
 				passMark: 18,
 				weight: 25.0,
 				optional: true,
@@ -608,13 +554,11 @@ const BAND_CONFIG = {
 			{
 				name: "readingComp",
 				scoreField: "rdComprehensionScore",
-				progressField: "rdComprehensionProgress",
 				passMark: 7,
 				weight: 25.0,
 				optional: false,
 			},
 		],
-		forgiveness: null,
 		dynamicGroups: {
 			phonics: { totalWeight: 35.0 },
 			writing: { totalWeight: 25.0 },
@@ -627,43 +571,38 @@ const BAND_CONFIG = {
 			{
 				name: "writtenVocab",
 				scoreField: null,
-				progressField: null,
 				passMark: 0,
 				weight: 15.0,
 				optional: false,
-				alwaysPass: true,
-			},
-			{
-				name: "phonics",
-				scoreField: "phonicsScore",
-				progressField: "phonicsProgress",
-				passMark: 0,
-				weight: 35.0,
-				optional: true,
-				group: "phonics",
+				tiedToWriting: true,
 			},
 			{
 				name: "wra",
 				scoreField: "wraScore",
-				progressField: "wraProgress",
 				passMark: 8,
-				weight: 35.0,
+				weight: 11.67,
+				optional: false,
+				group: "phonics",
+			},
+			{
+				name: "fluency",
+				scoreField: "fluencyMark",
+				passMark: null,
+				weight: 11.67,
 				optional: false,
 				group: "phonics",
 			},
 			{
 				name: "wordSpelling",
 				scoreField: "wordSpellingScore",
-				progressField: "wordSpellingProgress",
 				passMark: 8,
-				weight: 35.0,
+				weight: 11.67,
 				optional: false,
 				group: "phonics",
 			},
 			{
 				name: "narrative",
 				scoreField: "narrativeScore",
-				progressField: "narrativeProgress",
 				passMark: 18,
 				weight: 25.0,
 				optional: true,
@@ -672,7 +611,6 @@ const BAND_CONFIG = {
 			{
 				name: "exposition",
 				scoreField: "expositionScore",
-				progressField: "expositionProgress",
 				passMark: 18,
 				weight: 25.0,
 				optional: true,
@@ -681,7 +619,6 @@ const BAND_CONFIG = {
 			{
 				name: "persuasive",
 				scoreField: "persuasiveScore",
-				progressField: "persuasiveProgress",
 				passMark: 18,
 				weight: 25.0,
 				optional: true,
@@ -690,13 +627,11 @@ const BAND_CONFIG = {
 			{
 				name: "readingComp",
 				scoreField: "rdComprehensionScore",
-				progressField: "rdComprehensionProgress",
 				passMark: 8,
 				weight: 25.0,
 				optional: false,
 			},
 		],
-		forgiveness: null,
 		dynamicGroups: {
 			phonics: { totalWeight: 35.0 },
 			writing: { totalWeight: 25.0 },
@@ -707,41 +642,66 @@ const BAND_CONFIG = {
 /**
  * Calculate band score for a student's assessment
  * @param {Object} assessment - Assessment document from MongoDB
- * @param {string} bandLevel - Student's band level for this assessment
- * @returns {Object|null} scoring result or null if band not found
+ * @param {string} bandLevel - Band level for this assessment
+ * @param {string} schLevel - "Primary" or "Secondary" (needed for B5/B6 readingComp)
  */
-const calculateBandScore = (assessment, bandLevel) => {
+const calculateBandScore = (assessment, bandLevel, schLevel) => {
 	const config = BAND_CONFIG[bandLevel];
 	if (!config) return null;
 
-	// Step 1: evaluate each component
 	const results = config.components.map((comp) => {
-		// Always passing components (Written Vocab)
-		if (comp.alwaysPass) {
+		// Written Vocab handled after writing group is resolved
+		if (comp.tiedToWriting) {
 			return {
 				name: comp.name,
-				group: comp.group || null,
+				group: null,
 				score: null,
-				passMark: comp.passMark,
+				passMark: null,
 				weight: comp.weight,
-				passed: true,
-				weightedScore: comp.weight,
+				passed: null, // resolved below
+				weightedScore: 0,
 				skipped: false,
-				note: "No data field — treated as passed",
+				note: "Tied to writing result",
 			};
 		}
 
 		const score = assessment[comp.scoreField];
-		const progress = assessment[comp.progressField];
 		const hasScore = score !== null && score !== undefined && score > 0;
-		const hasProgress = progress !== null && progress !== undefined;
 
-		// Skip optional components with no score or score of 0
-		if (comp.optional && (!hasScore || score === 0)) {
+		// Fluency has no confirmed pass mark — always counts as passed if present
+		if (comp.name === "fluency") {
+			const fluencyPassed = hasScore ? true : score === 0 ? true : null;
+			if (!hasScore && score !== 0) {
+				return {
+					name: comp.name,
+					group: comp.group,
+					score: score ?? null,
+					passMark: null,
+					weight: comp.weight,
+					passed: null,
+					weightedScore: 0,
+					skipped: true,
+				};
+			}
+			return {
+				name: comp.name,
+				group: comp.group,
+				score: score ?? null,
+				passMark: null,
+				weight: comp.weight,
+				passed: true,
+				weightedScore: 0,
+				skipped: false,
+				note: "No pass mark set — counted as passed",
+			};
+		}
+
+		// Skip optional components with no real score
+		if (!hasScore && comp.optional) {
 			return {
 				name: comp.name,
 				group: comp.group || null,
-				score: null,
+				score: score ?? null,
 				passMark: comp.passMark,
 				weight: comp.weight,
 				passed: null,
@@ -750,30 +710,27 @@ const calculateBandScore = (assessment, bandLevel) => {
 			};
 		}
 
-		// Use progress boolean if available, otherwise compare score to passMark
-		let passed;
-		if (hasProgress) {
-			passed = progress === true;
-		} else if (hasScore) {
-			passed = score >= comp.passMark;
-		} else {
-			passed = false;
+		// Resolve pass mark (may depend on schLevel)
+		let passMark = comp.passMark;
+		if (passMark && typeof passMark === "object") {
+			passMark = passMark[schLevel] ?? passMark.Primary;
 		}
+
+		const passed = hasScore ? score >= passMark : false;
 
 		return {
 			name: comp.name,
 			group: comp.group || null,
 			score: hasScore ? score : null,
-			progress: hasProgress ? progress : null,
-			passMark: comp.passMark,
+			passMark,
 			weight: comp.weight,
 			passed,
-			weightedScore: 0, // will be set after redistribution
+			weightedScore: 0, // set after dynamic redistribution
 			skipped: false,
 		};
 	});
 
-	// Step 2: dynamic weight redistribution per group
+	// Dynamic weight redistribution per group (phonics, writing)
 	if (config.dynamicGroups) {
 		for (const [groupName, groupConfig] of Object.entries(
 			config.dynamicGroups,
@@ -782,11 +739,9 @@ const calculateBandScore = (assessment, bandLevel) => {
 				(r) => r.group === groupName && !r.skipped,
 			);
 			if (groupResults.length === 0) continue;
-
 			const weightPerComponent = parseFloat(
 				(groupConfig.totalWeight / groupResults.length).toFixed(4),
 			);
-
 			groupResults.forEach((r) => {
 				r.weight = weightPerComponent;
 				r.weightedScore = r.passed ? weightPerComponent : 0;
@@ -794,49 +749,47 @@ const calculateBandScore = (assessment, bandLevel) => {
 		}
 	}
 
-	// Step 3: set weightedScore for non-group components
+	// Non-group components get their weighted score directly
 	results.forEach((r) => {
-		if (!r.group && !r.skipped && r.passed !== null && r.weightedScore === 0) {
+		if (
+			!r.group &&
+			!r.skipped &&
+			r.passed !== null &&
+			!r.name.includes("writtenVocab")
+		) {
 			r.weightedScore = r.passed ? r.weight : 0;
 		}
-		// alwaysPass already set in step 1
 	});
+
+	// Resolve Written Vocab based on writing group outcome
+	const writtenVocabRow = results.find((r) => r.name === "writtenVocab");
+	if (writtenVocabRow) {
+		const writingResults = results.filter(
+			(r) => r.group === "writing" && !r.skipped,
+		);
+		const allWritingPassed =
+			writingResults.length > 0 &&
+			writingResults.every((r) => r.passed === true);
+		writtenVocabRow.passed = allWritingPassed;
+		writtenVocabRow.weightedScore = allWritingPassed
+			? writtenVocabRow.weight
+			: 0;
+	}
 
 	const failedComponents = results
 		.filter((r) => r.passed === false)
 		.map((r) => r.name);
 
-	// Step 4: apply forgiveness rules (Band A only)
-	let forgivenessApplied = false;
-	if (config.forgiveness) {
-		const { groupA, groupB } = config.forgiveness;
-		if (groupA && groupB) {
-			const failedA = failedComponents.filter((c) => groupA.includes(c));
-			const failedB = failedComponents.filter((c) => groupB.includes(c));
-			const otherFails = failedComponents.filter(
-				(c) => ![...groupA, ...groupB].includes(c),
-			);
-			forgivenessApplied =
-				otherFails.length === 0 &&
-				((failedA.length <= 1 && failedB.length === 0) ||
-					(failedB.length <= 1 && failedA.length === 0));
-		} else if (groupA) {
-			const failedA = failedComponents.filter((c) => groupA.includes(c));
-			const otherFails = failedComponents.filter((c) => !groupA.includes(c));
-			forgivenessApplied = otherFails.length === 0 && failedA.length <= 1;
-		}
-	}
-
 	const totalScore = parseFloat(
 		results.reduce((sum, r) => sum + r.weightedScore, 0).toFixed(2),
 	);
-	const passed = totalScore >= config.passingTotal || forgivenessApplied;
+	const passed = totalScore >= config.passingTotal;
 
 	return {
 		band: bandLevel,
 		totalScore,
 		passed,
-		forgivenessApplied,
+		forgivenessApplied: false,
 		componentResults: results,
 		failedComponents,
 		skippedComponents: results.filter((r) => r.skipped).map((r) => r.name),

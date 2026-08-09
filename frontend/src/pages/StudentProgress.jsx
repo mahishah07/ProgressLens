@@ -124,26 +124,33 @@ export default function StudentProgress() {
 		};
 	};
 
-	const SKILL_LABELS = {
-		pictureNaming: "Picture Naming",
-		pictureDescription: "Picture Description",
-		paIdentification: "PA Identification",
-		phonics: "Phonics",
-		wra: "Word Reading Accuracy",
-		fluency: "Fluency",
-		wordSpelling: "Word Spelling",
-		letterFormation: "Letter Formation",
-		ed1: "Edit and Diagram 1",
-		ed2: "Edit and Diagram 2",
-		ed3: "Edit and Diagram 3",
-		narrative: "Narrative Writing",
-		exposition: "Exposition Writing",
-		persuasive: "Persuasive Writing",
-		lsComprehension: "Listening Comprehension",
-		rdComprehension: "Reading Comprehension",
+	const buildTrendGrid = () => {
+		if (!dashboard?.componentTrend?.length) return null;
+
+		const allNames = new Set();
+		dashboard.componentTrend.forEach((a) =>
+			a.components.forEach((c) => allNames.add(c.name)),
+		);
+
+		const columns = dashboard.componentTrend.map((a) => a.semester);
+		const rows = Array.from(allNames).map((name) => {
+			const cells = dashboard.componentTrend.map((a) => {
+				const comp = a.components.find((c) => c.name === name);
+				if (!comp || comp.result === null)
+					return { status: "not-taken", score: null, passMark: null };
+				return {
+					status: comp.result === 1 ? "pass" : "fail",
+					score: comp.score,
+					passMark: comp.passMark,
+				};
+			});
+			return { name, label: SKILL_LABELS[name] || name, cells };
+		});
+
+		return { columns, rows };
 	};
 
-	const buildRadarData = () => {
+	const buildSnapshotData = () => {
 		if (!dashboard?.latestAssessment?.skillScores) return null;
 		const scores = dashboard.latestAssessment.skillScores;
 		const entries = Object.entries(scores).filter(([, v]) => v !== null);
@@ -158,6 +165,49 @@ export default function StudentProgress() {
 				},
 			],
 		};
+	};
+
+	const filteredSnapshotData = () => {
+		if (!snapshotData) return null;
+		const activeSkills =
+			selectedSkills.length > 0 ? selectedSkills : snapshotData.labels;
+		const indices = snapshotData.labels
+			.map((label, i) => (activeSkills.includes(label) ? i : null))
+			.filter((i) => i !== null);
+		return {
+			labels: indices.map((i) => snapshotData.labels[i]),
+			datasets: [
+				{
+					...snapshotData.datasets[0],
+					data: indices.map((i) => snapshotData.datasets[0].data[i]),
+				},
+			],
+		};
+	};
+
+	const SKILL_LABELS = {
+		pictureNaming: "Picture Naming",
+		pictureDescription: "Picture Description",
+		paIdentification: "PA Identification",
+		phonics: "Phonics",
+		wra: "Word Reading Accuracy",
+		fluency: "Fluency",
+		wordSpelling: "Word Spelling",
+		letterFormation: "Letter Formation",
+		ed1: "Edit and Diagram 1",
+		ed2: "Edit and Diagram 2",
+		ed3: "Edit and Diagram 3",
+		editDiagram1: "Edit and Diagram 1",
+		editDiagram2: "Edit and Diagram 2",
+		editDiagram3: "Edit and Diagram 3",
+		narrative: "Narrative Writing",
+		exposition: "Exposition Writing",
+		persuasive: "Persuasive Writing",
+		lsComprehension: "Listening Comprehension",
+		rdComprehension: "Reading Comprehension",
+		readingComp: "Reading Comprehension",
+		listeningComp: "Listening Comprehension",
+		writtenVocab: "Written Vocab",
 	};
 
 	if (loading)
@@ -280,32 +330,13 @@ export default function StudentProgress() {
 		);
 
 	const progressData = buildProgressChartData();
-	const radarData = buildRadarData();
+	const trendGrid = buildTrendGrid();
+	const snapshotData = buildSnapshotData();
 
 	const toggleSkill = (label) => {
 		setSelectedSkills((prev) =>
 			prev.includes(label) ? prev.filter((s) => s !== label) : [...prev, label],
 		);
-	};
-
-	const filteredRadarData = () => {
-		if (!radarData) return null;
-		const activeSkills =
-			selectedSkills.length > 0 ? selectedSkills : radarData.labels;
-		const indices = radarData.labels
-			.map((label, i) => (activeSkills.includes(label) ? i : null))
-			.filter((i) => i !== null);
-		return {
-			labels: indices.map((i) => radarData.labels[i]),
-			datasets: [
-				{
-					label: "Score",
-					data: indices.map((i) => radarData.datasets[0].data[i]),
-					borderColor: "#7c3aed",
-					backgroundColor: "rgba(124, 58, 237, 0.3)",
-				},
-			],
-		};
 	};
 
 	return (
@@ -372,43 +403,76 @@ export default function StudentProgress() {
 					{dashboard.bandScore && (
 						<div className="sp-band-score-card">
 							<div className="sp-band-score-header">
-								<h3>Band Assessment Score</h3>
-								<span
-									className={`sp-band-result ${dashboard.bandScore.passed ? "sp-passed" : "sp-failed"}`}
-								>
-									{dashboard.bandScore.passed ? "✓ PASSED" : "✗ NOT YET"}
-								</span>
+								<h3>Component Breakdown for Latest Assessment</h3>
+								<div className="sp-legend">
+									<span className="sp-legend-item sp-legend-item-pass">
+										Pass
+									</span>
+									<span className="sp-legend-item sp-legend-item-fail">
+										Fail
+									</span>
+								</div>
 							</div>
+
 							<div className="sp-band-score-total">
 								<span className="sp-score-num">
 									{dashboard.bandScore.totalScore}%
 								</span>
-								<span className="sp-score-label">/ 90% required</span>
+								<span className="sp-score-label">of 90% required</span>
 							</div>
-							{dashboard.bandScore.forgivenessApplied && (
-								<p className="sp-forgiveness-note">Forgiveness rule applied</p>
-							)}
+
 							<div className="sp-component-grid">
-								{dashboard.bandScore.componentResults
-									.filter((r) => !r.skipped)
-									.map((comp, i) => (
-										<div
-											key={i}
-											className={`sp-comp-item ${comp.passed ? "sp-comp-pass" : "sp-comp-fail"}`}
-										>
-											<span className="sp-comp-name">{comp.name}</span>
-											<span className="sp-comp-score">{comp.score ?? "—"}</span>
-											<span className="sp-comp-status">
-												{comp.passed ? "✓" : "✗"}
-											</span>
-										</div>
-									))}
+								{dashboard.bandScore.componentResults.map((comp, i) => (
+									<div
+										key={i}
+										className={`sp-comp-item ${
+											comp.skipped
+												? "sp-comp-skip"
+												: comp.passed
+													? "sp-comp-pass"
+													: "sp-comp-fail"
+										}`}
+									>
+										<span className="sp-comp-name">
+											{SKILL_LABELS[comp.name] || comp.name}
+										</span>
+										<span className="sp-comp-score">
+											{comp.name === "writtenVocab"
+												? comp.skipped
+													? "Not taken"
+													: comp.passed
+														? "Pass"
+														: "Fail"
+												: comp.score !== null && comp.score !== undefined
+													? comp.passMark !== null &&
+														comp.passMark !== undefined
+														? `${comp.score} / ${comp.passMark}`
+														: comp.score
+													: "—"}
+										</span>
+										<span className="sp-comp-status">
+											{comp.skipped ? "Not taken" : comp.passed ? "✓" : "✗"}
+										</span>
+									</div>
+								))}
 							</div>
-							{dashboard.bandScore.failedComponents.length > 0 && (
-								<p className="sp-failed-note">
-									Failed: {dashboard.bandScore.failedComponents.join(", ")}
-								</p>
-							)}
+
+							{(() => {
+								const phonicsComp = dashboard.bandScore.componentResults.find(
+									(r) => r.name === "fluency",
+								);
+								return phonicsComp ? (
+									<div className="sp-phonics-note">
+										<span>Phonics (Tested in-class, not scored) --</span>
+										<span className="sp-phonics-score">
+											{phonicsComp.score !== null &&
+											phonicsComp.score !== undefined
+												? phonicsComp.score
+												: "Not taken"}
+										</span>
+									</div>
+								) : null;
+							})()}
 						</div>
 					)}
 					{/* AI Insight Summary */}
@@ -488,31 +552,6 @@ export default function StudentProgress() {
 							)}
 						</div>
 					</div>
-
-					<div className="sp-goals-card">
-						<h3>
-							Goals & Interventions{" "}
-							<span className="sp-view-all">View All</span>
-						</h3>
-						{radarData?.datasets?.[0]?.data?.slice(0, 3).map((score, i) => (
-							<div className="sp-goal-item" key={i}>
-								<div className="sp-goal-label">
-									<span>{radarData.labels[i]}</span>
-									<span>{score}/100</span>
-								</div>
-								<div className="sp-goal-bar-bg">
-									<div
-										className="sp-goal-bar"
-										style={{
-											width: `${score}%`,
-											background:
-												i === 0 ? "#1a3c6e" : i === 1 ? "#7c3aed" : "#059669",
-										}}
-									/>
-								</div>
-							</div>
-						))}
-					</div>
 				</div>
 
 				<div className="sp-row">
@@ -550,70 +589,124 @@ export default function StudentProgress() {
 								>
 									▦ Bar
 								</button>
+								<button
+									className={`sp-toggle-btn ${chartType === "trend" ? "sp-toggle-active" : ""}`}
+									onClick={() => setChartType("trend")}
+								>
+									⊞ Trend
+								</button>
 							</div>
 						</div>
 
-						{radarData ? (
-							<>
-								<div style={{ height: "300px", position: "relative" }}>
-									{chartType === "radar" ? (
+						{chartType === "radar" &&
+							(snapshotData ? (
+								<>
+									<div style={{ height: "300px", position: "relative" }}>
 										<Radar
-											data={filteredRadarData()}
+											data={filteredSnapshotData()}
 											options={{
 												responsive: true,
 												maintainAspectRatio: false,
-												scales: {
-													r: {
-														min: 0,
-														max: (() => {
-															const data =
-																filteredRadarData()?.datasets?.[0]?.data || [];
-															const highest = Math.max(
-																...data.filter((v) => v !== null),
-															);
-															return isFinite(highest) ? highest + 5 : 100;
-														})(),
-														ticks: { stepSize: 5 },
-													},
-												},
+												scales: { r: { min: 0, max: 100 } },
 												plugins: { legend: { display: false } },
 											}}
 										/>
-									) : (
+									</div>
+									<div className="sp-skill-checkboxes">
+										{snapshotData.labels.map((label, i) => (
+											<label key={i} className="sp-skill-checkbox">
+												<input
+													type="checkbox"
+													checked={
+														selectedSkills.length === 0 ||
+														selectedSkills.includes(label)
+													}
+													onChange={() => toggleSkill(label)}
+												/>
+												{label}
+											</label>
+										))}
+									</div>
+								</>
+							) : (
+								<p className="state-msg">No skill data available</p>
+							))}
+
+						{chartType === "bar" &&
+							(snapshotData ? (
+								<>
+									<div style={{ height: "300px", position: "relative" }}>
 										<Bar
-											data={filteredRadarData()}
+											data={filteredSnapshotData()}
 											options={{
 												responsive: true,
 												maintainAspectRatio: false,
-												scales: {
-													y: { min: 0, max: 100, ticks: { stepSize: 20 } },
-												},
+												scales: { y: { min: 0, max: 100 } },
 												plugins: { legend: { display: false } },
 											}}
 										/>
-									)}
+									</div>
+									<div className="sp-skill-checkboxes">
+										{snapshotData.labels.map((label, i) => (
+											<label key={i} className="sp-skill-checkbox">
+												<input
+													type="checkbox"
+													checked={
+														selectedSkills.length === 0 ||
+														selectedSkills.includes(label)
+													}
+													onChange={() => toggleSkill(label)}
+												/>
+												{label}
+											</label>
+										))}
+									</div>
+								</>
+							) : (
+								<p className="state-msg">No skill data available</p>
+							))}
+
+						{chartType === "trend" &&
+							(trendGrid ? (
+								<div className="sp-trend-grid-wrapper">
+									<table className="sp-trend-grid">
+										<thead>
+											<tr>
+												<th className="sp-trend-row-label"></th>
+												{trendGrid.columns.map((col, i) => (
+													<th key={i}>{col}</th>
+												))}
+											</tr>
+										</thead>
+										<tbody>
+											{trendGrid.rows.map((row, ri) => (
+												<tr key={ri}>
+													<td className="sp-trend-row-label">{row.label}</td>
+													{row.cells.map((cell, ci) => (
+														<td key={ci} className="sp-trend-cell">
+															<span
+																className={`sp-trend-dot sp-trend-${cell.status}`}
+																title={
+																	cell.status === "not-taken"
+																		? "Not taken"
+																		: `${cell.score}/${cell.passMark} — ${cell.status}`
+																}
+															></span>
+														</td>
+													))}
+												</tr>
+											))}
+										</tbody>
+									</table>
 								</div>
-								<p className="sp-strongest">
-									Strongest Skill: {dashboard?.skillBreakdown?.strongest || "—"}
-								</p>
-								<div className="sp-skill-checkboxes">
-									{radarData.labels.map((label, i) => (
-										<label key={i} className="sp-skill-checkbox">
-											<input
-												type="checkbox"
-												checked={
-													selectedSkills.length === 0 ||
-													selectedSkills.includes(label)
-												}
-												onChange={() => toggleSkill(label)}
-											/>
-											{label}
-										</label>
-									))}
-								</div>
-							</>
-						) : (
-							<p className="state-msg">No skill data available</p>
+							) : (
+								<p className="state-msg">No trend data available</p>
+							))}
+
+						{chartType !== "trend" && (
+							<p className="sp-strongest">
+								Strongest Skill: {dashboard?.skillBreakdown?.strongest || "—"}
+							</p>
 						)}
 					</div>
 				</div>
