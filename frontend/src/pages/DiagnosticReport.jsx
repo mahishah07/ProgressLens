@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams, Link } from "react-router-dom";
 import "../css/DiagnosticReport.css";
 import {
 	LayoutDashboard,
@@ -10,93 +11,251 @@ import {
 	Printer,
 	Download,
 	Share2,
+	User,
+	Sparkles,
 } from "lucide-react";
 
-const errorData = [
-	{ label: "Vowel Digraphs", value: 78, color: "#1a3c6e" },
-	{ label: "Consonant Blends", value: 45, color: "#7c3aed" },
-	{ label: "Silent 'E' Patterns", value: 62, color: "#22c55e" },
-];
+const ERROR_API = import.meta.env.VITE_ERROR_API;
+const PMS_API = import.meta.env.VITE_PMS_API;
 
-const interventions = [
-	{
-		num: 1,
-		title: "Multi-Sensory Vowel Training",
-		desc: "Focus on 'ai' and 'ay' digraphs using sand tracing and phoneme-grapheme mapping exercises.",
-		freq: "(3 sessions/week)",
-	},
-	{
-		num: 2,
-		title: "Morphological Awareness Drills",
-		desc: "Structured practice in identifying prefixes and suffixes to reduce whole-word visual guessing.",
-		freq: "(2 sessions/week)",
-	},
-	{
-		num: 3,
-		title: "Assistive Technology Adaptation",
-		desc: "Introduce speech-to-text tools for initial draft generation to reduce cognitive load during creative writing tasks.",
-		freq: "",
-	},
-];
+function formatDate(date) {
+	if (!date) return "—";
+
+	const parsed = new Date(date);
+
+	if (Number.isNaN(parsed.getTime())) return "—";
+
+	return parsed.toLocaleDateString("en-SG", {
+		day: "2-digit",
+		month: "short",
+		year: "numeric",
+	});
+}
+
+/* function getRiskLevel(errorCount) {
+	if (errorCount >= 10) {
+		return {
+			label: "High Focus Required",
+			className: "dr-risk-high",
+		};
+	}
+
+	if (errorCount >= 5) {
+		return {
+			label: "Moderate Focus",
+			className: "dr-risk-medium",
+		};
+	}
+
+	return {
+		label: "Monitor Progress",
+		className: "dr-risk-low",
+	};
+} */
 
 export default function DiagnosticReport() {
+	const { reportId } = useParams();
+
+	const [report, setReport] = useState(null);
+	const [student, setStudent] = useState(null);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState("");
+
+	useEffect(() => {
+		async function loadReport() {
+			try {
+				setLoading(true);
+				setError("");
+
+				if (!ERROR_API) {
+					throw new Error("Error Analyser API is not configured.");
+				}
+
+				const reportResponse = await fetch(
+					`${ERROR_API}/api/reports/${reportId}`
+				);
+
+				const reportJson = await reportResponse.json();
+
+				if (!reportResponse.ok || !reportJson.success) {
+					throw new Error(
+						reportJson.error || "Unable to load diagnostic report."
+					);
+				}
+
+				const reportData = reportJson.data;
+				setReport(reportData);
+
+				/*
+				 * The AnalysisReport is populated with the student's
+				 * Error Analyser profile. We then use the student's
+				 * studentId to retrieve the richer PMS profile,
+				 * including summaryBand.
+				 */
+				const studentId = reportData?.student?.studentId;
+
+				if (!studentId) {
+					throw new Error(
+						"Student ID is missing from this diagnostic report."
+					);
+				}
+
+				if (!PMS_API) {
+					throw new Error("PMS API is not configured.");
+				}
+
+				const studentResponse = await fetch(
+					`${PMS_API}/api/students/${encodeURIComponent(studentId)}`
+				);
+
+				if (!studentResponse.ok) {
+					const studentJson = await studentResponse.json().catch(() => ({}));
+
+					throw new Error(
+						studentJson.message || "Unable to load student profile."
+					);
+				}
+
+				const studentData = await studentResponse.json();
+				setStudent(studentData);
+			} catch (err) {
+				console.error("Failed to load diagnostic report:", err);
+				setError(err.message || "Unable to load diagnostic report.");
+			} finally {
+				setLoading(false);
+			}
+		}
+
+		if (reportId) {
+			loadReport();
+		}
+	}, [reportId]);
+
+	if (loading) {
+		return (
+			<div className="dr-loading">
+				<div className="dr-loading-card">
+					<div className="dr-loading-spinner" />
+					<h2>Loading Diagnostic Report</h2>
+					<p>Retrieving the student's assessment and analysis...</p>
+				</div>
+			</div>
+		);
+	}
+
+	if (error || !report || !student) {
+		return (
+			<div className="dr-loading">
+				<div className="dr-loading-card">
+					<h2>Unable to Load Report</h2>
+					<p>{error || "Diagnostic report could not be found."}</p>
+					<Link to="/" className="dr-back-link">
+						Return to Dashboard
+					</Link>
+				</div>
+			</div>
+		);
+	}
+
+	const writingSample = report.writingSample || {};
+	const recommendation = report.interventionRecommendation || {};
+	const chartData = report.chartData || [];
+	const errors = report.errors || [];
+
+	const totalErrors =
+		report.errorCounts?.total ??
+		report.summary?.errorCount ??
+		errors.length;
+
+	// const risk = getRiskLevel(totalErrors);
+
+	const assessmentDate =
+		report.analysedAt || report.createdAt || writingSample.createdAt;
+
+	const lastReview = report.updatedAt || assessmentDate;
+
 	return (
 		<div className="dr-page">
-			<aside className="sidebar">
-				<div className="logo-section">
-					<div className="logo-circle">DAS</div>
+			{/* Sidebar */}
+			<aside className="dr-sidebar">
+				<div className="dr-logo-section">
+					<div className="dr-logo-circle">DAS</div>
+
 					<div>
 						<h2>DAS Teacher</h2>
 						<p>Educational Professional</p>
 					</div>
 				</div>
-				<nav>
+
+				<nav className="dr-nav">
 					<Link to="/">
 						<LayoutDashboard size={20} />
 						<span>Dashboard</span>
 					</Link>
+
 					<a href="#">
 						<TrendingUp size={20} />
 						<span>Progress Monitoring</span>
 					</a>
+
 					<a href="#">
 						<BarChart3 size={20} />
 						<span>Error Pattern Analysis</span>
 					</a>
+
 					<a className="active">
 						<FileText size={20} />
 						<span>Reports</span>
 					</a>
+
 					<a href="#">
 						<Bell size={20} />
 						<span>Notifications</span>
 					</a>
+
 					<a href="#">
 						<Settings size={20} />
 						<span>Settings</span>
 					</a>
 				</nav>
-				<div className="sidebar-footer">
-					<div className="avatar-small">SR</div>
+
+				<div className="dr-sidebar-profile">
+					<div className="dr-sidebar-avatar">MF</div>
+
 					<div>
-						<p className="footer-name">S. Richards</p>
-						<p className="footer-role">Profile</p>
+						<strong>Teacher</strong>
+						<span>Educational Professional</span>
 					</div>
 				</div>
 			</aside>
 
 			<main className="dr-main">
+				{/* Top bar */}
 				<header className="dr-topbar">
 					<h2>DAS Assessment Portal</h2>
+
 					<div className="dr-topbar-actions">
-						<button className="dr-btn-primary">
-							<Printer size={15} /> Print Report
+						<button
+							className="dr-btn-primary"
+							onClick={() => window.print()}
+						>
+							<Printer size={15} />
+							Print Report
 						</button>
-						<button className="dr-btn-secondary">
-							<Download size={15} /> Download PDF
+
+						<button
+							className="dr-btn-secondary"
+							onClick={() => window.print()}
+						>
+							<Download size={15} />
+							Download PDF
 						</button>
-						<span className="dr-updated">Last updated: Oct 24, 2023</span>
-						<button className="dr-icon-btn">
+
+						<span className="dr-updated">
+							Last updated: {formatDate(lastReview)}
+						</span>
+
+						<button className="dr-icon-btn" title="Share report">
 							<Share2 size={16} />
 						</button>
 					</div>
@@ -104,7 +263,7 @@ export default function DiagnosticReport() {
 
 				<div className="dr-doc-wrapper">
 					<div className="dr-doc">
-						{/* Header */}
+						{/* Report Header */}
 						<div className="dr-doc-header">
 							<div>
 								<h1>Diagnostic Assessment Report</h1>
@@ -112,165 +271,303 @@ export default function DiagnosticReport() {
 									Dyslexia Association of Singapore (DAS)
 								</p>
 							</div>
+
 							<div className="dr-report-meta">
 								<p className="dr-meta-label">
-									REPORT ID: <strong>#AR-2023-9042</strong>
+									REPORT ID:{" "}
+									<strong>#{String(report._id).slice(-8).toUpperCase()}</strong>
 								</p>
+
 								<p className="dr-meta-label">
-									Assessment Date: <strong>20 Oct 2023</strong>
+									Assessment Date:{" "}
+									<strong>{formatDate(assessmentDate)}</strong>
 								</p>
 							</div>
 						</div>
 
 						<hr className="dr-divider" />
 
-						{/* Student profile */}
-						<h2 className="dr-section-title">👤 Student Profile</h2>
+						{/* Student Profile */}
+						<div className="dr-section-heading">
+							<User size={18} />
+							<h2 className="dr-section-title">Student Profile</h2>
+						</div>
+
 						<div className="dr-profile-grid">
-							<div>
-								<p className="dr-field-label">FULL NAME</p>
-								<p className="dr-field-value">Ethan Tan Wei Lun</p>
+							<div className="dr-profile-field">
+								<p className="dr-field-label">STUDENT ID</p>
+								<p className="dr-field-value">
+									{student.studentId || report.student.studentId || "—"}
+								</p>
 							</div>
-							<div>
-								<p className="dr-field-label">AGE / LEVEL</p>
-								<p className="dr-field-value">9 Years / Primary 3</p>
+
+							<div className="dr-profile-field">
+								<p className="dr-field-label">CENTRE</p>
+								<p className="dr-field-value">
+									{student.centreId || "—"}
+								</p>
 							</div>
-							<div>
-								<p className="dr-field-label">ASSESSOR</p>
-								<p className="dr-field-value">Mrs. Sarah Richards</p>
+
+							<div className="dr-profile-field">
+								<p className="dr-field-label">LEVEL</p>
+								<p className="dr-field-value">
+									{student.schLevel || "—"}
+								</p>
 							</div>
-							<div>
-								<p className="dr-field-label">RISK INDICATOR</p>
-								<span className="dr-risk-badge">High Focus Required</span>
+
+							<div className="dr-profile-field">
+								<p className="dr-field-label">BAND LEVEL</p>
+								<p className="dr-field-value dr-band-value">
+									{student.summaryBand || "—"}
+								</p>
 							</div>
-							<div>
-								<p className="dr-field-label">LANGUAGE</p>
-								<p className="dr-field-value">English (L1)</p>
-							</div>
-							<div>
-								<p className="dr-field-label">LAST REVIEW</p>
-								<p className="dr-field-value">15 Aug 2023</p>
+
+							<div className="dr-profile-field">
+								<p className="dr-field-label">ASSESSMENT DATE</p>
+								<p className="dr-field-value">
+									{formatDate(assessmentDate)}
+								</p>
 							</div>
 						</div>
 
 						<hr className="dr-divider" />
 
-						{/* Error frequency */}
-						<h2 className="dr-section-title">📊 Error Frequency Analysis</h2>
+						{/* Assessment Overview */}
+						<div className="dr-section-heading">
+							<BarChart3 size={18} />
+							<h2 className="dr-section-title">
+								Error Frequency Analysis
+							</h2>
+						</div>
+
 						<div className="dr-error-grid">
 							<div className="dr-error-bars">
-								<p className="dr-bars-title">Phonological Awareness Deficits</p>
-								{errorData.map((d, i) => (
-									<div key={i} className="dr-bar-item">
-										<div className="dr-bar-label-row">
-											<span>{d.label}</span>
-											<span>{d.value}%</span>
-										</div>
-										<div className="dr-bar-bg">
-											<div
-												className="dr-bar-fill"
-												style={{ width: `${d.value}%`, background: d.color }}
-											/>
-										</div>
-									</div>
-								))}
-							</div>
-							<div className="dr-ai-recognition">
-								<div className="dr-ai-icon">🎯</div>
-								<h3>AI Pattern Recognition</h3>
-								<p>
-									Ethan consistently exhibits "Visual Morphological Errors." He
-									tends to guess words based on their initial letter and overall
-									shape, frequently substituting "there" for "three" or "quiet"
-									for "quite."
-								</p>
-							</div>
-						</div>
-
-						<hr className="dr-divider" />
-
-						{/* Evidence */}
-						<h2 className="dr-section-title">
-							≡ Evidence: Writing Samples Preview
-						</h2>
-						<div className="dr-samples-grid">
-							<div className="dr-sample-img">
-								<div className="dr-handwriting-mock">
-									<p
-										style={{
-											fontFamily: "cursive",
-											fontSize: "0.85rem",
-											color: "#555",
-											lineHeight: 1.9,
-										}}
-									>
-										omain dail-
-										<br />
-										<span className="dr-circle-error">p-a-r-c</span> running
-										fast.
-										<br />
-										10 dichiver er-
-										<br />
-										<span className="dr-circle-error">rabit</span> after me.
-									</p>
-								</div>
-							</div>
-							<div className="dr-sample-typed">
-								<p>Please your bag woo tate ron gootall im settheps.</p>
-							</div>
-						</div>
-
-						<hr className="dr-divider" />
-
-						{/* Interventions */}
-						<div className="dr-interventions-card">
-							<h2 className="dr-interventions-title">Targeted Interventions</h2>
-							{interventions.map((item) => (
-								<div key={item.num} className="dr-intervention-item">
-									<div className="dr-intervention-num">{item.num}</div>
+								<div className="dr-bars-header">
 									<div>
-										<p className="dr-intervention-title">{item.title}</p>
-										<p className="dr-intervention-desc">
-											{item.desc} {item.freq && <em>{item.freq}</em>}
+										<p className="dr-bars-title">
+											Error Type Distribution
+										</p>
+										<p className="dr-bars-subtitle">
+											Based on the student's analysed writing sample
 										</p>
 									</div>
+
+									<div className="dr-total-errors">
+										<strong>{totalErrors}</strong>
+										<span>Total Errors</span>
+									</div>
 								</div>
-							))}
+
+								{chartData.length > 0 ? (
+									chartData.map((item) => (
+										<div key={item.key} className="dr-bar-item">
+											<div className="dr-bar-label-row">
+												<span>{item.label}</span>
+												<span>
+													{item.count}{" "}
+													<small>
+														({Number(item.percentage || 0).toFixed(1)}%)
+													</small>
+												</span>
+											</div>
+
+											<div className="dr-bar-bg">
+												<div
+													className="dr-bar-fill"
+													style={{
+														width: `${Math.min(
+															100,
+															Number(item.percentage || 0)
+														)}%`,
+														background: item.color,
+													}}
+												/>
+											</div>
+										</div>
+									))
+								) : (
+									<p className="dr-empty">
+										No error frequency data is available for this report.
+									</p>
+								)}
+							</div>
+
+							<div className="dr-ai-recognition">
+								<div className="dr-ai-icon">
+									<Sparkles size={22} />
+								</div>
+
+								<h3>AI Pattern Analysis</h3>
+
+								{recommendation.dominantPattern && (
+									<div className="dr-dominant-pattern">
+										<span>Dominant Pattern</span>
+										<strong>
+											{recommendation.dominantPattern}
+										</strong>
+									</div>
+								)}
+
+								<p>
+									{recommendation.overview ||
+										"No AI analysis is available for this report yet."}
+								</p>
+							</div>
 						</div>
 
 						<hr className="dr-divider" />
 
-						{/* Summary */}
-						<h2 className="dr-section-title">
-							Assessor's Professional Summary
-						</h2>
-						<blockquote className="dr-summary">
-							"Ethan has shown remarkable resilience in his learning journey.
-							While the diagnostic data indicates significant phonological
-							hurdles, his oral vocabulary and comprehension are well above
-							grade level. Our primary objective for the next quarter is to
-							bridge the gap between his cognitive potential and his written
-							output through the specified interventions. Parent engagement in
-							nightly reading reinforcement is strongly advised."
-						</blockquote>
+						{/* Writing Sample */}
+						<div className="dr-section-heading">
+							<FileText size={18} />
+							<h2 className="dr-section-title">
+								Evidence: Writing Sample
+							</h2>
+						</div>
+
+						<div className="dr-samples-grid">
+							<div className="dr-sample-card">
+								<div className="dr-sample-header">
+									<strong>Original Writing Sample</strong>
+									<span>
+										{formatDate(writingSample.createdAt || assessmentDate)}
+									</span>
+								</div>
+
+								<div className="dr-sample-text">
+									{writingSample.cleanedText ||
+										writingSample.ocrText ||
+										"No writing sample text available."}
+								</div>
+							</div>
+
+							<div className="dr-sample-card">
+								<div className="dr-sample-header">
+									<strong>AI-Corrected Transcription</strong>
+									<span>Analysis Output</span>
+								</div>
+
+								<div className="dr-sample-text dr-corrected-text">
+									{report.expectedText ||
+										writingSample.expectedText ||
+										"No corrected transcription available."}
+								</div>
+							</div>
+						</div>
 
 						<hr className="dr-divider" />
 
-						{/* Signature */}
-						<div className="dr-signatures">
-							<div className="dr-sig">
-								<p className="dr-sig-name">S. Richards</p>
-								<div className="dr-sig-line" />
-								<p className="dr-sig-label">
-									LEAD EDUCATIONAL THERAPIST SIGNATURE
-								</p>
-								<p className="dr-sig-sub">License #DAS-304-99</p>
+						{/* Targeted Interventions */}
+						<div className="dr-interventions-card">
+							<div className="dr-interventions-header">
+								<div>
+									<h2 className="dr-interventions-title">
+										Targeted Interventions
+									</h2>
+
+									<p>
+										Recommendations generated from this student's
+										error pattern analysis.
+									</p>
+								</div>
+
+								<Sparkles size={22} />
 							</div>
-							<div className="dr-sig dr-sig-right">
-								<p className="dr-sig-sub">
-									Generated by DAS Assessment Engine v4.2
+
+							{recommendation.interventions?.length > 0 ? (
+								recommendation.interventions.map((item, index) => (
+									<div
+										key={`${item.title}-${index}`}
+										className="dr-intervention-item"
+									>
+										<div className="dr-intervention-num">
+											{index + 1}
+										</div>
+
+										<div className="dr-intervention-content">
+											<p className="dr-intervention-title">
+												{item.title}
+											</p>
+
+											<p className="dr-intervention-desc">
+												{item.rationale}
+											</p>
+
+											{item.activities?.length > 0 && (
+												<div className="dr-activities">
+													<strong>Activities:</strong>
+													<ul>
+														{item.activities.map((activity, activityIndex) => (
+															<li key={activityIndex}>{activity}</li>
+														))}
+													</ul>
+												</div>
+											)}
+
+											{item.frequency && (
+												<p className="dr-frequency">
+													<strong>Frequency:</strong>{" "}
+													{item.frequency}
+												</p>
+											)}
+										</div>
+									</div>
+								))
+							) : (
+								<p className="dr-empty">
+									No intervention recommendations are available yet.
 								</p>
-								<p className="dr-sig-sub">October 24, 2023</p>
+							)}
+						</div>
+
+						<hr className="dr-divider" />
+
+						{/* Educator Summary */}
+						<div className="dr-section-heading">
+							<Sparkles size={18} />
+							<h2 className="dr-section-title">
+								AI Analysis Summary
+							</h2>
+						</div>
+
+						<blockquote className="dr-summary">
+							{recommendation.overview ||
+								"No AI-generated summary is available for this report."}
+						</blockquote>
+
+						{recommendation.educatorCaution && (
+							<div className="dr-educator-note">
+								<strong>Educator Note</strong>
+								<p>{recommendation.educatorCaution}</p>
+							</div>
+						)}
+
+						<hr className="dr-divider" />
+
+						{/* Report Footer */}
+						<div className="dr-report-footer">
+							<div>
+								<p className="dr-footer-title">Diagnostic Report</p>
+								<p className="dr-sig-sub">
+									Generated from the DAS Assessment Engine
+								</p>
+
+								{recommendation.model && (
+									<p className="dr-sig-sub">
+										Analysis model: {recommendation.model}
+									</p>
+								)}
+							</div>
+
+							<div className="dr-footer-right">
+								<p className="dr-sig-sub">
+									Report generated: {formatDate(report.createdAt)}
+								</p>
+
+								<p className="dr-sig-sub">
+									Last analysis:{" "}
+									{formatDate(report.openAiAnalysedAt || report.analysedAt)}
+								</p>
 							</div>
 						</div>
 					</div>
