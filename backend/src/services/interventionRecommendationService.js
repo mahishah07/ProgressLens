@@ -238,6 +238,152 @@ function createErrorContext(error, tokens) {
   return tokens.slice(Math.max(0, index - 4), index + 5).join(" ");
 }
 
+function validateAnalysisOutput(output) {
+  if (
+    !output ||
+    typeof output !== "object" ||
+    Array.isArray(output)
+  ) {
+    throw new Error("OpenAI analysis output is invalid.");
+  }
+
+  if (
+    typeof output.correctedText !== "string" ||
+    !output.correctedText.trim()
+  ) {
+    throw new Error(
+      "OpenAI analysis output is missing correctedText."
+    );
+  }
+
+  if (!Array.isArray(output.corrections)) {
+    throw new Error(
+      "OpenAI analysis corrections must be an array."
+    );
+  }
+
+  for (const correction of output.corrections) {
+    if (
+      !correction ||
+      typeof correction !== "object" ||
+      typeof correction.errorId !== "string" ||
+      !correction.errorId.trim() ||
+      typeof correction.expectedCorrection !== "string" ||
+      !correction.expectedCorrection.trim() ||
+      typeof correction.explanation !== "string" ||
+      !correction.explanation.trim()
+    ) {
+      throw new Error(
+        "OpenAI analysis contains an invalid correction."
+      );
+    }
+  }
+
+  if (
+    output.grammarErrors !== undefined &&
+    !Array.isArray(output.grammarErrors)
+  ) {
+    throw new Error(
+      "OpenAI grammarErrors must be an array."
+    );
+  }
+
+  const recommendation = output.recommendation;
+
+  if (
+    !recommendation ||
+    typeof recommendation !== "object" ||
+    Array.isArray(recommendation)
+  ) {
+    throw new Error(
+      "OpenAI analysis is missing a valid recommendation."
+    );
+  }
+
+  if (
+    typeof recommendation.overview !== "string" ||
+    !recommendation.overview.trim()
+  ) {
+    throw new Error(
+      "OpenAI recommendation overview is invalid."
+    );
+  }
+
+  if (
+    typeof recommendation.dominantPattern !== "string" ||
+    !recommendation.dominantPattern.trim()
+  ) {
+    throw new Error(
+      "OpenAI recommendation dominantPattern is invalid."
+    );
+  }
+
+  if (
+    typeof recommendation.educatorCaution !== "string" ||
+    !recommendation.educatorCaution.trim()
+  ) {
+    throw new Error(
+      "OpenAI recommendation educatorCaution is invalid."
+    );
+  }
+
+  if (!Array.isArray(recommendation.interventions)) {
+    throw new Error(
+      "OpenAI recommendation interventions must be an array."
+    );
+  }
+
+  if (
+    recommendation.interventions.length < 1 ||
+    recommendation.interventions.length > 3
+  ) {
+    throw new Error(
+      "OpenAI recommendation must contain between 1 and 3 interventions."
+    );
+  }
+
+  for (const intervention of recommendation.interventions) {
+    if (
+      !intervention ||
+      typeof intervention !== "object" ||
+      Array.isArray(intervention)
+    ) {
+      throw new Error(
+        "OpenAI recommendation contains an invalid intervention."
+      );
+    }
+
+    if (
+      typeof intervention.title !== "string" ||
+      !intervention.title.trim() ||
+      typeof intervention.rationale !== "string" ||
+      !intervention.rationale.trim() ||
+      typeof intervention.frequency !== "string" ||
+      !intervention.frequency.trim()
+    ) {
+      throw new Error(
+        "OpenAI recommendation contains an invalid intervention."
+      );
+    }
+
+    if (
+      !Array.isArray(intervention.activities) ||
+      intervention.activities.length === 0 ||
+      intervention.activities.some(
+        (activity) =>
+          typeof activity !== "string" ||
+          !activity.trim()
+      )
+    ) {
+      throw new Error(
+        "OpenAI recommendation contains invalid activities."
+      );
+    }
+  }
+
+  return output;
+}
+
 async function analyseReportWithOpenAi({ studentId, sourceText, errors, tokens, errorCounts, chartData }, dependencies = {}) {
   const apiKey = dependencies.apiKey ?? openAiApiKey;
   const model = dependencies.model || openAiModel;
@@ -275,12 +421,40 @@ async function analyseReportWithOpenAi({ studentId, sourceText, errors, tokens, 
     text: { format: zodTextFormat(reportAnalysisSchema, "writing_report_analysis") },
   });
 
-  if (!response.output_parsed) throw new Error("OpenAI returned no structured analysis.");
-  const requestedIds = new Set(requestedErrors.map((error) => error.errorId));
-  const returnedIds = response.output_parsed.corrections.map((correction) => correction.errorId);
-  if (returnedIds.length !== requestedIds.size || new Set(returnedIds).size !== returnedIds.length || returnedIds.some((id) => !requestedIds.has(id))) {
-    throw new Error("OpenAI corrections did not match the report errors.");
-  }
+  const parsed = response.output_parsed;
+
+  validateAnalysisOutput(parsed);
+
+  const requestedIds = new Set(
+  requestedErrors.map((error) => error.errorId)
+);
+
+const returnedIds = parsed.corrections.map(
+  (correction) => correction.errorId
+);
+
+if (
+  returnedIds.length !== requestedIds.size ||
+  new Set(returnedIds).size !== returnedIds.length ||
+  returnedIds.some((id) => !requestedIds.has(id))
+) {
+  throw new Error(
+    "OpenAI corrections did not match the report errors."
+  );
+}
+
+return {
+  correctedText: parsed.correctedText,
+  corrections: parsed.corrections,
+  grammarErrors: parsed.grammarErrors || [],
+  recommendation: {
+    status: "completed",
+    ...parsed.recommendation,
+    model,
+    generatedAt: new Date(),
+    error: "",
+  },
+};
 
   return {
     correctedText: response.output_parsed.correctedText,

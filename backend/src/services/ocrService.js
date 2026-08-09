@@ -1,15 +1,60 @@
 const fs = require("fs");
 const { AzureKeyCredential, DocumentAnalysisClient } = require("@azure/ai-form-recognizer");
 
+function createOcrServiceError(message = "OCR service is currently unavailable.") {
+  const error = new Error(message);
+  error.statusCode = 503;
+  return error;
+}
+
 function textFromSpans(content, spans = []) {
+  // If content is not a string, there is nothing safe to extract.
+  if (typeof content !== "string") {
+    return "";
+  }
+
+  // Default parameters only handle undefined, not null.
+  // So explicitly check that spans is an array.
+  if (!Array.isArray(spans)) {
+    return "";
+  }
+
   return spans
-    .map(({ offset, length }) => content.slice(offset, offset + length))
+    .filter((span) => {
+      // Ignore null, undefined, or malformed span objects.
+      if (!span || typeof span !== "object") {
+        return false;
+      }
+
+      const { offset, length } = span;
+
+      // Offset and length must be valid numbers.
+      if (!Number.isInteger(offset) || !Number.isInteger(length)) {
+        return false;
+      }
+
+      // They cannot be negative.
+      if (offset < 0 || length < 0) {
+        return false;
+      }
+
+      // Ignore spans starting outside the content.
+      if (offset >= content.length) {
+        return false;
+      }
+
+      return true;
+    })
+    .map(({ offset, length }) =>
+      content.slice(offset, offset + length)
+    )
     .join(" ")
     .replace(/\s+/g, " ")
     .trim();
 }
 
 async function extractDocument(source) {
+  try{
   // Multer supplies an object containing mimetype, buffer, path, etc.
   const file =
     source &&
@@ -61,6 +106,11 @@ async function extractDocument(source) {
   );
 
   const result = await poller.pollUntilDone();
+  if (!result || typeof result !== "object") {
+  throw createOcrServiceError(
+    "Document OCR service returned an invalid result."
+  );
+}
   const content = result.content || "";
 
   const handwrittenText = (result.styles || [])
@@ -75,7 +125,17 @@ async function extractDocument(source) {
     tables: result.tables || [],
   };
 }
+catch (error) {
+  console.error(
+      "Azure OCR failed:",
+      error?.message || error
+    );
 
+    throw createOcrServiceError(
+      "Document OCR service is currently unavailable."
+    );
+  }
+}
 async function extractTextFromPdf(filePath) {
   return (await extractDocument(filePath)).content;
 }
