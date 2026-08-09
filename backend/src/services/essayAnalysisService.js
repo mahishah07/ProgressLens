@@ -1,6 +1,17 @@
 const Metaphone = require("natural/lib/natural/phonetics/metaphone");
 const { cleanText, tokenizeWords, tokenizeSentences } = require("../utils/textProcessing");
 
+const ERROR_PRIORITY = {
+  SPELLING_ERROR: 1,
+  PHONETIC_ERROR: 2,
+  INSERTION: 3,
+  DELETION: 3,
+  LETTER_REVERSAL: 4,
+  CAPITALIZATION_ERROR: 4,
+  TENSE_ERROR: 4,
+  GRAMMAR_ERROR: 4,
+};
+
 const metaphone = new Metaphone();
 const COMMON_TYPOS = {
   teh: "the", recieve: "receive", becuase: "because", alot: "a lot",
@@ -162,21 +173,49 @@ function mergeComparisonErrors(existingErrors, comparisonErrors) {
   const merged = existingErrors.map((error) => ({ ...error }));
 
   for (const comparisonError of comparisonErrors) {
-    const matchIndex = merged.findIndex((error) => comparisonError.actual === null
-      ? error.type === "DELETION" && error.expectedIndex === comparisonError.expectedIndex && error.expected === comparisonError.expected
-      : error.actualIndex === comparisonError.actualIndex && error.actual === comparisonError.actual
+    const matchIndex = merged.findIndex((error) =>
+      comparisonError.actual === null
+        ? error.type === "DELETION" &&
+          error.expectedIndex === comparisonError.expectedIndex &&
+          error.expected === comparisonError.expected
+        : error.actualIndex === comparisonError.actualIndex &&
+          error.actual === comparisonError.actual
     );
 
     if (matchIndex >= 0) {
-      merged[matchIndex] = {
-        ...merged[matchIndex],
-        ...comparisonError,
-        expectedCorrection: merged[matchIndex].expectedCorrection || comparisonError.expected || comparisonError.suggestion,
-      };
+      const existingError = merged[matchIndex];
+
+      const existingPriority =
+        ERROR_PRIORITY[existingError.type] || 0;
+
+      const comparisonPriority =
+        ERROR_PRIORITY[comparisonError.type] || 0;
+
+      if (comparisonPriority > existingPriority) {
+        merged[matchIndex] = {
+          ...existingError,
+          ...comparisonError,
+          _id: existingError._id,
+          expectedCorrection:
+            existingError.expectedCorrection ||
+            comparisonError.expected ||
+            comparisonError.suggestion,
+        };
+      } else {
+        merged[matchIndex] = {
+          ...existingError,
+          expectedCorrection:
+            existingError.expectedCorrection ||
+            comparisonError.expected ||
+            comparisonError.suggestion,
+        };
+      }
     } else {
       merged.push({
         ...comparisonError,
-        expectedCorrection: comparisonError.expected || comparisonError.suggestion,
+        expectedCorrection:
+          comparisonError.expected ||
+          comparisonError.suggestion,
         correctionExplanation: comparisonError.message,
         correctionSource: "openai",
       });
@@ -188,15 +227,34 @@ function mergeComparisonErrors(existingErrors, comparisonErrors) {
 
 function mergeGrammarErrors(existingErrors, grammarErrors, tokens = []) {
   const merged = existingErrors.map((error) => ({ ...error }));
+
   for (const grammarError of grammarErrors || []) {
     const actual = cleanText(grammarError.actual);
-    let actualIndex = Number.isInteger(grammarError.actualIndex) ? grammarError.actualIndex : -1;
-    if (actualIndex < 0 || (tokens[actualIndex] && tokens[actualIndex] !== actual)) {
-      const locatedIndex = tokens.findIndex((token) => token === actual);
-      if (locatedIndex >= 0) actualIndex = locatedIndex;
+
+    let actualIndex = Number.isInteger(grammarError.actualIndex)
+      ? grammarError.actualIndex
+      : -1;
+
+    if (
+      actualIndex < 0 ||
+      actualIndex >= tokens.length ||
+      cleanText(tokens[actualIndex]) !== actual
+    ) {
+      const locatedIndex = tokens.findIndex(
+        (token) => cleanText(token) === actual
+      );
+
+      if (locatedIndex >= 0) {
+        actualIndex = locatedIndex;
+      }
     }
-    const isTense = grammarError.category === "Tense"
-      || /\btense\b|past tense|present tense|future tense/i.test(grammarError.explanation || "");
+
+    const isTense =
+      grammarError.category === "Tense" ||
+      /\btense\b|past tense|present tense|future tense/i.test(
+        grammarError.explanation || ""
+      );
+
     const grammarRecord = {
       type: isTense ? "TENSE_ERROR" : "GRAMMAR_ERROR",
       category: isTense ? "Tense" : "Grammar",
@@ -210,13 +268,27 @@ function mergeGrammarErrors(existingErrors, grammarErrors, tokens = []) {
       actualIndex: actualIndex >= 0 ? actualIndex : null,
       tokenIndex: actualIndex >= 0 ? actualIndex : null,
     };
-    const matchIndex = merged.findIndex((error) =>
-      (actualIndex >= 0 && (error.actualIndex === actualIndex || error.tokenIndex === actualIndex))
-      || (cleanText(error.actual) === actual && error.expectedCorrection === grammarError.expectedCorrection)
+
+    const matchIndex = merged.findIndex(
+      (error) =>
+        (actualIndex >= 0 &&
+          (error.actualIndex === actualIndex ||
+            error.tokenIndex === actualIndex)) ||
+        (cleanText(error.actual) === actual &&
+          error.expectedCorrection ===
+            grammarError.expectedCorrection)
     );
-    if (matchIndex >= 0) merged[matchIndex] = { ...merged[matchIndex], ...grammarRecord };
-    else merged.push(grammarRecord);
+
+    if (matchIndex >= 0) {
+      merged[matchIndex] = {
+        ...merged[matchIndex],
+        ...grammarRecord,
+      };
+    } else {
+      merged.push(grammarRecord);
+    }
   }
+
   return deduplicateErrors(merged);
 }
 
