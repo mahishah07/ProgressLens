@@ -303,3 +303,39 @@
 .state-msg.error {
 	color: #dc2626;
 }
+
+.ac-selector-bar {
+	display: flex;
+	gap: 1.5rem;
+	padding: 1rem 2rem;
+	background: white;
+	border-bottom: 1px solid #eee;
+}
+.ac-selector-group {
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+}
+.ac-selector-group label {
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: #888;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+.ac-selector-group select {
+	padding: 0.5rem 0.85rem;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	font-size: 0.85rem;
+	min-width: 220px;
+	background: white;
+}
+.ac-cell-pass {
+	color: #166534;
+	font-weight: 600;
+}
+.ac-cell-fail {
+	color: #991b1b;
+	font-weight: 600;
+}

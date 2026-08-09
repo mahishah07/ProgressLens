@@ -1,6 +1,7 @@
 const Assessment = require("../models/Assessment");
 const Student = require("../models/Student");
 const { resolveStudent } = require("./studentIdentityService");
+const { calculateBandScore } = require("./bandScoring");
 
 const BAND_ORDER = ["A1", "A2", "A3", "B4", "B5", "B6", "C7", "C8", "C9"];
 
@@ -14,93 +15,84 @@ const getBandChange = (earlier, later) => {
 	return { direction: "same", steps: 0 };
 };
 
-const getSkillScores = (assessment) => ({
-	pictureNaming: assessment.pictureNamingScore ?? null,
-	pictureDescription: assessment.pictureDescriptionScore ?? null,
-	paIdentification: assessment.paIdentificationScore ?? null,
-	phonics: assessment.phonicsScore ?? null,
-	wra: assessment.wraScore ?? null,
-	fluency: assessment.fluencyMark ?? null,
-	wordSpelling: assessment.wordSpellingScore ?? null,
-	letterFormation: assessment.letterFormationScore ?? null,
-	ed1: assessment.ed1Score ?? null,
-	ed2: assessment.ed2Score ?? null,
-	ed3: assessment.ed3Score ?? null,
-	narrative: assessment.narrativeScore ?? null,
-	exposition: assessment.expositionScore ?? null,
-	persuasive: assessment.persuasiveScore ?? null,
-	lsComprehension: assessment.lsComprehensionScore ?? null,
-	rdComprehension: assessment.rdComprehensionScore ?? null,
-});
-
-const getAverage = (scores) => {
-	const values = Object.values(scores).filter((v) => v !== null);
-	if (values.length === 0) return null;
-	return parseFloat(
-		(values.reduce((a, b) => a + b, 0) / values.length).toFixed(2),
-	);
+// Get pass/fail component results for one assessment
+const getComponentResults = (assessment, bandLevel, schLevel) => {
+	const scored = calculateBandScore(assessment, bandLevel, schLevel);
+	if (!scored) return {};
+	const map = {};
+	scored.componentResults.forEach((c) => {
+		map[c.name] = {
+			score: c.score,
+			passMark: c.passMark,
+			passed: c.passed,
+			skipped: c.skipped,
+		};
+	});
+	return map;
 };
 
-const getSkillChanges = (earlierScores, laterScores) => {
-	const changes = {};
-	for (const skill of Object.keys(laterScores)) {
-		const before = earlierScores[skill];
-		const after = laterScores[skill];
-		if (before === null || after === null) {
-			changes[skill] = { before, after, change: null, improved: null };
-		} else {
-			const change = parseFloat((after - before).toFixed(2));
-			changes[skill] = {
-				before,
-				after,
+// Union of components tested in either assessment, with pass/fail + variance
+const getComponentComparison = (earlierResults, laterResults) => {
+	const allNames = new Set([
+		...Object.keys(earlierResults),
+		...Object.keys(laterResults),
+	]);
+	const comparison = {};
+
+	for (const name of allNames) {
+		const before = earlierResults[name];
+		const after = laterResults[name];
+
+		const beforeTaken = before && !before.skipped && before.score !== null;
+		const afterTaken = after && !after.skipped && after.score !== null;
+
+		if (beforeTaken && afterTaken) {
+			const change = parseFloat((after.score - before.score).toFixed(2));
+			comparison[name] = {
+				before: before.score,
+				after: after.score,
+				beforePassed: before.passed,
+				afterPassed: after.passed,
 				change,
-				improved: change > 0,
+				bothTaken: true,
+			};
+		} else if (beforeTaken || afterTaken) {
+			comparison[name] = {
+				before: beforeTaken ? before.score : null,
+				after: afterTaken ? after.score : null,
+				beforePassed: beforeTaken ? before.passed : null,
+				afterPassed: afterTaken ? after.passed : null,
+				change: null,
+				bothTaken: false,
 			};
 		}
 	}
-	return changes;
+
+	return comparison;
 };
 
-const getErrorReduction = (earlierScores, laterScores) => {
-	const errorFields = ["ed1", "ed2", "ed3"];
-	let totalBefore = 0;
-	let totalAfter = 0;
-	let count = 0;
+// Count components that flipped from fail->pass or pass->fail
+const getPassFailTransitions = (componentComparison) => {
+	let newlyPassing = 0;
+	let newlyFailing = 0;
 
-	for (const field of errorFields) {
-		const before = earlierScores[field];
-		const after = laterScores[field];
-		if (before !== null && after !== null) {
-			totalBefore += before;
-			totalAfter += after;
-			count++;
-		}
+	for (const comp of Object.values(componentComparison)) {
+		if (!comp.bothTaken) continue;
+		if (comp.beforePassed === false && comp.afterPassed === true)
+			newlyPassing++;
+		if (comp.beforePassed === true && comp.afterPassed === false)
+			newlyFailing++;
 	}
 
-	if (count === 0) return null;
-	return {
-		before: parseFloat((totalBefore / count).toFixed(2)),
-		after: parseFloat((totalAfter / count).toFixed(2)),
-		reduction: parseFloat(((totalBefore - totalAfter) / count).toFixed(2)),
-		improved: totalAfter < totalBefore,
-	};
+	return { newlyPassing, newlyFailing };
 };
 
-const getSkillProficiency = (scores) => {
-	const entries = Object.entries(scores).filter(([_, v]) => v !== null);
-	if (entries.length === 0) return { strongest: null, weakest: null };
-	const sorted = [...entries].sort(([, a], [, b]) => b - a);
-	return {
-		strongest: { skill: sorted[0][0], score: sorted[0][1] },
-		weakest: {
-			skill: sorted[sorted.length - 1][0],
-			score: sorted[sorted.length - 1][1],
-		},
-	};
-};
-
-// UC4: compare all assessments for a student
-exports.compareAssessments = async (studentId) => {
+// UC4: compare two selected assessments for a student
+exports.compareAssessments = async (
+	studentId,
+	assessmentIdA,
+	assessmentIdB,
+) => {
 	const student = await resolveStudent(studentId);
 	if (!student) return null;
 
@@ -116,73 +108,59 @@ exports.compareAssessments = async (studentId) => {
 		};
 	}
 
-	const earliest = assessments[0];
-	const latest = assessments[assessments.length - 1];
+	// Resolve which two assessments to compare
+	let earliest, latest;
+	if (assessmentIdA && assessmentIdB) {
+		const a = assessments.find((x) => x._id.toString() === assessmentIdA);
+		const b = assessments.find((x) => x._id.toString() === assessmentIdB);
+		if (!a || !b) {
+			return {
+				status: "insufficient_data",
+				message: "Invalid assessment selection",
+				student,
+			};
+		}
+		// force chronological order
+		if (new Date(a.assessmentDate) <= new Date(b.assessmentDate)) {
+			earliest = a;
+			latest = b;
+		} else {
+			earliest = b;
+			latest = a;
+		}
+	} else {
+		earliest = assessments[0];
+		latest = assessments[assessments.length - 1];
+	}
 
-	const earlierScores = getSkillScores(earliest);
-	const laterScores = getSkillScores(latest);
+	if (earliest._id.toString() === latest._id.toString()) {
+		return {
+			status: "insufficient_data",
+			message: "Select two different assessments",
+			student,
+		};
+	}
 
-	const earlierAvg = getAverage(earlierScores);
-	const laterAvg = getAverage(laterScores);
+	const earlierBand = earliest.summaryBand || student.summaryBand;
+	const laterBand = latest.summaryBand || student.summaryBand;
 
-	const overallScoreChange =
-		earlierAvg !== null && laterAvg !== null
-			? parseFloat((laterAvg - earlierAvg).toFixed(2))
-			: null;
+	const earlierResults = getComponentResults(
+		earliest,
+		earlierBand,
+		student.schLevel,
+	);
+	const laterResults = getComponentResults(latest, laterBand, student.schLevel);
 
 	const bandChange = getBandChange(
-		earliest.newBand || student.summaryBand,
-		latest.newBand || student.summaryBand,
+		earliest.newBand || earlierBand,
+		latest.newBand || laterBand,
 	);
 
-	const skillChanges = getSkillChanges(earlierScores, laterScores);
-	const errorReduction = getErrorReduction(earlierScores, laterScores);
-	const earlierProficiency = getSkillProficiency(earlierScores);
-	const laterProficiency = getSkillProficiency(laterScores);
-
-	// performance variance across all assessments
-	const allAverages = assessments
-		.map((a) => getAverage(getSkillScores(a)))
-		.filter((v) => v !== null);
-	const mean = allAverages.reduce((a, b) => a + b, 0) / allAverages.length;
-	const variance =
-		allAverages.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
-		allAverages.length;
-	const stdDev = parseFloat(Math.sqrt(variance).toFixed(2));
-
-	// per-assessment progression
-	const progressionSteps = [];
-	for (let i = 0; i < assessments.length - 1; i++) {
-		const from = assessments[i];
-		const to = assessments[i + 1];
-		const fromAvg = getAverage(getSkillScores(from));
-		const toAvg = getAverage(getSkillScores(to));
-		const scoreChange =
-			fromAvg !== null && toAvg !== null
-				? parseFloat((toAvg - fromAvg).toFixed(2))
-				: null;
-
-		progressionSteps.push({
-			step: i + 1,
-			from: {
-				assessmentId: from._id,
-				semester: from.semester,
-				date: from.assessmentDate,
-				band: from.newBand || null,
-				avgScore: fromAvg,
-			},
-			to: {
-				assessmentId: to._id,
-				semester: to.semester,
-				date: to.assessmentDate,
-				band: to.newBand || null,
-				avgScore: toAvg,
-			},
-			bandChange: getBandChange(from.newBand, to.newBand),
-			scoreChange,
-			improved: scoreChange !== null ? scoreChange > 0 : null,
-		});
-	}
+	const componentComparison = getComponentComparison(
+		earlierResults,
+		laterResults,
+	);
+	const transitions = getPassFailTransitions(componentComparison);
 
 	return {
 		status: "ok",
@@ -197,30 +175,25 @@ exports.compareAssessments = async (studentId) => {
 			to: latest.semester,
 		},
 		bandChange,
-		overallScore: {
-			earliest: earlierAvg,
-			latest: laterAvg,
-			change: overallScoreChange,
-			improved: overallScoreChange !== null ? overallScoreChange > 0 : null,
-		},
-		errorReduction,
-		skillChanges,
-		proficiencyChange: {
-			earlier: earlierProficiency,
-			later: laterProficiency,
-		},
-		varianceAnalysis: {
-			mean: parseFloat(mean.toFixed(2)),
-			stdDev,
-			allScores: allAverages,
-		},
-		progressionSteps,
+		componentComparison,
+		transitions,
 		assessmentHistory: assessments.map((a) => ({
 			_id: a._id,
 			semester: a.semester,
 			assessmentDate: a.assessmentDate,
 			newBand: a.newBand,
-			averageScore: getAverage(getSkillScores(a)),
+			summaryBand: a.summaryBand || student.summaryBand,
+			teacherComments: a.teacherComments,
 		})),
+		selectedA: {
+			_id: earliest._id,
+			semester: earliest.semester,
+			teacherComments: earliest.teacherComments,
+		},
+		selectedB: {
+			_id: latest._id,
+			semester: latest.semester,
+			teacherComments: latest.teacherComments,
+		},
 	};
 };
