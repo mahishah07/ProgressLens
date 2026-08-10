@@ -1,0 +1,438 @@
+/* =========================================================
+   ANSWER KEY ANALYSIS
+   EXTENDS StudentError.css
+   ========================================================= */
+
+
+/* =========================================================
+   ANSWER KEY STATUS BANNER
+   ========================================================= */
+
+.eaa-key-banner {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+
+	padding: 1.15rem 1.4rem;
+
+	background:
+		linear-gradient(
+			135deg,
+			#f5f3ff 0%,
+			#faf8ff 55%,
+			#ffffff 100%
+		);
+
+	border: 1px solid #ddd6fe;
+	border-radius: 12px;
+
+	box-shadow:
+		0 1px 4px
+		rgba(0, 0, 0, 0.04);
+}
+
+
+.eaa-key-banner-icon {
+	width: 46px;
+	height: 46px;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	flex-shrink: 0;
+
+	border-radius: 11px;
+
+	background: #7c3aed;
+
+	color: white;
+
+	box-shadow:
+		0 5px 12px
+		rgba(124, 58, 237, 0.16);
+}
+
+
+.eaa-key-banner-text {
+	flex: 1;
+}
+
+
+.eaa-key-label {
+	display: block;
+
+	margin-bottom: 0.2rem;
+
+	font-size: 0.65rem;
+	font-weight: 700;
+
+	letter-spacing: 0.09em;
+
+	color: #7c3aed;
+}
+
+
+.eaa-key-banner h3 {
+	margin: 0 0 0.2rem;
+
+	font-size: 1rem;
+
+	color: #24212d;
+}
+
+
+.eaa-key-banner p {
+	margin: 0;
+
+	font-size: 0.82rem;
+
+	color: #6c6677;
+}
+
+
+.eaa-key-connected {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+
+	padding: 0.4rem 0.75rem;
+
+	border-radius: 99px;
+
+	background: #dcfce7;
+
+	color: #166534;
+
+	font-size: 0.75rem;
+	font-weight: 600;
+
+	white-space: nowrap;
+}
+
+
+/* =========================================================
+   COMPARISON GRID
+   ========================================================= */
+
+.eaa-comparison-grid {
+	display: grid;
+
+	grid-template-columns:
+		repeat(2, minmax(0, 1fr));
+
+	gap: 1.5rem;
+}
+
+
+.eaa-comparison-card {
+	position: relative;
+
+	overflow: hidden;
+}
+
+
+.eaa-comparison-card::before {
+	content: "";
+
+	position: absolute;
+
+	top: 0;
+	left: 0;
+
+	width: 100%;
+	height: 4px;
+
+	background:
+		linear-gradient(
+			90deg,
+			#2563eb,
+			#60a5fa
+		);
+}
+
+
+.eaa-answer-card::before {
+	background:
+		linear-gradient(
+			90deg,
+			#7c3aed,
+			#a855f7
+		);
+}
+
+
+/* =========================================================
+   CARD TITLE
+   ========================================================= */
+
+.eaa-card-title {
+	display: flex;
+	align-items: center;
+
+	gap: 0.45rem;
+}
+
+
+.eaa-card-title svg {
+	color: #1a3c6e;
+}
+
+
+.eaa-answer-card
+	.eaa-card-title svg {
+	color: #7c3aed;
+}
+
+
+.eaa-file-name {
+	max-width: 200px;
+
+	overflow: hidden;
+
+	text-overflow: ellipsis;
+
+	white-space: nowrap;
+
+	color: #888;
+
+	font-size: 0.75rem;
+}
+
+
+/* =========================================================
+   TEXT COMPARISON
+   ========================================================= */
+
+.eaa-student-text {
+	background: #f8fafc;
+
+	border:
+		1px solid
+		#e7ebf0;
+}
+
+
+.eaa-answer-text {
+	background: #faf8ff;
+
+	border:
+		1px solid
+		#ede9fe;
+}
+
+
+.eaa-student-text p,
+.eaa-answer-text p {
+	white-space: pre-wrap;
+}
+
+
+/* =========================================================
+   EXPECTED ANSWERS SECTION
+   ========================================================= */
+
+.eaa-answers-section {
+	padding: 1.5rem;
+}
+
+
+.eaa-section-header {
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+
+	gap: 1rem;
+
+	padding-bottom: 1rem;
+
+	border-bottom: 1px solid #edf0f4;
+}
+
+
+.eaa-eyebrow {
+	display: block;
+
+	margin-bottom: 0.25rem;
+
+	font-size: 0.65rem;
+	font-weight: 700;
+
+	letter-spacing: 0.1em;
+
+	color: #7c3aed;
+}
+
+
+.eaa-section-header h3 {
+	margin: 0 0 0.25rem;
+
+	font-size: 1.05rem;
+}
+
+
+.eaa-section-header p {
+	margin: 0;
+
+	font-size: 0.8rem;
+
+	color: #777f8d;
+}
+
+
+.eaa-answer-count {
+	padding:
+		0.35rem
+		0.75rem;
+
+	background: #f5f3ff;
+
+	border: 1px solid #ddd6fe;
+
+	border-radius: 99px;
+
+	color: #6d28d9;
+
+	font-size: 0.75rem;
+	font-weight: 600;
+}
+
+
+/* =========================================================
+   ANSWER LIST
+   ========================================================= */
+
+.eaa-answer-list {
+	display: grid;
+
+	grid-template-columns:
+		repeat(2, minmax(0, 1fr));
+
+	gap: 0.8rem;
+
+	margin-top: 1rem;
+}
+
+
+.eaa-answer-item {
+	display: flex;
+
+	align-items: flex-start;
+
+	gap: 0.8rem;
+
+	padding: 1rem;
+
+	border: 1px solid #e5e7eb;
+
+	border-radius: 10px;
+
+	background: #fcfcfd;
+
+	transition:
+		transform 0.18s ease,
+		border-color 0.18s ease,
+		box-shadow 0.18s ease;
+}
+
+
+.eaa-answer-item:hover {
+	transform: translateY(-2px);
+
+	border-color: #c4b5fd;
+
+	box-shadow:
+		0 6px 16px
+		rgba(124, 58, 237, 0.07);
+}
+
+
+.eaa-answer-number {
+	width: 30px;
+	height: 30px;
+
+	flex-shrink: 0;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	border-radius: 8px;
+
+	background: #ede9fe;
+
+	color: #6d28d9;
+
+	font-size: 0.78rem;
+	font-weight: 700;
+}
+
+
+.eaa-answer-content {
+	min-width: 0;
+}
+
+
+.eaa-answer-content span {
+	display: block;
+
+	margin-bottom: 0.25rem;
+
+	font-size: 0.65rem;
+	font-weight: 700;
+
+	letter-spacing: 0.05em;
+
+	text-transform: uppercase;
+
+	color: #8b8792;
+}
+
+
+.eaa-answer-content p {
+	margin: 0;
+
+	color: #34303c;
+
+	font-size: 0.85rem;
+
+	line-height: 1.5;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+	.eaa-comparison-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.eaa-answer-list {
+		grid-template-columns: 1fr;
+	}
+
+}
+
+
+@media (max-width: 650px) {
+
+	.eaa-key-banner {
+		align-items: flex-start;
+
+		flex-wrap: wrap;
+	}
+
+	.eaa-key-connected {
+		margin-left: 62px;
+	}
+
+	.eaa-section-header {
+		align-items: flex-start;
+
+		flex-direction: column;
+	}
+
+}

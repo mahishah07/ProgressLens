@@ -1,0 +1,483 @@
+/* =========================================================
+   EDIT & DIAGRAM / ANSWER KEY DIAGNOSTIC REPORT
+
+   Extends DiagnosticReport.css
+   ========================================================= */
+
+
+/* =========================================================
+   REPORT TYPE
+   ========================================================= */
+
+.adr-report-type {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+
+	margin-bottom: 0.45rem;
+
+	padding: 0.28rem 0.55rem;
+
+	border-radius: 99px;
+
+	background: #f3e8ff;
+
+	color: #7e22ce;
+
+	font-size: 0.62rem;
+	font-weight: 800;
+
+	letter-spacing: 0.08em;
+}
+
+
+/* =========================================================
+   ANSWER KEY SUMMARY
+   ========================================================= */
+
+.adr-key-summary {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+
+	padding: 1rem 1.2rem;
+
+	border: 1px solid #e9d5ff;
+	border-radius: 10px;
+
+	background:
+		linear-gradient(
+			135deg,
+			#faf5ff 0%,
+			#ffffff 100%
+		);
+}
+
+
+.adr-key-icon {
+	width: 46px;
+	height: 46px;
+
+	flex-shrink: 0;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	border-radius: 10px;
+
+	background: #7c3aed;
+
+	color: white;
+}
+
+
+.adr-key-info {
+	flex: 1;
+}
+
+
+.adr-small-label {
+	display: block;
+
+	margin-bottom: 0.2rem;
+
+	color: #7c3aed;
+
+	font-size: 0.62rem;
+	font-weight: 800;
+
+	letter-spacing: 0.08em;
+}
+
+
+.adr-key-info h3 {
+	margin: 0 0 0.15rem;
+
+	color: #292333;
+
+	font-size: 0.95rem;
+}
+
+
+.adr-key-info p {
+	margin: 0;
+
+	color: #777180;
+
+	font-size: 0.75rem;
+}
+
+
+.adr-key-status {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+
+	padding: 0.38rem 0.7rem;
+
+	border-radius: 99px;
+
+	background: #dcfce7;
+
+	color: #166534;
+
+	font-size: 0.7rem;
+	font-weight: 700;
+
+	white-space: nowrap;
+}
+
+
+/* =========================================================
+   SECTION DESCRIPTION
+   ========================================================= */
+
+.adr-section-description {
+	margin: -0.45rem 0 1rem;
+
+	color: #737986;
+
+	font-size: 0.78rem;
+
+	line-height: 1.5;
+}
+
+
+/* =========================================================
+   STUDENT VS ANSWER KEY
+   ========================================================= */
+
+.adr-comparison-grid {
+	display: grid;
+
+	grid-template-columns:
+		repeat(2, minmax(0, 1fr));
+
+	gap: 1rem;
+}
+
+
+.adr-comparison-card {
+	position: relative;
+
+	overflow: hidden;
+
+	border: 1px solid #e5e7eb;
+	border-radius: 10px;
+
+	background: white;
+}
+
+
+.adr-comparison-card::before {
+	content: "";
+
+	position: absolute;
+
+	top: 0;
+	left: 0;
+
+	width: 100%;
+	height: 4px;
+}
+
+
+.adr-student-card::before {
+	background:
+		linear-gradient(
+			90deg,
+			#1a3c6e,
+			#60a5fa
+		);
+}
+
+
+.adr-key-card::before {
+	background:
+		linear-gradient(
+			90deg,
+			#7c3aed,
+			#a855f7
+		);
+}
+
+
+/* =========================================================
+   COMPARISON HEADER
+   ========================================================= */
+
+.adr-comparison-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+
+	gap: 1rem;
+
+	padding: 0.85rem 1rem;
+
+	background: #f8f9fb;
+
+	border-bottom: 1px solid #e5e7eb;
+}
+
+
+.adr-header-title {
+	display: flex;
+	align-items: center;
+
+	gap: 0.45rem;
+
+	color: #1a3c6e;
+}
+
+
+.adr-key-card .adr-header-title {
+	color: #7c3aed;
+}
+
+
+.adr-header-title strong {
+	font-size: 0.8rem;
+}
+
+
+.adr-comparison-header > span {
+	max-width: 150px;
+
+	overflow: hidden;
+
+	text-overflow: ellipsis;
+
+	white-space: nowrap;
+
+	color: #888;
+
+	font-size: 0.65rem;
+}
+
+
+/* =========================================================
+   COMPARISON TEXT
+   ========================================================= */
+
+.adr-comparison-text {
+	min-height: 180px;
+
+	padding: 1rem;
+
+	color: #333;
+
+	background: #fbfcfd;
+
+	font-size: 0.82rem;
+
+	line-height: 1.75;
+
+	white-space: pre-wrap;
+
+	word-break: break-word;
+}
+
+
+.adr-reference-text {
+	background: #fdfaff;
+}
+
+
+/* =========================================================
+   EXPECTED RESPONSES
+   ========================================================= */
+
+.adr-extracted-section {
+	margin-top: 1rem;
+
+	padding: 1.15rem;
+
+	border: 1px solid #ede9fe;
+	border-radius: 10px;
+
+	background: #fdfcff;
+}
+
+
+.adr-extracted-header {
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+
+	gap: 1rem;
+
+	padding-bottom: 0.8rem;
+
+	border-bottom: 1px solid #ede9fe;
+}
+
+
+.adr-extracted-header h3 {
+	margin: 0 0 0.2rem;
+
+	color: #333;
+
+	font-size: 0.9rem;
+}
+
+
+.adr-extracted-header p {
+	margin: 0;
+
+	color: #777;
+
+	font-size: 0.72rem;
+}
+
+
+.adr-answer-count {
+	padding: 0.3rem 0.65rem;
+
+	border: 1px solid #ddd6fe;
+	border-radius: 99px;
+
+	background: #f5f3ff;
+
+	color: #6d28d9;
+
+	font-size: 0.68rem;
+	font-weight: 700;
+}
+
+
+/* =========================================================
+   EXPECTED ANSWER LIST
+   ========================================================= */
+
+.adr-answer-list {
+	display: grid;
+
+	grid-template-columns:
+		repeat(2, minmax(0, 1fr));
+
+	gap: 0.65rem;
+
+	margin-top: 0.8rem;
+}
+
+
+.adr-answer-item {
+	display: flex;
+	align-items: flex-start;
+
+	gap: 0.7rem;
+
+	padding: 0.8rem;
+
+	border: 1px solid #e8e8ed;
+	border-radius: 8px;
+
+	background: white;
+}
+
+
+.adr-answer-number {
+	width: 27px;
+	height: 27px;
+
+	flex-shrink: 0;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	border-radius: 7px;
+
+	background: #ede9fe;
+
+	color: #6d28d9;
+
+	font-size: 0.7rem;
+	font-weight: 800;
+}
+
+
+.adr-answer-item span {
+	display: block;
+
+	margin-bottom: 0.2rem;
+
+	color: #96909c;
+
+	font-size: 0.58rem;
+	font-weight: 700;
+
+	letter-spacing: 0.06em;
+}
+
+
+.adr-answer-item p {
+	margin: 0;
+
+	color: #38333e;
+
+	font-size: 0.76rem;
+
+	line-height: 1.5;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+	.adr-comparison-grid,
+	.adr-answer-list {
+		grid-template-columns: 1fr;
+	}
+
+}
+
+
+@media (max-width: 650px) {
+
+	.adr-key-summary {
+		align-items: flex-start;
+
+		flex-wrap: wrap;
+	}
+
+
+	.adr-key-status {
+		margin-left: 62px;
+	}
+
+
+	.adr-extracted-header {
+		align-items: flex-start;
+
+		flex-direction: column;
+	}
+
+}
+
+
+/* =========================================================
+   PRINT
+   ========================================================= */
+
+@media print {
+
+	.adr-key-summary,
+	.adr-comparison-card,
+	.adr-extracted-section,
+	.adr-answer-item {
+		break-inside: avoid;
+	}
+
+
+	.adr-comparison-grid {
+		grid-template-columns:
+			1fr 1fr;
+	}
+
+}

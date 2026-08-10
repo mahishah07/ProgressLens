@@ -1,0 +1,791 @@
+/* =========================================================
+   ERROR OPTIONS
+   ========================================================= */
+
+.eo-page {
+	display: flex;
+	min-height: 100vh;
+	background: #f5f6fa;
+}
+
+.eo-main {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+
+/* =========================================================
+   TOPBAR
+   ========================================================= */
+
+.eo-topbar {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+
+	padding: 1rem 2rem;
+
+	background: white;
+	border-bottom: 1px solid #eee;
+
+	position: sticky;
+	top: 0;
+	z-index: 10;
+}
+
+.eo-topbar h2 {
+	font-size: 1.1rem;
+	font-weight: 700;
+	color: #1a3c6e;
+	margin: 0;
+}
+
+.eo-topbar-sub {
+	font-size: 1rem;
+	color: #555;
+
+	padding-left: 1rem;
+	border-left: 1px solid #ddd;
+}
+
+
+/* =========================================================
+   STUDENT PROFILE CARD
+   ========================================================= */
+
+.eo-profile-card {
+	display: flex;
+	align-items: center;
+	gap: 1.5rem;
+
+	background: white;
+
+	margin: 1.5rem 2rem 0;
+	padding: 1.5rem;
+
+	border-radius: 12px;
+
+	border: 1px solid #e6e9ef;
+
+	box-shadow:
+		0 1px 4px rgba(0, 0, 0, 0.05),
+		0 8px 24px rgba(26, 60, 110, 0.035);
+}
+
+
+/* AVATAR */
+
+.eo-avatar-wrapper {
+	position: relative;
+	flex-shrink: 0;
+}
+
+.eo-avatar {
+	width: 80px;
+	height: 80px;
+
+	border-radius: 12px;
+
+	background:
+		linear-gradient(
+			135deg,
+			#fb923c,
+			#f97316
+		);
+
+	color: white;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	font-size: 1.5rem;
+	font-weight: 700;
+
+	box-shadow:
+		0 8px 18px rgba(249, 115, 22, 0.18);
+}
+
+.eo-verified-badge {
+	position: absolute;
+
+	right: -6px;
+	bottom: -6px;
+
+	width: 27px;
+	height: 27px;
+
+	border-radius: 9px;
+
+	background: #0755a4;
+	color: white;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	border: 3px solid white;
+}
+
+
+/* PROFILE NAME */
+
+.eo-profile-info {
+	flex: 1;
+}
+
+.eo-profile-info h1 {
+	font-size: 1.5rem;
+	font-weight: 700;
+
+	margin: 0 0 0.7rem;
+
+	color: #1a1a1a;
+}
+
+
+/* GOOGLE SHEETS */
+
+.eo-sheets-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.45rem;
+
+	padding: 0.45rem 1rem;
+
+	border: 1px solid #ddd;
+	border-radius: 8px;
+
+	font-size: 0.85rem;
+
+	color: #555;
+	text-decoration: none;
+
+	background: white;
+
+	transition:
+		background 0.2s ease,
+		border-color 0.2s ease,
+		transform 0.2s ease;
+}
+
+.eo-sheets-btn:hover {
+	background: #f7f8fa;
+	border-color: #bfc6d0;
+	transform: translateY(-1px);
+}
+
+
+/* PROFILE META */
+
+.eo-profile-meta {
+	display: flex;
+	gap: 2.5rem;
+}
+
+.eo-meta-item {
+	display: flex;
+	flex-direction: column;
+	gap: 0.3rem;
+
+	min-width: 125px;
+}
+
+.eo-meta-label {
+	font-size: 0.72rem;
+
+	color: #888;
+
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+.eo-meta-value {
+	font-size: 0.95rem;
+	font-weight: 600;
+
+	color: #1a1a1a;
+}
+
+.eo-meta-blue {
+	color: #1a3c6e;
+}
+
+.eo-band {
+	display: flex;
+	align-items: center;
+	gap: 0.35rem;
+
+	color: #7c3aed;
+}
+
+
+/* =========================================================
+   SECTION TITLE
+   ========================================================= */
+
+.eo-section-heading {
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+
+	margin: 2rem 2rem 1.1rem;
+}
+
+.eo-eyebrow {
+	display: block;
+
+	margin-bottom: 0.35rem;
+
+	font-size: 0.7rem;
+	font-weight: 700;
+
+	letter-spacing: 0.12em;
+
+	color: #1a3c6e;
+}
+
+.eo-section-heading h2 {
+	font-size: 1.45rem;
+	font-weight: 700;
+
+	color: #1b1e25;
+
+	margin: 0 0 0.35rem;
+}
+
+.eo-section-heading p {
+	margin: 0;
+
+	font-size: 0.88rem;
+
+	color: #777f8c;
+}
+
+
+/* =========================================================
+   OPTIONS
+   ========================================================= */
+
+.eo-options {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+
+	gap: 1.5rem;
+
+	margin: 0 2rem 1.5rem;
+}
+
+
+/* =========================================================
+   OPTION CARD
+   ========================================================= */
+
+.eo-option-card {
+	position: relative;
+
+	min-height: 390px;
+
+	padding: 2rem;
+
+	border-radius: 15px;
+
+	color: white;
+
+	display: flex;
+	flex-direction: column;
+
+	overflow: hidden;
+
+	cursor: pointer;
+
+	isolation: isolate;
+
+	box-shadow:
+		0 10px 22px rgba(15, 23, 42, 0.08);
+
+	transition:
+		transform 0.25s ease,
+		box-shadow 0.25s ease;
+}
+
+.eo-option-card:hover {
+	transform: translateY(-6px);
+
+	box-shadow:
+		0 18px 38px rgba(15, 23, 42, 0.16);
+}
+
+
+/* =========================================================
+   BLUE CARD
+   ========================================================= */
+
+.eo-option-blue {
+	background:
+		linear-gradient(
+			135deg,
+			#0d5bb9 0%,
+			#1a3c6e 100%
+		);
+}
+
+
+/* =========================================================
+   PURPLE CARD
+   ========================================================= */
+
+.eo-option-purple {
+	background:
+		linear-gradient(
+			135deg,
+			#8b4ce8 0%,
+			#6d28d9 100%
+		);
+}
+
+
+/* =========================================================
+   CARD GLOW
+   ========================================================= */
+
+.eo-card-glow {
+	position: absolute;
+
+	width: 260px;
+	height: 260px;
+
+	border-radius: 50%;
+
+	top: -110px;
+	right: -90px;
+
+	filter: blur(15px);
+
+	pointer-events: none;
+
+	z-index: -1;
+}
+
+.eo-blue-glow {
+	background: rgba(96, 165, 250, 0.28);
+}
+
+.eo-purple-glow {
+	background: rgba(216, 180, 254, 0.28);
+}
+
+
+/* =========================================================
+   LARGE DECORATIVE ICON
+   ========================================================= */
+
+.eo-background-icon {
+	position: absolute;
+
+	right: -28px;
+	bottom: -38px;
+
+	color: rgba(255, 255, 255, 0.075);
+
+	transform: rotate(-8deg);
+
+	z-index: -1;
+
+	pointer-events: none;
+
+	transition:
+		transform 0.35s ease,
+		color 0.35s ease;
+}
+
+.eo-option-card:hover .eo-background-icon {
+	transform:
+		rotate(-3deg)
+		scale(1.08);
+
+	color: rgba(255, 255, 255, 0.1);
+}
+
+
+/* =========================================================
+   CARD HEADER
+   ========================================================= */
+
+.eo-option-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+
+	margin-bottom: 1.7rem;
+}
+
+.eo-option-icon {
+	width: 58px;
+	height: 58px;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	border-radius: 13px;
+
+	background: rgba(255, 255, 255, 0.15);
+
+	border: 1px solid rgba(255, 255, 255, 0.12);
+
+	box-shadow:
+		inset 0 1px 0 rgba(255, 255, 255, 0.18);
+
+	transition:
+		transform 0.25s ease,
+		background 0.25s ease;
+}
+
+.eo-option-card:hover .eo-option-icon {
+	transform: scale(1.06) rotate(-2deg);
+
+	background: rgba(255, 255, 255, 0.2);
+}
+
+.eo-card-type {
+	padding: 0.32rem 0.65rem;
+
+	background: rgba(255, 255, 255, 0.12);
+
+	border: 1px solid rgba(255, 255, 255, 0.13);
+	border-radius: 99px;
+
+	font-size: 0.65rem;
+	font-weight: 700;
+
+	letter-spacing: 0.08em;
+
+	color: rgba(255, 255, 255, 0.87);
+}
+
+
+/* =========================================================
+   CARD CONTENT
+   ========================================================= */
+
+.eo-option-content {
+	max-width: 520px;
+}
+
+.eo-option-content h3 {
+	margin: 0 0 0.7rem;
+
+	font-size: 1.35rem;
+	font-weight: 700;
+}
+
+.eo-option-content p {
+	margin: 0;
+
+	max-width: 490px;
+
+	font-size: 0.9rem;
+	line-height: 1.6;
+
+	color: rgba(255, 255, 255, 0.84);
+}
+
+
+/* =========================================================
+   FEATURES
+   ========================================================= */
+
+.eo-feature-list {
+	display: flex;
+	flex-direction: column;
+
+	gap: 0.5rem;
+
+	margin-top: 1.25rem;
+	margin-bottom: 1.4rem;
+}
+
+.eo-feature-list span {
+	display: flex;
+	align-items: center;
+
+	gap: 0.45rem;
+
+	font-size: 0.78rem;
+
+	color: rgba(255, 255, 255, 0.83);
+}
+
+.eo-feature-list svg {
+	color: rgba(255, 255, 255, 0.9);
+}
+
+
+/* =========================================================
+   CARD BUTTON
+   ========================================================= */
+
+.eo-option-btn {
+	position: relative;
+
+	z-index: 2;
+
+	margin-top: auto;
+
+	width: fit-content;
+
+	display: flex;
+	align-items: center;
+
+	gap: 0.5rem;
+
+	padding: 0.68rem 1.15rem;
+
+	border: none;
+	border-radius: 9px;
+
+	background: white;
+
+	font-size: 0.83rem;
+	font-weight: 700;
+
+	cursor: pointer;
+
+	box-shadow:
+		0 4px 12px rgba(0, 0, 0, 0.08);
+
+	transition:
+		transform 0.2s ease,
+		box-shadow 0.2s ease;
+}
+
+.eo-option-blue .eo-option-btn {
+	color: #1a3c6e;
+}
+
+.eo-option-purple .eo-option-btn {
+	color: #6d28d9;
+}
+
+.eo-option-btn:hover {
+	transform: translateX(3px);
+
+	box-shadow:
+		0 6px 18px rgba(0, 0, 0, 0.13);
+}
+
+.eo-button-arrow {
+	margin-left: 0.25rem;
+
+	font-size: 1.05rem;
+
+	transition: transform 0.2s ease;
+}
+
+.eo-option-btn:hover .eo-button-arrow {
+	transform: translateX(3px);
+}
+
+
+/* =========================================================
+   BACK BAR
+   ========================================================= */
+
+.eo-back-bar {
+	padding: 1rem 2rem 1.5rem;
+
+	margin-top: auto;
+}
+
+.eo-back-btn {
+	display: inline-flex;
+	align-items: center;
+
+	gap: 0.4rem;
+
+	padding: 0.6rem 1.25rem;
+
+	border: 1px solid #ddd;
+	border-radius: 8px;
+
+	background: white;
+
+	font-size: 0.9rem;
+
+	cursor: pointer;
+
+	text-decoration: none;
+
+	color: #333;
+
+	transition:
+		background 0.2s ease,
+		transform 0.2s ease;
+}
+
+.eo-back-btn:hover {
+	background: #f7f8fa;
+	transform: translateX(-2px);
+}
+
+
+/* =========================================================
+   LOADING / ERROR STATE
+   ========================================================= */
+
+.eo-state-card {
+	width: min(430px, calc(100% - 3rem));
+
+	margin: auto;
+
+	padding: 2.5rem;
+
+	background: white;
+
+	border-radius: 14px;
+
+	text-align: center;
+
+	box-shadow:
+		0 8px 28px rgba(15, 23, 42, 0.08);
+}
+
+.eo-state-card h3 {
+	margin: 0 0 0.5rem;
+
+	color: #1a3c6e;
+}
+
+.eo-state-card p {
+	margin: 0;
+
+	color: #777;
+	font-size: 0.9rem;
+}
+
+.eo-loading-spinner {
+	width: 34px;
+	height: 34px;
+
+	margin: 0 auto 1rem;
+
+	border: 4px solid #e5e7eb;
+	border-top-color: #1a3c6e;
+
+	border-radius: 50%;
+
+	animation: eo-spin 0.8s linear infinite;
+}
+
+@keyframes eo-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.eo-error-state h3 {
+	color: #991b1b;
+}
+
+.eo-state-back {
+	margin-top: 1.3rem;
+
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+
+	border: none;
+	border-radius: 8px;
+
+	padding: 0.65rem 1rem;
+
+	color: white;
+	background: #1a3c6e;
+
+	cursor: pointer;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1000px) {
+
+	.eo-profile-card {
+		flex-wrap: wrap;
+	}
+
+	.eo-profile-meta {
+		width: 100%;
+
+		padding-top: 1rem;
+
+		border-top: 1px solid #eee;
+
+		justify-content: space-between;
+	}
+
+}
+
+
+@media (max-width: 800px) {
+
+	.eo-options {
+		grid-template-columns: 1fr;
+	}
+
+	.eo-option-card {
+		min-height: 370px;
+	}
+
+}
+
+
+@media (max-width: 600px) {
+
+	.eo-profile-card,
+	.eo-options,
+	.eo-section-heading {
+		margin-left: 1rem;
+		margin-right: 1rem;
+	}
+
+	.eo-topbar {
+		padding-left: 1rem;
+		padding-right: 1rem;
+	}
+
+	.eo-profile-card {
+		align-items: flex-start;
+	}
+
+	.eo-profile-info {
+		min-width: calc(100% - 110px);
+	}
+
+	.eo-profile-meta {
+		flex-direction: column;
+
+		gap: 1rem;
+	}
+
+	.eo-option-card {
+		padding: 1.5rem;
+
+		min-height: 390px;
+	}
+
+	.eo-card-type {
+		display: none;
+	}
+
+	.eo-back-bar {
+		padding-left: 1rem;
+		padding-right: 1rem;
+	}
+
+}
