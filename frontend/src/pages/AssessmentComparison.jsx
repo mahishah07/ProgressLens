@@ -24,7 +24,7 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
-const API = import.meta.env.VITE_API_URL;
+const API = import.meta.env.VITE_PMS_API;
 
 export default function AssessmentComparison() {
 	const [searchParams] = useSearchParams();

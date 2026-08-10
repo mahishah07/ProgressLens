@@ -107,6 +107,12 @@ beforeEach(() => {
   mongoose.connection.transaction = jest.fn(async (callback) => callback("test-session"));
 });
 
+/*
+ * END-TO-END API WORKFLOW GROUP
+ * Exercises the educator-visible EPA sequence through HTTP: create student, upload work,
+ * analyse with OpenAI, persist corrections/recommendations, retrieve evidence and finalise review.
+ * External systems are mocked, while routing, controllers, merging and transaction coordination are real.
+ */
 describe("Error Pattern Analyser demo integration", () => {
   test("IT-01 creates a student profile through the API", async () => {
     studentRepository.create.mockResolvedValue(student);
