@@ -1291,7 +1291,7 @@ const visibleHistory = analysedHistory
 
               <div>
                 <span className="eo-meta-label">
-                  Last Assessment
+                  Last Homework Upload
                 </span>
 
                 <span className="eo-meta-value">
@@ -1356,7 +1356,7 @@ const visibleHistory = analysedHistory
             </span>
 
             <h1 className="page-title">
-              Upload Assessment
+              Upload Homework
             </h1>
 
             <p className="page-subtitle">
@@ -1605,7 +1605,7 @@ const visibleHistory = analysedHistory
                     size={18}
                   />
 
-                  Analyze Assessment
+                  Analyze Assignment
                 </>
               )}
             </button>
