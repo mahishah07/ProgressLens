@@ -1,7 +1,7 @@
 const Report = require("../models/Report");
-const Student = require("../models/Student");
 const { resolveStudent } = require("./studentIdentityService");
-const comparisonService = require("./comparisonService");
+const progressService = require("./progressService");
+const aiService = require("./aiService");
 
 const BAND_DESCRIPTIONS = {
 	A1: "is in the early stages of their literacy journey",
@@ -19,125 +19,128 @@ const SKILL_LABELS = {
 	pictureNaming: "Picture Naming",
 	pictureDescription: "Picture Description",
 	paIdentification: "Phonological Awareness",
-	phonics: "Phonics",
 	wra: "Word Reading Accuracy",
 	fluency: "Reading Fluency",
 	wordSpelling: "Word Spelling",
 	letterFormation: "Letter Formation",
-	ed1: "Editing Skills (Level 1)",
-	ed2: "Editing Skills (Level 2)",
-	ed3: "Editing Skills (Level 3)",
+	editDiagram1: "Editing Skills (Level 1)",
+	editDiagram2: "Editing Skills (Level 2)",
+	editDiagram3: "Editing Skills (Level 3)",
 	narrative: "Narrative Writing",
 	exposition: "Exposition Writing",
 	persuasive: "Persuasive Writing",
-	lsComprehension: "Listening Comprehension",
-	rdComprehension: "Reading Comprehension",
+	listeningComp: "Listening Comprehension",
+	readingComp: "Reading Comprehension",
+	writtenVocab: "Written Vocabulary",
 };
 
-const generateOverallProgress = (student, comparison) => {
-	const band = student.summaryBand;
+// Builds a sanitised summary of the dashboard for the AI prompt — no PII
+const sanitiseForAI = (dashboard) => {
+	const componentResults = (dashboard.bandScore?.componentResults || [])
+		.filter((c) => !c.skipped)
+		.map((c) => ({
+			component: SKILL_LABELS[c.name] || c.name,
+			score: c.score,
+			passMark: c.passMark,
+			passed: c.passed,
+		}));
+
+	return {
+		totalAssessments: dashboard.totalAssessments,
+		currentBand: dashboard.currentBandLevel,
+		latestBandLevel: dashboard.latestAssessment?.newBand,
+		overallScore: dashboard.bandScore?.totalScore,
+		passed: dashboard.bandScore?.passed,
+		componentResults,
+		strongestSkill: dashboard.skillBreakdown?.strongest
+			? SKILL_LABELS[dashboard.skillBreakdown.strongest] ||
+				dashboard.skillBreakdown.strongest
+			: null,
+		weakestSkill: dashboard.skillBreakdown?.weakest
+			? SKILL_LABELS[dashboard.skillBreakdown.weakest] ||
+				dashboard.skillBreakdown.weakest
+			: null,
+		progressOverTime: dashboard.progressOverTime,
+	};
+};
+
+// Fallback rule-based text if AI is unavailable — still works for 1 assessment
+const generateFallbackOverallProgress = (student, dashboard) => {
+	const band = dashboard.currentBandLevel;
 	const bandDesc =
 		BAND_DESCRIPTIONS[band] || "is making progress in their literacy journey";
-	const totalAssessments = comparison.totalAssessments;
-	const scoreChange = comparison.overallScore?.change;
-	const bandChange = comparison.bandChange;
+	const totalAssessments = dashboard.totalAssessments;
 
 	let progress = `Your child ${bandDesc}. `;
 
 	if (totalAssessments === 1) {
 		progress += `This is their first assessment with us, and we are looking forward to tracking their growth over time.`;
 	} else {
-		progress += `Over ${totalAssessments} assessments, `;
-		if (bandChange?.direction === "improved") {
-			progress += `your child has moved up ${bandChange.steps} band level${bandChange.steps > 1 ? "s" : ""}, which is a wonderful achievement. `;
-		} else if (bandChange?.direction === "same") {
-			progress += `your child has maintained a consistent band level. `;
-		} else if (bandChange?.direction === "declined") {
-			progress += `your child has faced some challenges and we are working to provide additional support. `;
-		}
-
-		if (scoreChange !== null && scoreChange !== undefined) {
-			if (scoreChange > 0) {
-				progress += `Their overall assessment scores have improved by ${scoreChange} points, showing great dedication and effort.`;
-			} else if (scoreChange < 0) {
-				progress += `Their overall scores have dipped slightly, and our teachers are focused on providing targeted support.`;
-			} else {
-				progress += `Their overall scores have remained stable across assessments.`;
-			}
-		}
+		progress += `Across ${totalAssessments} assessments, your child has continued to build on their literacy skills.`;
 	}
 
 	return progress;
 };
 
-const generateLiteracyGrowth = (comparison) => {
-	const skillChanges = comparison.skillChanges;
-	if (!skillChanges) return "Literacy assessment data is being gathered.";
-
-	const improved = Object.entries(skillChanges)
-		.filter(([_, v]) => v.improved === true)
-		.map(([k]) => SKILL_LABELS[k] || k);
-
-	const needsWork = Object.entries(skillChanges)
-		.filter(([_, v]) => v.improved === false)
-		.map(([k]) => SKILL_LABELS[k] || k);
+const generateFallbackLiteracyGrowth = (dashboard) => {
+	const strongest = dashboard.skillBreakdown?.strongest;
+	const weakest = dashboard.skillBreakdown?.weakest;
 
 	let growth = "";
-
-	if (improved.length > 0) {
-		growth += `Your child has shown improvement in the following areas: ${improved.slice(0, 3).join(", ")}${improved.length > 3 ? ", and more" : ""}. `;
+	if (strongest) {
+		growth += `Your child has shown particular strength in ${SKILL_LABELS[strongest] || strongest}. `;
 	}
-
-	if (needsWork.length > 0) {
-		growth += `Areas where we will continue to provide support include: ${needsWork.slice(0, 3).join(", ")}${needsWork.length > 3 ? ", and others" : ""}.`;
+	if (weakest) {
+		growth += `We will continue supporting growth in ${SKILL_LABELS[weakest] || weakest}.`;
 	}
-
 	return (
 		growth || "Your child is making steady progress across all literacy areas."
 	);
 };
 
-const generateInterventionAreas = (comparison) => {
-	const proficiency = comparison.proficiencyChange?.later;
-	const errorReduction = comparison.errorReduction;
+const generateFallbackInterventionAreas = (dashboard) => {
+	const failed = (dashboard.bandScore?.componentResults || [])
+		.filter((c) => !c.skipped && c.passed === false)
+		.map((c) => SKILL_LABELS[c.name] || c.name);
 
 	let interventions = "";
-
-	if (proficiency?.weakest) {
-		const skillLabel =
-			SKILL_LABELS[proficiency.weakest.skill] || proficiency.weakest.skill;
-		interventions += `Our teachers will focus on strengthening your child's ${skillLabel} skills through targeted activities and exercises. `;
+	if (failed.length > 0) {
+		interventions += `Our teachers will focus on strengthening ${failed.slice(0, 2).join(" and ")} through targeted activities. `;
 	}
-
-	if (errorReduction && !errorReduction.improved) {
-		interventions += `We will also be providing additional support to help reduce errors in written work. `;
-	}
-
 	interventions += `Regular practice at home, such as reading together and encouraging writing activities, will greatly support your child's progress.`;
-
 	return interventions;
 };
 
-// UC3: generate parent-friendly report
-const aiService = require("./aiService");
-
-// UC3: generate AI-powered parent-friendly report
+// UC3: generate AI-powered parent-friendly report — works for any student with >=1 assessment
 exports.generateReport = async (studentId, generatedBy) => {
 	const student = await resolveStudent(studentId);
 	if (!student) return null;
 
-	const comparison = await comparisonService.compareAssessments(studentId);
-	if (!comparison || comparison.status === "insufficient_data") {
+	const dashboard = await progressService.buildDashboard(studentId);
+
+	if (!dashboard || dashboard.status === "assessment_pending") {
 		return {
 			status: "insufficient_data",
 			message: "No assessment data available to generate report",
 		};
 	}
 
-	const aiReport = await aiService.generateParentReport(
-		comparison,
-		student.summaryBand,
-	);
+	let aiReport;
+	try {
+		const sanitised = sanitiseForAI(dashboard);
+		aiReport = await aiService.generateParentReport(
+			sanitised,
+			dashboard.currentBandLevel,
+		);
+	} catch (err) {
+		// AI unavailable — fall back to rule-based narrative so report generation never fully blocks
+		aiReport = {
+			overallProgress: generateFallbackOverallProgress(student, dashboard),
+			literacyGrowth: generateFallbackLiteracyGrowth(dashboard),
+			teacherObservations: "",
+			interventionAreas: generateFallbackInterventionAreas(dashboard),
+		};
+	}
 
 	const report = await Report.create({
 		student: student._id,

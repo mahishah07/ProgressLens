@@ -1,4 +1,6 @@
 const Student = require("../models/Student");
+const Assessment = require("../models/Assessment");
+const Report = require("../models/Report");
 const { resolveStudent } = require("../services/studentIdentityService");
 
 // GET /api/students
@@ -52,7 +54,23 @@ exports.updateStudent = async (req, res) => {
 	try {
 		const existing = await resolveStudent(req.params.id);
 		if (!existing) return res.status(404).json({ message: "Student not found" });
-		const student = await Student.findByIdAndUpdate(existing._id, req.body, {
+		const allowed = [
+			"centreId",
+			"teacherId",
+			"schoolId",
+			"age",
+			"schLevel",
+			"enrollmentDate",
+			"summaryBand",
+			"progress",
+			"parentName",
+			"parentEmail",
+			"parentContact",
+		];
+		const updates = Object.fromEntries(
+			allowed.filter((key) => req.body[key] !== undefined).map((key) => [key, req.body[key]]),
+		);
+		const student = await Student.findByIdAndUpdate(existing._id, updates, {
 			new: true,
 			runValidators: true,
 		});
@@ -68,6 +86,15 @@ exports.deleteStudent = async (req, res) => {
 	try {
 		const existing = await resolveStudent(req.params.id);
 		if (!existing) return res.status(404).json({ message: "Student not found" });
+		const [assessmentCount, reportCount] = await Promise.all([
+			Assessment.countDocuments({ student: existing._id }),
+			Report.countDocuments({ student: existing._id }),
+		]);
+		if (assessmentCount > 0 || reportCount > 0) {
+			return res.status(409).json({
+				message: "Student cannot be deleted while assessments or reports exist",
+			});
+		}
 		const student = await Student.findByIdAndDelete(existing._id);
 		if (!student) return res.status(404).json({ message: "Student not found" });
 		res.json({ message: "Student deleted" });
@@ -79,6 +106,9 @@ exports.deleteStudent = async (req, res) => {
 // POST /api/students/bulk
 exports.bulkCreateStudents = async (req, res) => {
 	try {
+		if (!Array.isArray(req.body) || req.body.length === 0) {
+			return res.status(400).json({ message: "A non-empty student array is required" });
+		}
 		const students = await Student.insertMany(req.body, { ordered: false });
 		res.status(201).json(students);
 	} catch (err) {

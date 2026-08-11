@@ -23,7 +23,7 @@
     "cors": "^2.8.6",
     "csv-parser": "^3.2.1",
     "dictionary-en": "^4.0.0",
-    "dotenv": "^17.4.2",
+    "dotenv": "16.4.5",
     "express": "^5.2.1",
     "googleapis": "^173.0.0",
     "mongodb": "^7.5.0",

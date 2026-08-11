@@ -1,0 +1,7 @@
+{
+	"watch": ["server.js"],
+	"ext": "js",
+	"ignore": ["node_modules", "google-credentials.json", "data.csv"],
+	"delay": "2000",
+	"legacyWatch": true
+}
