@@ -20,10 +20,15 @@ import {
   CheckCircle2,
   Clock3,
   ArrowRight,
+  UserRound,
+  Sheet,
+  GraduationCap,
+  ArrowLeft,
 } from "lucide-react";
 
 const API = import.meta.env.VITE_ERROR_API;
 const PMS_API = import.meta.env.VITE_PMS_API;
+const SHEET_URL = import.meta.env.VITE_GOOGLE_SHEET_URL;
 
 const studentResults = (payload) => payload?.students || payload?.data || [];
 
@@ -74,6 +79,7 @@ export default function ErrorDashboard() {
   const { id } = useParams();
 
   const [, setStudent] = useState(null);
+  const [overview, setOverview] = useState(null);
   const [history, setHistory] = useState([]);
   const [search, setSearch] = useState("");
   const [sortOrder, setSortOrder] = useState("latest");
@@ -283,6 +289,29 @@ const analyzeAssessment = async () => {
     loadDashboard();
   }, [id]);
 
+  useEffect(() => {
+    if (!id || !PMS_API) return;
+    const controller = new AbortController();
+
+    const loadOverview = async () => {
+      try {
+        const response = await fetch(
+          `${PMS_API}/api/progress/${encodeURIComponent(id)}/overview`,
+          { signal: controller.signal }
+        );
+        const data = await response.json();
+        if (response.ok && !data.message) setOverview(data);
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          console.warn("Unable to load student overview:", error);
+        }
+      }
+    };
+
+    loadOverview();
+    return () => controller.abort();
+  }, [id]);
+
   const visibleHistory = history
   .filter((assessment) => !assessment.answerKey)
   .filter((assessment) => {
@@ -392,11 +421,70 @@ const analyzeAssessment = async () => {
 
         {/* ================= Page ================= */}
         <section className="page-content">
-          <h1 className="page-title">Student Error Pattern Analyser</h1>
+          <section className="dashboard-profile-card">
+            <div className="dashboard-student-icon">
+              <UserRound size={29} />
+            </div>
 
-          <p className="page-subtitle">
-            Overview of linguistic and visual-spatial errors across student submissions.
-          </p>
+            <div className="dashboard-profile-info">
+              <h1>{overview?.student?.studentId || id}</h1>
+              {SHEET_URL && (
+                <a href={SHEET_URL} target="_blank" rel="noopener noreferrer" className="dashboard-sheets-btn">
+                  <Sheet size={16} />
+                  Open Google Sheets
+                </a>
+              )}
+            </div>
+
+            <div className="dashboard-profile-meta">
+              <div className="dashboard-meta-item">
+                <div className="dashboard-meta-icon"><CalendarDays size={17} /></div>
+                <div>
+                  <span className="dashboard-meta-label">Last Assignment Upload</span>
+                  <span className="dashboard-meta-value">
+                    {overview?.lastAssessmentDate
+                      ? formatAssessmentDate(overview.lastAssessmentDate)
+                      : "No assessment yet"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="dashboard-meta-item">
+                <div className="dashboard-meta-icon"><GraduationCap size={17} /></div>
+                <div>
+                  <span className="dashboard-meta-label">Assigned Band</span>
+                  <span className="dashboard-meta-value dashboard-band">
+                    {overview?.latestNewBand || overview?.currentBandLevel || "—"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="dashboard-meta-item">
+                <div className="dashboard-meta-icon"><BriefcaseBusiness size={17} /></div>
+                <div>
+                  <span className="dashboard-meta-label">Assigned Teacher</span>
+                  <span className="dashboard-meta-value">
+                    {overview?.student?.teacherId || "—"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <div className="dashboard-section-heading">
+            <div>
+              <span className="dashboard-section-eyebrow">FREE-FORM ANALYSIS</span>
+              <h1 className="page-title">Upload Assignment</h1>
+              <p className="page-subtitle">
+                Upload the student submission for free-form error analysis.
+              </p>
+            </div>
+
+            <Link to={`/error-options/${encodeURIComponent(id)}`} className="dashboard-back-button">
+              <ArrowLeft size={18} />
+              Back to Analysis Options
+            </Link>
+          </div>
 
           {/* ================= Upload ================= */}
           <div className="upload-card">

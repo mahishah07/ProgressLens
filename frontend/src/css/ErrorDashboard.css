@@ -280,16 +280,170 @@ body{
     padding:35px;
 }
 
+.dashboard-profile-card{
+    display:flex;
+    align-items:center;
+    gap:22px;
+    min-height:158px;
+    margin-bottom:32px;
+    padding:28px 30px;
+    background:#fff;
+    border:1px solid #e5e7eb;
+    border-radius:16px;
+    box-shadow:0 3px 12px rgba(31,41,51,.04);
+}
+
+.dashboard-student-icon{
+    width:72px;
+    height:72px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    border:1px solid #e7c3ca;
+    border-radius:15px;
+    background:#f8ecef;
+    color:#9f2233;
+}
+
+.dashboard-profile-info{
+    flex:1;
+    min-width:190px;
+}
+
+.dashboard-profile-info h1{
+    margin:0 0 13px;
+    color:#1f2933;
+    font-size:28px;
+    font-weight:750;
+    letter-spacing:-.02em;
+}
+
+.dashboard-sheets-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    padding:8px 12px;
+    border:1px solid #d9dce1;
+    border-radius:8px;
+    background:#fff;
+    color:#4b5563;
+    font-size:12px;
+    font-weight:600;
+    text-decoration:none;
+    transition:background .18s ease,border-color .18s ease,color .18s ease;
+}
+
+.dashboard-sheets-btn:hover{
+    background:#f8ecef;
+    border-color:#e7c3ca;
+    color:#9f2233;
+}
+
+.dashboard-profile-meta{
+    flex:1;
+    max-width:620px;
+    display:grid;
+    grid-template-columns:repeat(3,minmax(145px,1fr));
+    gap:12px;
+}
+
+.dashboard-meta-item{
+    min-height:76px;
+    padding:14px 15px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    border:1px solid #eeeeef;
+    border-radius:11px;
+    background:#fafafa;
+}
+
+.dashboard-meta-icon{
+    width:32px;
+    height:32px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    border:1px solid #ececef;
+    border-radius:8px;
+    background:#fff;
+    color:#9f2233;
+}
+
+.dashboard-meta-item>div:last-child{
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+}
+
+.dashboard-meta-label{
+    color:#6b7280;
+    font-size:9px;
+    font-weight:700;
+    letter-spacing:.07em;
+    text-transform:uppercase;
+}
+
+.dashboard-meta-value{
+    color:#1f2933;
+    font-size:14px;
+    font-weight:700;
+}
+
+.dashboard-band{color:#9f2233;}
+
+.dashboard-section-heading{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:24px;
+    margin-bottom:30px;
+}
+
+.dashboard-section-eyebrow{
+    display:block;
+    margin-bottom:8px;
+    color:#9f2233;
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:.09em;
+}
+
 .page-title{
-    font-size:46px;
-    color:#111827;
-    margin-bottom:10px;
+    font-size:32px;
+    color:#1f2933;
+    margin-bottom:6px;
 }
 
 .page-subtitle{
     color:#6b7280;
-    font-size:18px;
-    margin-bottom:30px;
+    font-size:14px;
+    margin-bottom:0;
+}
+
+.dashboard-back-button{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    flex-shrink:0;
+    padding:11px 16px;
+    border:1px solid #d9dce1;
+    border-radius:10px;
+    background:#fff;
+    color:#4b5563;
+    font-size:13px;
+    font-weight:700;
+    text-decoration:none;
+    transition:background .18s ease,border-color .18s ease,color .18s ease;
+}
+
+.dashboard-back-button:hover{
+    background:#f8ecef;
+    border-color:#e7c3ca;
+    color:#9f2233;
 }
 
 /* TOOLBAR */
@@ -711,6 +865,8 @@ body{
 
 @media (max-width: 1280px){
     .history-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .dashboard-profile-card{flex-wrap:wrap;}
+    .dashboard-profile-meta{width:100%;max-width:none;}
 }
 
 @media (max-width: 900px){
@@ -718,12 +874,14 @@ body{
     .history-header{align-items:flex-start;}
     .dashboard-teacher-copy{display:none;}
     .search-box-top{width:min(310px,38vw);}
+    .dashboard-profile-meta{grid-template-columns:1fr;}
 }
 
 @media (max-width: 620px){
     .topbar{padding:0 16px;}
     .dashboard-topbar-brand span,.dashboard-teacher-profile{display:none;}
     .search-box-top{width:min(220px,46vw);}
+    .dashboard-section-heading{align-items:flex-start;flex-direction:column;}
     .history-header{flex-direction:column;gap:14px;}
     .history-insights{grid-template-columns:1fr;}
     .history-metric,.history-pattern{height:auto;min-height:120px;}
