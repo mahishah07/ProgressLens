@@ -103,5 +103,12 @@ const assessmentSchema = new mongoose.Schema(
 );
 
 assessmentSchema.index({ student: 1, assessmentDate: -1 });
+assessmentSchema.index(
+	{ student: 1, semester: 1 },
+	{
+		unique: true,
+		partialFilterExpression: { semester: { $type: "string" } },
+	},
+);
 
 module.exports = mongoose.model("Assessment", assessmentSchema);

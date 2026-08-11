@@ -205,7 +205,10 @@ exports.searchStudents = async (filters) => {
 	if (filters.schLevel) query.schLevel = filters.schLevel;
 	if (filters.summaryBand) query.summaryBand = filters.summaryBand;
 	if (filters.progress) query.progress = filters.progress;
-	if (filters.studentId) query.studentId = new RegExp(filters.studentId, "i");
+	if (typeof filters.studentId === "string" && filters.studentId) {
+		const literal = filters.studentId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+		query.studentId = new RegExp(literal.slice(0, 100), "i");
+	}
 
 	return await Student.find(query).sort({ createdAt: -1 });
 };
