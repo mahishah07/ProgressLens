@@ -245,3 +245,30 @@ describe("UT-PMS-11 — syncFromSheets row mapping", () => {
 		expect(Assessment.create).not.toHaveBeenCalled();
 	});
 });
+
+describe("PMS-024 — Sheets polling lifecycle", () => {
+	beforeEach(() => {
+		jest.useFakeTimers();
+		jest.spyOn(sheetsSync, "syncFromSheets").mockResolvedValue({ created: 0, skipped: 0, errors: [] });
+	});
+
+	afterEach(() => {
+		sheetsSync.stopPolling();
+		jest.useRealTimers();
+		jest.restoreAllMocks();
+	});
+
+	test("starts only one timer and cleans it up deterministically", async () => {
+		const first = sheetsSync.startPolling(30);
+		const second = sheetsSync.startPolling(30);
+		expect(second).toBe(first);
+		expect(jest.getTimerCount()).toBe(1);
+		expect(sheetsSync.stopPolling()).toBe(true);
+		expect(sheetsSync.stopPolling()).toBe(false);
+		expect(jest.getTimerCount()).toBe(0);
+	});
+
+	test.each([0, -1, Number.NaN])("rejects invalid interval %p", (interval) => {
+		expect(() => sheetsSync.startPolling(interval)).toThrow(/greater than zero/i);
+	});
+});

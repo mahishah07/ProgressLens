@@ -44,6 +44,6 @@ exports.editReport = async (req, res) => {
 		if (!report) return res.status(404).json({ message: "Report not found" });
 		res.json(report);
 	} catch (err) {
-		res.status(400).json({ message: err.message });
+		res.status(err.statusCode || 400).json({ message: err.message });
 	}
 };

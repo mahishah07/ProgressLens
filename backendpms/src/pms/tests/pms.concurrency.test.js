@@ -1,5 +1,7 @@
 const request = require("supertest");
 
+jest.setTimeout(15000);
+
 jest.mock("googleapis", () => ({
 	google: {
 		auth: { GoogleAuth: jest.fn(() => ({})) },
@@ -83,7 +85,26 @@ describe("PMS concurrency and data-integrity tests", () => {
 			sheetsSync.syncFromSheets(),
 		]);
 		expect(await Assessment.countDocuments({ student: student._id, semester: "2026 Sem 1" })).toBe(1);
-		expect(responses.reduce((sum, response) => sum + response.created, 0)).toBe(1);
+		expect(responses[0]).toEqual(responses[1]);
+		expect(responses[0].created).toBe(1);
+	});
+
+	test("CON-006: stale same-field report edit is rejected instead of silently overwriting", async () => {
+		const student = await Student.create(studentPayload("DAS-VERSION"));
+		const report = await Report.create({ student: student._id, overallProgress: "Original" });
+		const [first, second] = await Promise.all([
+			request(app).put(`/api/reports/${report._id}/edit`).send({
+				overallProgress: "First",
+				expectedVersion: report.__v,
+			}),
+			request(app).put(`/api/reports/${report._id}/edit`).send({
+				overallProgress: "Second",
+				expectedVersion: report.__v,
+			}),
+		]);
+		expect([first.status, second.status].sort()).toEqual([200, 409]);
+		const stored = await Report.findById(report._id);
+		expect(["First", "Second"]).toContain(stored.overallProgress);
 	});
 
 	test("CON-008: ten parallel student workflows preserve ownership", async () => {

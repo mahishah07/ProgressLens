@@ -57,7 +57,7 @@ const getSheetRows = async () => {
 };
 
 // UC7: main sync function
-exports.syncFromSheets = async () => {
+const runSyncFromSheets = async () => {
 	const results = {
 		created: 0,
 		skipped: 0,
@@ -210,8 +210,25 @@ exports.syncFromSheets = async () => {
 	return results;
 };
 
+let activeSync = null;
+let pollingTimer = null;
+
+exports.syncFromSheets = async () => {
+	if (activeSync) return activeSync;
+	activeSync = runSyncFromSheets();
+	try {
+		return await activeSync;
+	} finally {
+		activeSync = null;
+	}
+};
+
 // polling service — runs every X minutes
 exports.startPolling = (intervalMinutes = 30) => {
+	if (!Number.isFinite(intervalMinutes) || intervalMinutes <= 0) {
+		throw new Error("Polling interval must be greater than zero");
+	}
+	if (pollingTimer) return pollingTimer;
 	const intervalMs = intervalMinutes * 60 * 1000;
 	console.log(
 		`Google Sheets sync polling started — every ${intervalMinutes} minutes`,
@@ -229,6 +246,14 @@ exports.startPolling = (intervalMinutes = 30) => {
 		}
 	};
 
-	sync();
-	setInterval(sync, intervalMs);
+	void sync();
+	pollingTimer = setInterval(sync, intervalMs);
+	return pollingTimer;
+};
+
+exports.stopPolling = () => {
+	if (!pollingTimer) return false;
+	clearInterval(pollingTimer);
+	pollingTimer = null;
+	return true;
 };

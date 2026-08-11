@@ -15,8 +15,9 @@
     "dev:gateway": "nodemon gateway/server.js",
     "dev:pms": "nodemon backendpms/server.js",
     "dev:error-analyser": "nodemon backend/src/server.js",
-    "demo:answer-key": "node scripts/demo-answer-key.js",
-    "test": "cross-env NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --runInBand"
+		"demo:answer-key": "node scripts/demo-answer-key.js",
+		"test": "cross-env NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --runInBand",
+		"test:e2e:pms": "playwright test --config=playwright.pms.config.js"
   },
   "dependencies": {
     "@azure/ai-form-recognizer": "^5.1.0",
@@ -37,14 +38,16 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "cross-env": "^7.0.3",
+		"cross-env": "^7.0.3",
+		"@playwright/test": "^1.55.0",
     "jest": "^30.4.2",
     "mongodb-memory-server": "^11.2.0",
     "nodemon": "^3.1.14",
     "supertest": "^7.2.2"
   },
-  "jest": {
-    "moduleNameMapper": {
+	"jest": {
+		"testPathIgnorePatterns": ["/node_modules/", "/e2e/"],
+		"moduleNameMapper": {
       "^mime-types$": "<rootDir>/node_modules/mime-types/index.js"
     }
   }

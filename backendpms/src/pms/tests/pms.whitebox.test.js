@@ -111,14 +111,14 @@ describe("PMS white-box branch and path tests", () => {
 	});
 
 	test("editReport loop copies only four allowed narrative fields", async () => {
-		Report.findByIdAndUpdate.mockResolvedValue({ _id: "r1", isEdited: true });
+		Report.findOneAndUpdate.mockResolvedValue({ _id: "r1", isEdited: true });
 		await reportService.editReport("r1", {
 			overallProgress: "Changed",
 			student: "hijack",
 			generatedBy: "hijack",
 			isEdited: false,
 		});
-		const updates = Report.findByIdAndUpdate.mock.calls[0][1];
+		const updates = Report.findOneAndUpdate.mock.calls[0][1].$set;
 		expect(updates.overallProgress).toBe("Changed");
 		expect(updates.student).toBeUndefined();
 		expect(updates.generatedBy).toBeUndefined();

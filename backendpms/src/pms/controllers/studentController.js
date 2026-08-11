@@ -6,8 +6,19 @@ const { resolveStudent } = require("../services/studentIdentityService");
 // GET /api/students
 exports.getStudents = async (req, res) => {
 	try {
-		const page = parseInt(req.query.page) || 1;
-		const limit = parseInt(req.query.limit) || 50;
+		const pageValue = req.query.page === undefined ? 1 : Number(req.query.page);
+		const limitValue = req.query.limit === undefined ? 50 : Number(req.query.limit);
+		if (
+			!Number.isInteger(pageValue) ||
+			pageValue < 1 ||
+			!Number.isInteger(limitValue) ||
+			limitValue < 1 ||
+			limitValue > 100
+		) {
+			return res.status(400).json({ message: "page must be a positive integer and limit must be an integer from 1 to 100" });
+		}
+		const page = pageValue;
+		const limit = limitValue;
 		const skip = (page - 1) * limit;
 
 		const students = await Student.find()
@@ -71,7 +82,7 @@ exports.updateStudent = async (req, res) => {
 			allowed.filter((key) => req.body[key] !== undefined).map((key) => [key, req.body[key]]),
 		);
 		const student = await Student.findByIdAndUpdate(existing._id, updates, {
-			new: true,
+			returnDocument: "after",
 			runValidators: true,
 		});
 		if (!student) return res.status(404).json({ message: "Student not found" });

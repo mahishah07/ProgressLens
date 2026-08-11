@@ -179,14 +179,34 @@ exports.editReport = async (reportId, updates) => {
 		if (updates[key] !== undefined) filteredUpdates[key] = updates[key];
 	}
 
+	const expectedVersion = updates.expectedVersion;
+	if (
+		expectedVersion !== undefined &&
+		(!Number.isInteger(expectedVersion) || expectedVersion < 0)
+	) {
+		const error = new Error("expectedVersion must be a non-negative integer");
+		error.statusCode = 400;
+		throw error;
+	}
+
 	filteredUpdates.isEdited = true;
 	filteredUpdates.editedAt = new Date();
+	const filter = { _id: reportId };
+	if (expectedVersion !== undefined) filter.__v = expectedVersion;
 
-	const report = await Report.findByIdAndUpdate(reportId, filteredUpdates, {
-		new: true,
+	const report = await Report.findOneAndUpdate(filter, {
+		$set: filteredUpdates,
+		$inc: { __v: 1 },
+	}, {
+		returnDocument: "after",
 		runValidators: true,
 	});
 
+	if (!report && expectedVersion !== undefined && await Report.exists({ _id: reportId })) {
+		const error = new Error("Report was updated by another request; reload and try again");
+		error.statusCode = 409;
+		throw error;
+	}
 	if (!report) return null;
 	return report;
 };

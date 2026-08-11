@@ -104,4 +104,27 @@ describe("PMS robustness and negative tests", () => {
 		expect(unchanged.newBand).toBe("B4");
 		expect(unchanged.student.toString()).toBe(student._id.toString());
 	});
+
+	test.each(["0", "-1", "1.5", "abc"])("PMS-003: invalid page %p is rejected", async (page) => {
+		const response = await request(app).get(`/api/students?page=${page}&limit=20`);
+		expect(response.status).toBe(400);
+	});
+
+	test.each(["0", "101", "1.5", "abc"])("PMS-003: invalid limit %p is rejected", async (limit) => {
+		const response = await request(app).get(`/api/students?page=1&limit=${limit}`);
+		expect(response.status).toBe(400);
+	});
+
+	test.each([
+		["wraScore", -1],
+		["phonicsScore", -0.01],
+		["monthsTo48", -1],
+	])("PMS-008: %s rejects negative value %p", async (field, value) => {
+		const student = await Student.create(studentPayload("DAS-SCORES"));
+		const response = await request(app)
+			.post("/api/assessments")
+			.send(assessmentPayload(student.studentId, "2026 Sem 1", "2026-01-15", { [field]: value }));
+		expect(response.status).toBe(400);
+		expect(await Assessment.countDocuments()).toBe(0);
+	});
 });

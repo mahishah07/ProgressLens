@@ -102,6 +102,19 @@ const assessmentSchema = new mongoose.Schema(
 	{ timestamps: true },
 );
 
+const NUMERIC_ASSESSMENT_FIELDS = Object.keys(assessmentSchema.paths).filter(
+	(path) => path.endsWith("Score") || path === "fluencyMark" || path === "monthsTo48",
+);
+
+assessmentSchema.pre("validate", function validateNumericDomains() {
+	for (const field of NUMERIC_ASSESSMENT_FIELDS) {
+		const value = this.get(field);
+		if (value !== null && value !== undefined && (!Number.isFinite(value) || value < 0)) {
+			this.invalidate(field, `${field} must be a finite non-negative number`);
+		}
+	}
+});
+
 assessmentSchema.index({ student: 1, assessmentDate: -1 });
 assessmentSchema.index(
 	{ student: 1, semester: 1 },

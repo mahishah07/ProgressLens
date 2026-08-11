@@ -14,6 +14,7 @@ jest.mock("../src/repositories/studentRepository", () => ({
 jest.mock("../src/repositories/reportRepository", () => ({
   findById: jest.fn(),
   findByStudent: jest.fn(),
+  findReviewStateById: jest.fn(),
   updateReview: jest.fn(),
   saveOpenAiAnalysis: jest.fn(),
 }));
@@ -104,6 +105,7 @@ const report = {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  reportRepository.findReviewStateById.mockResolvedValue(null);
   mongoose.connection.transaction = jest.fn(async (callback) => callback("test-session"));
 });
 

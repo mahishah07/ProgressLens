@@ -207,9 +207,13 @@ export default function ProgressReport() {
 			const res = await fetch(`${API}/api/reports/${report._id}/edit`, {
 				method: "PUT",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ teacherObservations: editedComments }),
+				body: JSON.stringify({
+					teacherObservations: editedComments,
+					expectedVersion: report.__v,
+				}),
 			});
 			const data = await res.json();
+			if (!res.ok) throw new Error(data.message || "Unable to save report changes");
 			setReport(data);
 			setEditing(false);
 		} catch (err) {

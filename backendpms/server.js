@@ -64,6 +64,7 @@ async function startServer() {
 }
 
 async function stopServer() {
+	if (sheetsSync?.stopPolling) sheetsSync.stopPolling();
 	if (server) {
 		await new Promise((resolve, reject) =>
 			server.close((error) => (error ? reject(error) : resolve())),

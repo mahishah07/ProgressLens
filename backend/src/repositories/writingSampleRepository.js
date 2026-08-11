@@ -5,7 +5,7 @@ function markAnalysed(id, { expectedText, recommendedIntervention }, session = n
   return WritingSample.findByIdAndUpdate(
     id,
     { expectedText, recommendedIntervention, status: "analysed" },
-    { new: true, runValidators: true, session }
+    { returnDocument: "after", runValidators: true, session }
   );
 }
 
