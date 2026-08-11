@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import "./../css/Landing.css";
 import "./../css/ErrorOptions.css";
 
 import {
@@ -7,14 +8,185 @@ import {
   BarChart3,
   CheckCircle2,
   FileCheck2,
-  KeyRound,
   Sheet,
-  Sparkles,
   TrendingUp,
+  LayoutDashboard,
+  Bell,
+  Settings,
+  UserRound,
+  CalendarDays,
+  GraduationCap,
+  Search,
+  BriefcaseBusiness,
 } from "lucide-react";
 
-const API = import.meta.env.VITE_PMS_API;
+const PMS_API = import.meta.env.VITE_PMS_API;
+const ERROR_API = import.meta.env.VITE_ERROR_API;
 const SHEET_URL = import.meta.env.VITE_GOOGLE_SHEET_URL;
+
+/* nav and sidebar */
+function TeacherSidebar({ studentId }) {
+  const encodedId =
+    studentId
+      ? encodeURIComponent(studentId)
+      : "";
+
+  return (
+    <aside className="sidebar">
+
+      <div className="logo-section">
+        <div className="logo-circle">
+          DAS
+        </div>
+
+        <div>
+          <h2>DAS Teacher</h2>
+          <p>Educational Professional</p>
+        </div>
+      </div>
+
+
+      <nav>
+
+        <Link to="/">
+          <LayoutDashboard size={20} />
+          <span>Dashboard</span>
+        </Link>
+
+
+        {studentId && (
+          <Link to={`/student/${encodedId}?view=dashboard`}>
+            <TrendingUp size={20} />
+            <span>Progress Monitoring</span>
+          </Link>
+        )}
+
+
+        <div className="eo-nav-section">
+          <span className="eo-nav-heading">
+            ERROR ANALYSIS
+          </span>
+
+
+          {studentId && (
+            <>
+              <Link
+                to={`/error-answer/${encodedId}`}
+                className="eo-nav-subitem"
+              >
+                <FileCheck2 size={18} />
+                <span>
+                  Reference-Based Analysis
+                </span>
+              </Link>
+
+
+              <Link
+                to={`/error-dashboard/${encodedId}`}
+                className="eo-nav-subitem"
+              >
+                <BarChart3 size={19} />
+                <span>Free-Form Analysis</span>
+              </Link>
+            </>
+          )}
+        </div>
+
+
+        <a href="#">
+          <Bell size={20} />
+          <span>Notifications</span>
+        </a>
+
+
+        <a href="#">
+          <Settings size={20} />
+          <span>Settings</span>
+        </a>
+
+      </nav>
+
+    </aside>
+  );
+}
+
+
+function TeacherTopbar({
+  studentSearch,
+  setStudentSearch,
+  studentSearching,
+  onStudentSearch,
+}) {
+  return (
+    <header className="topbar eo-main-topbar">
+
+      <div className="topbar-brand">
+        <div>
+          <h2>DAS Assessment Portal</h2>
+
+          <span className="topbar-context">
+            Error Pattern Analysis
+          </span>
+        </div>
+      </div>
+
+
+      <div className="eo-topbar-right">
+
+        {/* STUDENT SEARCH */}
+
+        <form
+          className="eo-navbar-search"
+          onSubmit={onStudentSearch}
+        >
+          <button
+            type="submit"
+            aria-label="Search student"
+            disabled={studentSearching}
+          >
+            <Search size={18} />
+          </button>
+
+          <input
+            type="text"
+            value={studentSearch}
+            onChange={(event) =>
+              setStudentSearch(
+                event.target.value
+              )
+            }
+            placeholder={
+              studentSearching
+                ? "Searching..."
+                : "Search student by name or ID..."
+            }
+            disabled={studentSearching}
+          />
+        </form>
+
+
+        {/* TEACHER / USER */}
+
+        <div className="eo-teacher-profile">
+
+          <div className="eo-teacher-icon">
+            <BriefcaseBusiness size={20} />
+          </div>
+
+          <div className="eo-teacher-copy">
+            <strong>
+              Educational Professional
+            </strong>
+
+            <span>
+              DAS Teacher Portal
+            </span>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
 
 export default function ErrorOptions() {
   const { id } = useParams();
@@ -23,6 +195,9 @@ export default function ErrorOptions() {
   const [overview, setOverview] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const [studentSearch, setStudentSearch] = useState("");
+  const [studentSearching, setStudentSearching] = useState(false);
 
   // ==========================================
   // FETCH STUDENT OVERVIEW FROM BACKEND
@@ -39,7 +214,7 @@ export default function ErrorOptions() {
         setError(null);
 
         const response = await fetch(
-          `${API}/api/progress/${encodeURIComponent(id)}/overview`,
+          `${PMS_API}/api/progress/${encodeURIComponent(id)}/overview`,
           {
             signal: controller.signal,
           },
@@ -75,18 +250,6 @@ export default function ErrorOptions() {
   // HELPERS
   // ==========================================
 
-  const getInitials = (studentId) => {
-    if (!studentId) return "ST";
-
-    const parts = studentId.trim().split(/\s+/);
-
-    if (parts.length > 1) {
-      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-    }
-
-    return studentId.slice(0, 2).toUpperCase();
-  };
-
   const formatDate = (date) => {
     if (!date) return "No assessment yet";
 
@@ -109,6 +272,111 @@ export default function ErrorOptions() {
   // ==========================================
   // NAVIGATION
   // ==========================================
+  const openStudentDashboard = async (event) => {
+  event.preventDefault();
+
+  const query = studentSearch.trim();
+
+  if (!query) return;
+
+  setStudentSearching(true);
+
+  try {
+    let profiles = [];
+
+    // ==========================================
+    // 1. SEARCH ERROR ANALYSER DATABASE
+    // ==========================================
+
+    if (ERROR_API) {
+      const response = await fetch(
+        `${ERROR_API}/api/students?q=${encodeURIComponent(query)}`
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        profiles =
+          data?.students ||
+          data?.data ||
+          [];
+      }
+    }
+
+
+    // ==========================================
+    // 2. FALL BACK TO PMS DIRECTORY
+    // ==========================================
+
+    if (profiles.length === 0) {
+      const response = await fetch(
+        `${PMS_API}/api/progress/search?studentId=${encodeURIComponent(
+          query
+        )}`
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            "Unable to search the student directory."
+        );
+      }
+
+      profiles = Array.isArray(data)
+        ? data
+        : [];
+    }
+
+
+    // ==========================================
+    // 3. FIND BEST MATCH
+    // ==========================================
+
+    const normalised =
+      query.toLowerCase();
+
+    const profile =
+      profiles.find((student) => {
+        const fullName = [
+          student.firstName,
+          student.lastName,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+
+        return (
+          student.studentId?.toLowerCase() ===
+            normalised ||
+          student.name?.toLowerCase() ===
+            normalised ||
+          fullName === normalised
+        );
+      }) || profiles[0];
+
+
+    if (!profile?.studentId) {
+      alert(`No student found for “${query}”.`);
+      return;
+    }
+
+
+    setStudentSearch("");
+
+    navigate(
+      `/error-options/${encodeURIComponent(
+        profile.studentId
+      )}`
+    );
+
+  } catch (error) {
+    alert(error.message);
+  } finally {
+    setStudentSearching(false);
+  }
+};
 
   const openWithAnswerKey = () => {
     navigate(`/error-answer/${encodeURIComponent(id)}`);
@@ -169,261 +437,252 @@ export default function ErrorOptions() {
 
   return (
     <div className="eo-page">
+      <TeacherSidebar studentId={studentId} />
       <main className="eo-main">
-
-        {/* =====================================
-            TOP BAR
-        ====================================== */}
-
-        <header className="eo-topbar">
-          <h2>DAS Assessment Portal</h2>
-
-          <span className="eo-topbar-sub">
-            Student Progress
-          </span>
-        </header>
-
-        {/* =====================================
-            STUDENT PROFILE
-        ====================================== */}
-
-        <section className="eo-profile-card">
-
-          <div className="eo-avatar-wrapper">
-            <div className="eo-avatar">
-              {getInitials(studentId)}
+        <TeacherTopbar
+          studentSearch={studentSearch}
+          setStudentSearch={setStudentSearch}
+          studentSearching={studentSearching}
+          onStudentSearch={openStudentDashboard}
+        />
+        <div className="eo-content">
+          {/* STUDENT PROFILE */}
+          <section className="eo-profile-card">
+            <div className="eo-student-icon">
+              <UserRound size={29} />
             </div>
 
-            <div className="eo-verified-badge">
-              <CheckCircle2 size={15} />
+            <div className="eo-profile-info">
+
+              <h1>{studentId}</h1>
+
+              {SHEET_URL && (
+                <a
+                  href={SHEET_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="eo-sheets-btn"
+                >
+                  <Sheet size={16} />
+                  Open Google Sheets
+                </a>
+              )}
             </div>
-          </div>
 
-          <div className="eo-profile-info">
-            <h1>{studentId}</h1>
+            <div className="eo-profile-meta">
+              {/* LAST ASSESSMENT */}
+              <div className="eo-meta-item">
+                <div className="eo-meta-icon">
+                  <CalendarDays size={17} />
+                </div>
 
-            {SHEET_URL && (
-              <a
-                href={SHEET_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="eo-sheets-btn"
+                <div>
+                  <span className="eo-meta-label">Last Assessment</span>
+                  <span className="eo-meta-value">
+                    {formatDate(overview?.lastAssessmentDate)}
+                  </span>
+                </div>
+              </div>
+
+              {/* BAND */}
+              <div className="eo-meta-item">
+                <div className="eo-meta-icon">
+                  <GraduationCap size={17} />
+                </div>
+
+                <div>
+                  <span className="eo-meta-label">Assigned Band</span>
+                  <span className="eo-meta-value eo-band">{currentBand}</span>
+                </div>
+              </div>
+
+              {/* TEACHER */}
+              <div className="eo-meta-item">
+                <div className="eo-meta-icon">
+                  <UserRound size={17} />
+                </div>
+
+                <div>
+                  <span className="eo-meta-label">Assigned Teacher</span>
+                  <span className="eo-meta-value">{teacher}</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* INTRO */}
+          <section className="eo-section-heading">
+            <div>
+              <span className="eo-eyebrow">
+                ERROR ANALYSIS
+              </span>
+
+              <h2>Choose an analysis method</h2>
+
+              <p>
+                Select the workflow that matches the assessment.
+              </p>
+            </div>
+          </section>
+
+          {/* OPTIONS */}
+          <section className="eo-options">
+            {/* WITH ANSWER KEY */}
+            <article
+              className="eo-option-card eo-option-key"
+              onClick={openWithAnswerKey}
+            >
+              <div className="eo-card-accent" />
+
+
+              <div className="eo-option-header">
+
+                <div className="eo-option-icon eo-key-icon">
+                  <FileCheck2 size={28} />
+                </div>
+
+                <span className="eo-card-type">
+                  ANSWER KEY REQUIRED
+                </span>
+
+              </div>
+
+
+              <div className="eo-option-content">
+
+                <h3>
+                  Reference-Based Analysis
+                </h3>
+
+                <p>
+                  Compare a student submission with an
+                  uploaded answer key and identify
+                  differences in responses.
+                </p>
+
+              </div>
+
+
+              <div className="eo-feature-list">
+
+                <span>
+                  <CheckCircle2 size={16} />
+                  Student and answer-key comparison
+                </span>
+
+                <span>
+                  <CheckCircle2 size={16} />
+                  Structured error analysis
+                </span>
+
+              </div>
+
+
+              <button
+                type="button"
+                className="eo-option-btn eo-key-btn"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  openWithAnswerKey();
+                }}
               >
-                <Sheet size={17} />
-                Open Google Sheets
-              </a>
-            )}
-          </div>
+                Start analysis
+                <span className="eo-button-arrow">
+                  →
+                </span>
+              </button>
 
-          <div className="eo-profile-meta">
+              <FileCheck2
+                className="eo-background-icon"
+                size={185}
+              />
 
-            <div className="eo-meta-item">
-              <span className="eo-meta-label">
-                Last Assessment
-              </span>
+            </article>
 
-              <span className="eo-meta-value eo-meta-blue">
-                {formatDate(overview?.lastAssessmentDate)}
-              </span>
-            </div>
+            {/* WITHOUT ANSWER KEY */}
+            <article
+              className="eo-option-card eo-option-free"
+              onClick={openWithoutAnswerKey}
+            >
+              <div className="eo-card-accent" />
 
-            <div className="eo-meta-item">
-              <span className="eo-meta-label">
-                Assigned Band
-              </span>
 
-              <span className="eo-meta-value eo-band">
-                <Sparkles size={16} />
-                {currentBand}
-              </span>
-            </div>
+              <div className="eo-option-header">
 
-            <div className="eo-meta-item">
-              <span className="eo-meta-label">
-                Assigned Teacher
-              </span>
+                <div className="eo-option-icon eo-free-icon">
+                  <BarChart3 size={28} />
+                </div>
 
-              <span className="eo-meta-value">
-                {teacher}
-              </span>
-            </div>
+                <span className="eo-card-type">
+                  NO ANSWER KEY
+                </span>
 
-          </div>
-        </section>
-
-        {/* =====================================
-            INTRO
-        ====================================== */}
-
-        <section className="eo-section-heading">
-          <div>
-            <span className="eo-eyebrow">
-              ERROR PATTERN ANALYSIS
-            </span>
-
-            <h2>Select Assessment Type</h2>
-
-            <p>
-              Choose how the student's submission should be
-              evaluated.
-            </p>
-          </div>
-        </section>
-
-        {/* =====================================
-            OPTIONS
-        ====================================== */}
-
-        <section className="eo-options">
-
-          {/* =================================
-              WITH ANSWER KEY
-          ================================== */}
-
-          <article
-            className="eo-option-card eo-option-blue"
-            onClick={openWithAnswerKey}
-          >
-            <div className="eo-card-glow eo-blue-glow" />
-
-            <div className="eo-background-icon">
-              <KeyRound size={190} strokeWidth={1.2} />
-            </div>
-
-            <div className="eo-option-header">
-              <div className="eo-option-icon">
-                <FileCheck2 size={31} />
               </div>
 
-              <span className="eo-card-type">
-                STRUCTURED ASSESSMENT
-              </span>
-            </div>
 
-            <div className="eo-option-content">
-              <h3>With Answer Key</h3>
+              <div className="eo-option-content">
 
-              <p>
-                Upload a standardized answer key and student
-                submission to automatically compare responses,
-                identify incorrect answers, and analyse error
-                patterns.
-              </p>
-            </div>
+                <h3>
+                  Free-Form Analysis
+                </h3>
 
-            <div className="eo-feature-list">
-              <span>
-                <CheckCircle2 size={15} />
-                Compare against expected responses
-              </span>
+                <p>
+                  Analyse open-ended writing for recurring
+                  literacy and writing error patterns.
+                </p>
 
-              <span>
-                <CheckCircle2 size={15} />
-                Detect incorrect or missing answers
-              </span>
-
-              <span>
-                <CheckCircle2 size={15} />
-                Generate structured error insights
-              </span>
-            </div>
-
-            <button
-              type="button"
-              className="eo-option-btn"
-              onClick={(event) => {
-                event.stopPropagation();
-                openWithAnswerKey();
-              }}
-            >
-              <KeyRound size={17} />
-              Start With Answer Key
-              <span className="eo-button-arrow">→</span>
-            </button>
-          </article>
-
-          {/* =================================
-              WITHOUT ANSWER KEY
-          ================================== */}
-
-          <article
-            className="eo-option-card eo-option-purple"
-            onClick={openWithoutAnswerKey}
-          >
-            <div className="eo-card-glow eo-purple-glow" />
-
-            <div className="eo-background-icon">
-              <BarChart3 size={190} strokeWidth={1.2} />
-            </div>
-
-            <div className="eo-option-header">
-              <div className="eo-option-icon">
-                <BarChart3 size={31} />
               </div>
 
-              <span className="eo-card-type">
-                FREE-FORM ANALYSIS
-              </span>
-            </div>
 
-            <div className="eo-option-content">
-              <h3>Without Answer Key</h3>
+              <div className="eo-feature-list">
 
-              <p>
-                Analyse free-form writing and open-ended
-                submissions without a predefined answer key,
-                identifying recurring literacy and writing
-                patterns.
-              </p>
-            </div>
+                <span>
+                  <CheckCircle2 size={16} />
+                  Writing-pattern detection
+                </span>
 
-            <div className="eo-feature-list">
-              <span>
-                <CheckCircle2 size={15} />
-                Analyse written student responses
-              </span>
+                <span>
+                  <CheckCircle2 size={16} />
+                  Educator-focused insights
+                </span>
 
-              <span>
-                <CheckCircle2 size={15} />
-                Identify recurring error patterns
-              </span>
+              </div>
 
-              <span>
-                <CheckCircle2 size={15} />
-                Generate educator-focused insights
-              </span>
-            </div>
 
+              <button
+                type="button"
+                className="eo-option-btn eo-free-btn"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  openWithoutAnswerKey();
+                }}
+              >
+                Start analysis
+                <span className="eo-button-arrow">
+                  →
+                </span>
+              </button>
+
+              <BarChart3
+                className="eo-background-icon"
+                size={185}
+              />
+
+            </article>
+          </section>
+
+          {/* BACK */}
+          <div className="eo-back-bar">
             <button
               type="button"
-              className="eo-option-btn"
-              onClick={(event) => {
-                event.stopPropagation();
-                openWithoutAnswerKey();
-              }}
+              className="eo-back-btn"
+              onClick={() => navigate(-1)}
             >
-              <TrendingUp size={17} />
-              Start Free-Form Analysis
-              <span className="eo-button-arrow">→</span>
+              <ArrowLeft size={16} />
+              Back to Student Progress
             </button>
-          </article>
-
-        </section>
-
-        {/* =====================================
-            BACK
-        ====================================== */}
-
-        <div className="eo-back-bar">
-          <Link
-            to={`/student-progress/${encodeURIComponent(id)}`}
-            className="eo-back-btn"
-          >
-            <ArrowLeft size={16} />
-            Back to Student Progress
-          </Link>
+          </div>
         </div>
-
       </main>
     </div>
   );

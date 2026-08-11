@@ -712,3 +712,1077 @@
 .sp-trend-not-taken {
 	background: #e5e7eb;
 }
+
+/* =========================================================
+   DAS STUDENT PROGRESS UI REFRESH
+   UI OVERRIDES ONLY
+
+   These rules intentionally sit at the bottom of the file
+   so they override the original blue/purple styling without
+   removing any teammate logic or existing layout classes.
+   ========================================================= */
+
+
+:root {
+	--sp-red: #9f2233;
+	--sp-red-dark: #7f1d2d;
+	--sp-red-soft: #f8ecef;
+	--sp-red-border: #e7c3ca;
+
+	--sp-charcoal: #1f2933;
+	--sp-text: #374151;
+	--sp-muted: #6b7280;
+	--sp-light-muted: #94a3b8;
+
+	--sp-border: #e5e7eb;
+	--sp-surface: #ffffff;
+	--sp-background: #f5f7fa;
+
+	--sp-green: #167451;
+	--sp-green-soft: #edf8f3;
+
+	--sp-amber: #9a6700;
+	--sp-amber-soft: #fff8e6;
+}
+
+
+/* =========================================================
+   PAGE SHELL
+   ========================================================= */
+
+.sp-page {
+	display: flex;
+
+	width: 100%;
+
+	min-height: 100vh;
+
+	background: var(--sp-background);
+}
+
+
+.sp-main {
+	flex: 1;
+
+	min-width: 0;
+
+	display: flex;
+	flex-direction: column;
+
+	overflow-y: auto;
+}
+
+
+/* landing sidebar needs a minimum height when reused */
+
+.sp-page .sidebar {
+	min-height: 100vh;
+
+	flex-shrink: 0;
+}
+
+
+/* =========================================================
+   LANDING NAV/SIDEBAR BRAND OVERRIDES
+   ensures the reused navbar remains burgundy here too
+   ========================================================= */
+
+.sp-page .logo-circle {
+	background: var(--sp-red) !important;
+
+	color: white !important;
+
+	box-shadow:
+		0 4px 10px
+		rgba(159, 34, 51, 0.12) !important;
+}
+
+
+.sp-page .topbar h2 {
+	color: var(--sp-charcoal) !important;
+}
+
+
+.sp-page .topbar-brand::before {
+	background: var(--sp-red) !important;
+}
+
+
+.sp-page .role-dot {
+	background: var(--sp-red) !important;
+}
+
+
+.sp-page .sidebar nav a {
+	color: #4b5563;
+}
+
+
+.sp-page .sidebar nav a:hover {
+	color: var(--sp-charcoal);
+
+	background: #f7f7f7;
+}
+
+
+/* =========================================================
+   OVERVIEW CONTAINER
+   ========================================================= */
+
+.sp-overview-content {
+	padding: 28px 34px 34px;
+
+	display: flex;
+	flex-direction: column;
+
+	gap: 0;
+}
+
+
+/* =========================================================
+   STUDENT PROFILE CARD
+   ========================================================= */
+
+.sp-profile-card-new {
+	margin: 0;
+
+	padding: 26px 28px;
+
+	min-height: 150px;
+
+	background: white;
+
+	border: 1px solid var(--sp-border);
+
+	border-radius: 16px;
+
+	box-shadow:
+		0 3px 12px
+		rgba(31, 41, 51, 0.04);
+
+	display: flex;
+	align-items: center;
+
+	gap: 22px;
+}
+
+
+.sp-student-icon {
+	width: 76px;
+	height: 76px;
+
+	flex-shrink: 0;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	border-radius: 15px;
+
+	background: var(--sp-red-soft);
+
+	border: 1px solid var(--sp-red-border);
+
+	color: var(--sp-red);
+}
+
+
+.sp-student-icon-small {
+	width: 58px;
+	height: 58px;
+
+	border-radius: 13px;
+}
+
+
+.sp-profile-eyebrow {
+	display: block;
+
+	margin-bottom: 5px;
+
+	font-size: 10px;
+	font-weight: 800;
+
+	letter-spacing: 0.1em;
+
+	color: var(--sp-red);
+}
+
+
+.sp-profile-info {
+	flex: 1;
+
+	min-width: 190px;
+}
+
+
+.sp-profile-info h1 {
+	margin: 0 0 13px;
+
+	font-size: 28px;
+	font-weight: 750;
+
+	letter-spacing: -0.02em;
+
+	color: var(--sp-charcoal);
+}
+
+
+.sp-sheets-btn {
+	display: inline-flex;
+	align-items: center;
+
+	gap: 7px;
+
+	padding: 8px 12px;
+
+	border: 1px solid #d9dce1;
+	border-radius: 8px;
+
+	background: white;
+
+	color: #4b5563;
+
+	text-decoration: none;
+
+	font-size: 12px;
+	font-weight: 600;
+
+	transition:
+		background 0.18s ease,
+		border-color 0.18s ease,
+		color 0.18s ease;
+}
+
+
+.sp-sheets-btn:hover {
+	background: var(--sp-red-soft);
+
+	border-color: var(--sp-red-border);
+
+	color: var(--sp-red);
+}
+
+
+/* =========================================================
+   PROFILE META
+   ========================================================= */
+
+.sp-profile-meta {
+	display: grid;
+
+	grid-template-columns:
+		repeat(3, minmax(145px, 1fr));
+
+	gap: 12px;
+
+	flex: 1;
+
+	max-width: 620px;
+}
+
+
+.sp-meta-item {
+	min-height: 72px;
+
+	padding: 13px 14px;
+
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+
+	gap: 10px;
+
+	background: #fafafa;
+
+	border: 1px solid #eeeeef;
+
+	border-radius: 11px;
+}
+
+
+.sp-meta-icon {
+	width: 32px;
+	height: 32px;
+
+	flex-shrink: 0;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	border-radius: 8px;
+
+	background: white;
+
+	color: var(--sp-red);
+
+	border: 1px solid #ececef;
+}
+
+
+.sp-meta-item > div:last-child {
+	display: flex;
+	flex-direction: column;
+
+	gap: 3px;
+}
+
+
+.sp-meta-label {
+	font-size: 9px;
+	font-weight: 700;
+
+	letter-spacing: 0.07em;
+
+	text-transform: uppercase;
+
+	color: var(--sp-muted);
+}
+
+
+.sp-meta-value {
+	font-size: 13px;
+	font-weight: 700;
+
+	color: var(--sp-charcoal);
+}
+
+
+.sp-band {
+	color: var(--sp-red);
+}
+
+
+/* =========================================================
+   OVERVIEW HEADING
+   ========================================================= */
+
+.sp-section-heading {
+	margin: 28px 0 14px;
+}
+
+
+.sp-section-eyebrow {
+	display: block;
+
+	margin-bottom: 4px;
+
+	font-size: 10px;
+	font-weight: 800;
+
+	letter-spacing: 0.11em;
+
+	color: var(--sp-red);
+}
+
+
+.sp-section-heading h2 {
+	margin: 0 0 4px;
+
+	font-size: 21px;
+	font-weight: 750;
+
+	color: var(--sp-charcoal);
+
+	letter-spacing: -0.01em;
+}
+
+
+.sp-section-heading p {
+	margin: 0;
+
+	font-size: 13px;
+
+	color: var(--sp-muted);
+}
+
+
+/* =========================================================
+   SYSTEM CARDS
+   ========================================================= */
+
+.sp-options {
+	display: grid;
+
+	grid-template-columns:
+		repeat(2, minmax(0, 1fr));
+
+	gap: 20px;
+
+	margin: 0;
+}
+
+
+.sp-option-card {
+	position: relative;
+
+	min-height: 320px;
+
+	padding: 27px;
+
+	overflow: hidden;
+
+	border-radius: 16px;
+
+	display: flex;
+	flex-direction: column;
+
+	gap: 0;
+
+	cursor: pointer;
+
+	transition:
+		transform 0.22s ease,
+		box-shadow 0.22s ease,
+		border-color 0.22s ease;
+}
+
+
+.sp-option-card:hover {
+	transform: translateY(-4px);
+
+	box-shadow:
+		0 14px 28px
+		rgba(31, 41, 51, 0.10);
+}
+
+
+/* primary card — muted institutional burgundy */
+
+.sp-option-progress {
+	background:
+		linear-gradient(
+			145deg,
+			#8f2435 0%,
+			#741c2a 100%
+		);
+
+	color: white;
+
+	border: 1px solid #7d1f2f;
+}
+
+
+/*
+	second card intentionally NOT bright red.
+	deep charcoal balances the dashboard and stops
+	the whole page looking like an alert screen.
+*/
+
+.sp-option-errors {
+	background:
+		linear-gradient(
+			145deg,
+			#343a43 0%,
+			#252a31 100%
+		);
+
+	color: white;
+
+	border: 1px solid #323840;
+}
+
+
+.sp-option-top {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+
+	margin-bottom: 30px;
+}
+
+
+.sp-option-icon {
+	width: 52px;
+	height: 52px;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	border-radius: 12px;
+
+	background: rgba(255, 255, 255, 0.12);
+
+	border: 1px solid rgba(255, 255, 255, 0.1);
+
+	color: white;
+}
+
+
+.sp-option-label {
+	padding: 5px 9px;
+
+	border-radius: 99px;
+
+	background: rgba(255, 255, 255, 0.09);
+
+	color: rgba(255, 255, 255, 0.78);
+
+	font-size: 9px;
+	font-weight: 800;
+
+	letter-spacing: 0.09em;
+}
+
+
+.sp-option-copy {
+	position: relative;
+
+	z-index: 2;
+
+	max-width: 520px;
+}
+
+
+.sp-option-card h3 {
+	margin: 0 0 9px;
+
+	font-size: 21px;
+	font-weight: 750;
+
+	color: white;
+}
+
+
+.sp-option-card p {
+	margin: 0;
+
+	max-width: 480px;
+
+	font-size: 13px;
+
+	line-height: 1.6;
+
+	color: rgba(255, 255, 255, 0.78);
+
+	opacity: 1;
+}
+
+
+/* =========================================================
+   MINI FEATURE LIST
+   ========================================================= */
+
+.sp-option-features {
+	position: relative;
+
+	z-index: 2;
+
+	display: flex;
+	flex-direction: column;
+
+	gap: 5px;
+
+	margin-top: 18px;
+}
+
+
+.sp-option-features span {
+	position: relative;
+
+	padding-left: 15px;
+
+	font-size: 11px;
+
+	color: rgba(255, 255, 255, 0.73);
+}
+
+
+.sp-option-features span::before {
+	content: "";
+
+	position: absolute;
+
+	left: 0;
+	top: 5px;
+
+	width: 5px;
+	height: 5px;
+
+	border-radius: 50%;
+
+	background: rgba(255, 255, 255, 0.7);
+}
+
+
+/* =========================================================
+   OPTION CTA
+   ========================================================= */
+
+.sp-option-card .sp-option-btn {
+	position: relative;
+
+	z-index: 2;
+
+	width: fit-content;
+
+	margin-top: auto;
+
+	display: flex;
+	align-items: center;
+
+	gap: 18px;
+
+	padding: 9px 14px;
+
+	border: none;
+	border-radius: 8px;
+
+	background: white;
+
+	color: var(--sp-red-dark);
+
+	font-size: 12px;
+	font-weight: 700;
+
+	cursor: pointer;
+
+	transition:
+		transform 0.18s ease,
+		box-shadow 0.18s ease;
+}
+
+
+.sp-option-errors .sp-option-btn {
+	color: #30353c;
+}
+
+
+.sp-option-card .sp-option-btn:hover {
+	transform: translateX(2px);
+
+	box-shadow:
+		0 4px 12px
+		rgba(0, 0, 0, 0.12);
+}
+
+
+/* =========================================================
+   WATERMARK
+   ========================================================= */
+
+.sp-option-watermark {
+	position: absolute;
+
+	right: -34px;
+	bottom: -42px;
+
+	color: rgba(255, 255, 255, 0.045);
+
+	pointer-events: none;
+
+	transform: rotate(-8deg);
+
+	transition:
+		transform 0.25s ease,
+		color 0.25s ease;
+}
+
+
+.sp-option-card:hover .sp-option-watermark {
+	transform:
+		rotate(-4deg)
+		scale(1.05);
+
+	color: rgba(255, 255, 255, 0.07);
+}
+
+
+/* =========================================================
+   BACK BUTTON
+   ========================================================= */
+
+.sp-back-bar {
+	padding: 20px 0 0;
+}
+
+
+.sp-back-btn {
+	width: fit-content;
+
+	display: inline-flex;
+	align-items: center;
+
+	gap: 7px;
+
+	padding: 9px 14px;
+
+	border: 1px solid #d8dadd;
+	border-radius: 8px;
+
+	background: white;
+
+	color: #4b5563;
+
+	font-size: 12px;
+	font-weight: 600;
+
+	text-decoration: none;
+
+	cursor: pointer;
+
+	transition:
+		background 0.18s ease,
+		color 0.18s ease,
+		transform 0.18s ease;
+}
+
+
+.sp-back-btn:hover {
+	background: #f8f8f8;
+
+	color: var(--sp-red);
+
+	transform: translateX(-2px);
+}
+
+
+/* =========================================================
+   METRICS DASHBOARD PROFILE STRIP
+   ========================================================= */
+
+.sp-profile-strip {
+	margin: 24px 32px;
+
+	padding: 20px 22px;
+
+	display: flex;
+	align-items: center;
+
+	gap: 16px;
+
+	background: white;
+
+	border: 1px solid var(--sp-border);
+
+	border-radius: 14px;
+
+	box-shadow:
+		0 3px 12px
+		rgba(31, 41, 51, 0.04);
+}
+
+
+.sp-dashboard-student {
+	min-width: 220px;
+}
+
+
+.sp-dashboard-student h2 {
+	margin: 0 0 7px;
+
+	font-size: 20px;
+
+	color: var(--sp-charcoal);
+}
+
+
+.sp-strip-meta {
+	display: flex;
+	align-items: center;
+
+	flex-wrap: wrap;
+
+	gap: 10px;
+
+	font-size: 11px;
+
+	color: var(--sp-muted);
+}
+
+
+.sp-strip-meta > span {
+	display: inline-flex;
+	align-items: center;
+
+	gap: 5px;
+}
+
+
+.sp-band-tag {
+	padding: 4px 8px;
+
+	border-radius: 99px;
+
+	background: var(--sp-red-soft);
+
+	color: var(--sp-red);
+
+	font-weight: 700;
+}
+
+
+/* =========================================================
+   QUICK ACTIONS
+   ========================================================= */
+
+.sp-quick-actions {
+	margin-left: auto;
+
+	display: flex;
+	align-items: center;
+
+	gap: 8px;
+}
+
+
+.sp-compare-btn,
+.sp-qa-primary,
+.sp-qa-secondary {
+	min-height: 38px;
+
+	padding: 0 13px;
+
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+
+	gap: 6px;
+
+	border-radius: 8px;
+
+	font-size: 11px;
+	font-weight: 650;
+
+	cursor: pointer;
+
+	transition:
+		background 0.18s ease,
+		border-color 0.18s ease,
+		color 0.18s ease;
+}
+
+
+.sp-compare-btn {
+	border: 1px solid #d6d9dd;
+
+	background: white;
+
+	color: var(--sp-charcoal);
+}
+
+
+.sp-compare-btn:hover {
+	background: #f7f7f7;
+}
+
+
+.sp-qa-primary {
+	border: 1px solid var(--sp-red);
+
+	background: var(--sp-red);
+
+	color: white;
+}
+
+
+.sp-qa-primary:hover {
+	background: var(--sp-red-dark);
+
+	border-color: var(--sp-red-dark);
+}
+
+
+.sp-qa-secondary {
+	border: 1px solid var(--sp-red-border);
+
+	background: white;
+
+	color: var(--sp-red);
+
+	text-decoration: none;
+}
+
+
+.sp-qa-secondary:hover {
+	background: var(--sp-red-soft);
+}
+
+
+/* =========================================================
+   EXISTING DASHBOARD — BRAND REFRESH ONLY
+   ========================================================= */
+
+.sp-score-num {
+	color: var(--sp-red);
+}
+
+
+.sp-view-all {
+	color: var(--sp-red);
+}
+
+
+.sp-band-badge {
+	background: var(--sp-red-soft);
+
+	color: var(--sp-red);
+}
+
+
+.sp-view-assessments-btn {
+	background: var(--sp-red);
+
+	color: white;
+}
+
+
+.sp-view-assessments-btn:hover {
+	background: var(--sp-red-dark);
+
+	opacity: 1;
+}
+
+
+.sp-toggle-active {
+	background: var(--sp-red);
+
+	border-color: var(--sp-red);
+
+	color: white;
+}
+
+
+.sp-skill-checkbox input {
+	accent-color: var(--sp-red);
+}
+
+
+/* =========================================================
+   AI PERFORMANCE SUMMARY
+   Remove old baby-blue appearance
+   ========================================================= */
+
+.sp-ai-card {
+	background:
+		linear-gradient(
+			145deg,
+			#f9f6f6,
+			#f6f1f2
+		);
+
+	border: 1px solid var(--sp-red-border);
+
+	padding: 1.5rem;
+
+	border-radius: 12px;
+}
+
+
+.sp-ai-card h3 {
+	color: var(--sp-red-dark);
+}
+
+
+.sp-ai-card p {
+	color: #444b55;
+}
+
+
+.sp-tag {
+	background: var(--sp-red);
+
+	color: white;
+}
+
+
+.sp-tag-alt {
+	background: #525866;
+
+	color: white;
+}
+
+
+/* =========================================================
+   CARDS
+   ========================================================= */
+
+.sp-band-score-card,
+.sp-chart-card,
+.sp-radar-card,
+.sp-history-card,
+.sp-goals-card {
+	border: 1px solid #e7e8eb;
+
+	box-shadow:
+		0 3px 10px
+		rgba(31, 41, 51, 0.035);
+}
+
+
+/* =========================================================
+   BOTTOM BAR
+   ========================================================= */
+
+.sp-bottom-bar {
+	background: transparent;
+
+	border-top: 0;
+
+	padding: 0 32px 24px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1150px) {
+
+	.sp-profile-card-new {
+		flex-wrap: wrap;
+	}
+
+
+	.sp-profile-meta {
+		width: 100%;
+
+		max-width: none;
+	}
+
+
+	.sp-profile-strip {
+		flex-wrap: wrap;
+	}
+
+
+	.sp-quick-actions {
+		width: 100%;
+
+		margin-left: 74px;
+	}
+
+}
+
+
+@media (max-width: 850px) {
+
+	.sp-options {
+		grid-template-columns: 1fr;
+	}
+
+
+	.sp-profile-meta {
+		grid-template-columns: 1fr;
+	}
+
+
+	.sp-page .sidebar {
+		width: 220px;
+	}
+
+
+	.sp-overview-content {
+		padding: 22px;
+	}
+
+
+	.sp-quick-actions {
+		margin-left: 0;
+
+		flex-wrap: wrap;
+	}
+
+}

@@ -1,224 +1,322 @@
 /* =========================================================
    ERROR OPTIONS
+   DAS RED / BLACK / GREY / WHITE
+   ========================================================= */
+
+:root {
+	--eo-red: #9f2233;
+	--eo-red-dark: #7f1d2d;
+	--eo-red-soft: #f8ecef;
+	--eo-red-border: #e7c3ca;
+
+	--eo-black: #1f2933;
+	--eo-charcoal: #374151;
+
+	--eo-grey: #6b7280;
+	--eo-light-grey: #f5f6f8;
+
+	--eo-border: #e5e7eb;
+	--eo-white: #ffffff;
+}
+
+
+/* =========================================================
+   PAGE
    ========================================================= */
 
 .eo-page {
 	display: flex;
+
+	width: 100%;
+
 	min-height: 100vh;
-	background: #f5f6fa;
+
+	background: #f5f7fa;
 }
+
 
 .eo-main {
 	flex: 1;
+
+	min-width: 0;
+
 	display: flex;
 	flex-direction: column;
-	min-width: 0;
+}
+
+
+.eo-page .sidebar {
+	min-height: 100vh;
+
+	flex-shrink: 0;
 }
 
 
 /* =========================================================
-   TOPBAR
+   LANDING SHELL BRAND OVERRIDES
    ========================================================= */
 
-.eo-topbar {
-	display: flex;
-	align-items: center;
-	gap: 1rem;
+.eo-page .logo-circle {
+	background: var(--eo-red) !important;
 
-	padding: 1rem 2rem;
+	color: white !important;
 
-	background: white;
-	border-bottom: 1px solid #eee;
-
-	position: sticky;
-	top: 0;
-	z-index: 10;
+	box-shadow:
+		0 4px 10px
+		rgba(159, 34, 51, 0.12) !important;
 }
 
-.eo-topbar h2 {
-	font-size: 1.1rem;
-	font-weight: 700;
-	color: #1a3c6e;
-	margin: 0;
+
+.eo-page .topbar h2 {
+	color: var(--eo-black) !important;
 }
 
-.eo-topbar-sub {
-	font-size: 1rem;
-	color: #555;
 
-	padding-left: 1rem;
-	border-left: 1px solid #ddd;
+.eo-page .topbar-brand::before {
+	background: var(--eo-red) !important;
+}
+
+
+.eo-page .role-dot {
+	background: var(--eo-red) !important;
+}
+
+
+.eo-page .sidebar nav a {
+	color: #4b5563;
+}
+
+
+.eo-page .sidebar nav a:hover {
+	background: #f7f7f7;
+
+	color: var(--eo-black);
 }
 
 
 /* =========================================================
-   STUDENT PROFILE CARD
+   CONTENT
+   ========================================================= */
+
+.eo-content {
+	padding: 28px 34px 34px;
+
+	display: flex;
+	flex-direction: column;
+}
+
+
+/* =========================================================
+   STUDENT PROFILE
    ========================================================= */
 
 .eo-profile-card {
 	display: flex;
 	align-items: center;
-	gap: 1.5rem;
+
+	gap: 22px;
+
+	min-height: 150px;
+
+	padding: 26px 28px;
 
 	background: white;
 
-	margin: 1.5rem 2rem 0;
-	padding: 1.5rem;
-
-	border-radius: 12px;
-
-	border: 1px solid #e6e9ef;
+	border: 1px solid var(--eo-border);
+	border-radius: 16px;
 
 	box-shadow:
-		0 1px 4px rgba(0, 0, 0, 0.05),
-		0 8px 24px rgba(26, 60, 110, 0.035);
+		0 3px 12px
+		rgba(31, 41, 51, 0.04);
 }
 
 
-/* AVATAR */
+/* =========================================================
+   STUDENT ICON
+   ========================================================= */
 
-.eo-avatar-wrapper {
-	position: relative;
+.eo-student-icon {
+	width: 76px;
+	height: 76px;
+
 	flex-shrink: 0;
-}
-
-.eo-avatar {
-	width: 80px;
-	height: 80px;
-
-	border-radius: 12px;
-
-	background:
-		linear-gradient(
-			135deg,
-			#fb923c,
-			#f97316
-		);
-
-	color: white;
 
 	display: flex;
 	align-items: center;
 	justify-content: center;
 
-	font-size: 1.5rem;
-	font-weight: 700;
+	border-radius: 15px;
 
-	box-shadow:
-		0 8px 18px rgba(249, 115, 22, 0.18);
-}
+	background: var(--eo-red-soft);
 
-.eo-verified-badge {
-	position: absolute;
+	border: 1px solid var(--eo-red-border);
 
-	right: -6px;
-	bottom: -6px;
-
-	width: 27px;
-	height: 27px;
-
-	border-radius: 9px;
-
-	background: #0755a4;
-	color: white;
-
-	display: flex;
-	align-items: center;
-	justify-content: center;
-
-	border: 3px solid white;
+	color: var(--eo-red);
 }
 
 
-/* PROFILE NAME */
+/* =========================================================
+   PROFILE TEXT
+   ========================================================= */
 
 .eo-profile-info {
 	flex: 1;
+
+	min-width: 190px;
 }
+
+
+.eo-profile-eyebrow {
+	display: block;
+
+	margin-bottom: 5px;
+
+	font-size: 10px;
+	font-weight: 800;
+
+	letter-spacing: 0.1em;
+
+	color: var(--eo-red);
+}
+
 
 .eo-profile-info h1 {
-	font-size: 1.5rem;
-	font-weight: 700;
+	margin: 0 0 13px;
 
-	margin: 0 0 0.7rem;
+	color: var(--eo-black);
 
-	color: #1a1a1a;
+	font-size: 28px;
+	font-weight: 750;
+
+	letter-spacing: -0.02em;
 }
 
 
-/* GOOGLE SHEETS */
+/* =========================================================
+   SHEETS
+   ========================================================= */
 
 .eo-sheets-btn {
 	display: inline-flex;
 	align-items: center;
-	gap: 0.45rem;
 
-	padding: 0.45rem 1rem;
+	gap: 7px;
 
-	border: 1px solid #ddd;
+	padding: 8px 12px;
+
+	border: 1px solid #d9dce1;
 	border-radius: 8px;
-
-	font-size: 0.85rem;
-
-	color: #555;
-	text-decoration: none;
 
 	background: white;
 
-	transition:
-		background 0.2s ease,
-		border-color 0.2s ease,
-		transform 0.2s ease;
-}
+	color: #4b5563;
 
-.eo-sheets-btn:hover {
-	background: #f7f8fa;
-	border-color: #bfc6d0;
-	transform: translateY(-1px);
-}
+	text-decoration: none;
 
-
-/* PROFILE META */
-
-.eo-profile-meta {
-	display: flex;
-	gap: 2.5rem;
-}
-
-.eo-meta-item {
-	display: flex;
-	flex-direction: column;
-	gap: 0.3rem;
-
-	min-width: 125px;
-}
-
-.eo-meta-label {
-	font-size: 0.72rem;
-
-	color: #888;
-
-	text-transform: uppercase;
-	letter-spacing: 0.05em;
-}
-
-.eo-meta-value {
-	font-size: 0.95rem;
+	font-size: 12px;
 	font-weight: 600;
 
-	color: #1a1a1a;
+	transition:
+		background 0.18s ease,
+		border-color 0.18s ease,
+		color 0.18s ease;
 }
 
-.eo-meta-blue {
-	color: #1a3c6e;
+
+.eo-sheets-btn:hover {
+	background: var(--eo-red-soft);
+
+	border-color: var(--eo-red-border);
+
+	color: var(--eo-red);
 }
 
-.eo-band {
+
+/* =========================================================
+   PROFILE META
+   ========================================================= */
+
+.eo-profile-meta {
+	flex: 1;
+
+	max-width: 620px;
+
+	display: grid;
+
+	grid-template-columns:
+		repeat(3, minmax(145px, 1fr));
+
+	gap: 12px;
+}
+
+
+.eo-meta-item {
+	min-height: 72px;
+
+	padding: 13px 14px;
+
 	display: flex;
 	align-items: center;
-	gap: 0.35rem;
 
-	color: #7c3aed;
+	gap: 10px;
+
+	border: 1px solid #eeeeef;
+	border-radius: 11px;
+
+	background: #fafafa;
+}
+
+
+.eo-meta-icon {
+	width: 32px;
+	height: 32px;
+
+	flex-shrink: 0;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	border-radius: 8px;
+
+	background: white;
+
+	border: 1px solid #ececef;
+
+	color: var(--eo-red);
+}
+
+
+.eo-meta-item > div:last-child {
+	display: flex;
+	flex-direction: column;
+
+	gap: 3px;
+}
+
+
+.eo-meta-label {
+	font-size: 9px;
+	font-weight: 700;
+
+	letter-spacing: 0.07em;
+
+	text-transform: uppercase;
+
+	color: var(--eo-grey);
+}
+
+
+.eo-meta-value {
+	font-size: 13px;
+	font-weight: 700;
+
+	color: var(--eo-black);
+}
+
+
+.eo-band {
+	color: var(--eo-red);
 }
 
 
@@ -227,41 +325,42 @@
    ========================================================= */
 
 .eo-section-heading {
-	display: flex;
-	align-items: flex-end;
-	justify-content: space-between;
-
-	margin: 2rem 2rem 1.1rem;
+	margin: 28px 0 14px;
 }
+
 
 .eo-eyebrow {
 	display: block;
 
-	margin-bottom: 0.35rem;
+	margin-bottom: 4px;
 
-	font-size: 0.7rem;
-	font-weight: 700;
+	color: var(--eo-red);
 
-	letter-spacing: 0.12em;
+	font-size: 10px;
+	font-weight: 800;
 
-	color: #1a3c6e;
+	letter-spacing: 0.11em;
 }
+
 
 .eo-section-heading h2 {
-	font-size: 1.45rem;
-	font-weight: 700;
+	margin: 0 0 4px;
 
-	color: #1b1e25;
+	color: var(--eo-black);
 
-	margin: 0 0 0.35rem;
+	font-size: 21px;
+	font-weight: 750;
+
+	letter-spacing: -0.01em;
 }
+
 
 .eo-section-heading p {
 	margin: 0;
 
-	font-size: 0.88rem;
+	color: var(--eo-grey);
 
-	color: #777f8c;
+	font-size: 13px;
 }
 
 
@@ -271,147 +370,150 @@
 
 .eo-options {
 	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
 
-	gap: 1.5rem;
+	grid-template-columns:
+		repeat(2, minmax(0, 1fr));
 
-	margin: 0 2rem 1.5rem;
+	gap: 20px;
 }
 
 
 /* =========================================================
    OPTION CARD
+
+   Unlike Student Progress, these are LIGHT cards,
+   not solid red/black blocks.
+   ========================================================= */
+
+/* =========================================================
+   CARD BACKGROUNDS
    ========================================================= */
 
 .eo-option-card {
 	position: relative;
 
-	min-height: 390px;
+	min-height: 365px;
 
-	padding: 2rem;
-
-	border-radius: 15px;
-
-	color: white;
-
-	display: flex;
-	flex-direction: column;
+	padding: 32px;
 
 	overflow: hidden;
 
-	cursor: pointer;
+	border-radius: 16px;
 
 	isolation: isolate;
+}
+
+
+/* Reference-based */
+
+.eo-option-key {
+	background:
+		radial-gradient(
+			circle at 92% 12%,
+			rgba(159, 34, 51, 0.09) 0%,
+			rgba(159, 34, 51, 0.035) 23%,
+			transparent 48%
+		),
+		linear-gradient(
+			145deg,
+			#ffffff 0%,
+			#fffafa 55%,
+			#fdf6f7 100%
+		);
+
+	border: 1px solid var(--eo-red-border);
 
 	box-shadow:
-		0 10px 22px rgba(15, 23, 42, 0.08);
-
-	transition:
-		transform 0.25s ease,
-		box-shadow 0.25s ease;
+		0 5px 18px
+		rgba(159, 34, 51, 0.055);
 }
+
+
+/* Free-form */
+
+.eo-option-free {
+	background:
+		radial-gradient(
+			circle at 92% 12%,
+			rgba(55, 65, 81, 0.085) 0%,
+			rgba(55, 65, 81, 0.025) 25%,
+			transparent 48%
+		),
+		linear-gradient(
+			145deg,
+			#ffffff 0%,
+			#fbfbfc 55%,
+			#f5f6f7 100%
+		);
+
+	border: 1px solid #d8dade;
+
+	box-shadow:
+		0 5px 18px
+		rgba(31, 41, 51, 0.05);
+}
+
+
+/* =========================================================
+   HOVER
+   ========================================================= */
 
 .eo-option-card:hover {
-	transform: translateY(-6px);
+	transform: translateY(-4px);
 
 	box-shadow:
-		0 18px 38px rgba(15, 23, 42, 0.16);
+		0 14px 30px
+		rgba(31, 41, 51, 0.09);
+}
+
+
+.eo-option-key:hover {
+	border-color: #cc929d;
+}
+
+
+.eo-option-free:hover {
+	border-color: #aeb3bb;
 }
 
 
 /* =========================================================
-   BLUE CARD
+   TOP ACCENT LINE
    ========================================================= */
 
-.eo-option-blue {
+.eo-card-accent {
+	position: absolute;
+
+	top: 0;
+	left: 0;
+
+	width: 100%;
+	height: 4px;
+}
+
+
+.eo-option-key .eo-card-accent {
 	background:
 		linear-gradient(
-			135deg,
-			#0d5bb9 0%,
-			#1a3c6e 100%
+			90deg,
+			var(--eo-red),
+			#c55f70
+		);
+}
+
+
+.eo-option-free .eo-card-accent {
+	background:
+		linear-gradient(
+			90deg,
+			#343a43,
+			#767d87
 		);
 }
 
 
 /* =========================================================
-   PURPLE CARD
-   ========================================================= */
-
-.eo-option-purple {
-	background:
-		linear-gradient(
-			135deg,
-			#8b4ce8 0%,
-			#6d28d9 100%
-		);
-}
-
-
-/* =========================================================
-   CARD GLOW
-   ========================================================= */
-
-.eo-card-glow {
-	position: absolute;
-
-	width: 260px;
-	height: 260px;
-
-	border-radius: 50%;
-
-	top: -110px;
-	right: -90px;
-
-	filter: blur(15px);
-
-	pointer-events: none;
-
-	z-index: -1;
-}
-
-.eo-blue-glow {
-	background: rgba(96, 165, 250, 0.28);
-}
-
-.eo-purple-glow {
-	background: rgba(216, 180, 254, 0.28);
-}
-
-
-/* =========================================================
-   LARGE DECORATIVE ICON
-   ========================================================= */
-
-.eo-background-icon {
-	position: absolute;
-
-	right: -28px;
-	bottom: -38px;
-
-	color: rgba(255, 255, 255, 0.075);
-
-	transform: rotate(-8deg);
-
-	z-index: -1;
-
-	pointer-events: none;
-
-	transition:
-		transform 0.35s ease,
-		color 0.35s ease;
-}
-
-.eo-option-card:hover .eo-background-icon {
-	transform:
-		rotate(-3deg)
-		scale(1.08);
-
-	color: rgba(255, 255, 255, 0.1);
-}
-
-
-/* =========================================================
-   CARD HEADER
+   HEADER
    ========================================================= */
 
 .eo-option-header {
@@ -419,51 +521,62 @@
 	align-items: center;
 	justify-content: space-between;
 
-	margin-bottom: 1.7rem;
+	margin-bottom: 28px;
 }
 
+
+/* =========================================================
+   ICON
+   ========================================================= */
+
 .eo-option-icon {
-	width: 58px;
-	height: 58px;
+	width: 52px;
+	height: 52px;
 
 	display: flex;
 	align-items: center;
 	justify-content: center;
 
-	border-radius: 13px;
-
-	background: rgba(255, 255, 255, 0.15);
-
-	border: 1px solid rgba(255, 255, 255, 0.12);
-
-	box-shadow:
-		inset 0 1px 0 rgba(255, 255, 255, 0.18);
-
-	transition:
-		transform 0.25s ease,
-		background 0.25s ease;
+	border-radius: 12px;
 }
 
-.eo-option-card:hover .eo-option-icon {
-	transform: scale(1.06) rotate(-2deg);
 
-	background: rgba(255, 255, 255, 0.2);
+.eo-key-icon {
+	background: var(--eo-red-soft);
+
+	border: 1px solid var(--eo-red-border);
+
+	color: var(--eo-red);
 }
+
+
+.eo-free-icon {
+	background: #f0f1f3;
+
+	border: 1px solid #dedfe2;
+
+	color: #3f454d;
+}
+
+
+/* =========================================================
+   CARD TYPE
+   ========================================================= */
 
 .eo-card-type {
-	padding: 0.32rem 0.65rem;
+	padding: 5px 9px;
 
-	background: rgba(255, 255, 255, 0.12);
-
-	border: 1px solid rgba(255, 255, 255, 0.13);
+	border: 1px solid #e4e5e8;
 	border-radius: 99px;
 
-	font-size: 0.65rem;
-	font-weight: 700;
+	background: #f8f8f9;
+
+	color: #747983;
+
+	font-size: 9px;
+	font-weight: 800;
 
 	letter-spacing: 0.08em;
-
-	color: rgba(255, 255, 255, 0.87);
 }
 
 
@@ -472,25 +585,46 @@
    ========================================================= */
 
 .eo-option-content {
+	position: relative;
+
+	z-index: 2;
+
 	max-width: 520px;
 }
 
-.eo-option-content h3 {
-	margin: 0 0 0.7rem;
 
-	font-size: 1.35rem;
-	font-weight: 700;
+.eo-option-number {
+	margin-bottom: 5px;
+
+	color: #b1b5bc;
+
+	font-size: 11px;
+	font-weight: 800;
+
+	letter-spacing: 0.08em;
 }
 
+
+.eo-option-content h3 {
+	margin: 0 0 9px;
+
+	color: var(--eo-black);
+
+	font-size: 21px;
+	font-weight: 750;
+}
+
+
 .eo-option-content p {
+	max-width: 480px;
+
 	margin: 0;
 
-	max-width: 490px;
+	color: var(--eo-grey);
 
-	font-size: 0.9rem;
+	font-size: 13px;
+
 	line-height: 1.6;
-
-	color: rgba(255, 255, 255, 0.84);
 }
 
 
@@ -499,33 +633,44 @@
    ========================================================= */
 
 .eo-feature-list {
+	position: relative;
+
+	z-index: 2;
+
 	display: flex;
 	flex-direction: column;
 
-	gap: 0.5rem;
+	gap: 7px;
 
-	margin-top: 1.25rem;
-	margin-bottom: 1.4rem;
+	margin-top: 18px;
+	margin-bottom: 22px;
 }
+
 
 .eo-feature-list span {
 	display: flex;
 	align-items: center;
 
-	gap: 0.45rem;
+	gap: 7px;
 
-	font-size: 0.78rem;
+	color: #59616d;
 
-	color: rgba(255, 255, 255, 0.83);
+	font-size: 11px;
 }
 
-.eo-feature-list svg {
-	color: rgba(255, 255, 255, 0.9);
+
+.eo-option-key .eo-feature-list svg {
+	color: var(--eo-red);
+}
+
+
+.eo-option-free .eo-feature-list svg {
+	color: #555d66;
 }
 
 
 /* =========================================================
-   CARD BUTTON
+   CTA
    ========================================================= */
 
 .eo-option-btn {
@@ -533,111 +678,186 @@
 
 	z-index: 2;
 
-	margin-top: auto;
-
 	width: fit-content;
+
+	margin-top: auto;
 
 	display: flex;
 	align-items: center;
 
-	gap: 0.5rem;
+	gap: 8px;
 
-	padding: 0.68rem 1.15rem;
+	padding: 9px 13px;
 
-	border: none;
-	border-radius: 9px;
+	border-radius: 8px;
 
-	background: white;
-
-	font-size: 0.83rem;
+	font-size: 12px;
 	font-weight: 700;
 
 	cursor: pointer;
 
-	box-shadow:
-		0 4px 12px rgba(0, 0, 0, 0.08);
-
 	transition:
-		transform 0.2s ease,
-		box-shadow 0.2s ease;
+		background 0.18s ease,
+		color 0.18s ease,
+		transform 0.18s ease;
 }
 
-.eo-option-blue .eo-option-btn {
-	color: #1a3c6e;
+
+/* outlined burgundy */
+
+.eo-key-btn {
+	background: white;
+
+	border:
+		1px solid
+		var(--eo-red-border);
+
+	color: var(--eo-red);
 }
 
-.eo-option-purple .eo-option-btn {
-	color: #6d28d9;
+
+.eo-key-btn:hover {
+	background: var(--eo-red-soft);
+
+	border-color: var(--eo-red);
+
+	transform: translateX(2px);
 }
 
-.eo-option-btn:hover {
-	transform: translateX(3px);
 
-	box-shadow:
-		0 6px 18px rgba(0, 0, 0, 0.13);
+/* dark neutral */
+
+.eo-free-btn {
+	background: #343a43;
+
+	border: 1px solid #343a43;
+
+	color: white;
 }
+
+
+.eo-free-btn:hover {
+	background: #252a31;
+
+	transform: translateX(2px);
+}
+
 
 .eo-button-arrow {
-	margin-left: 0.25rem;
+	margin-left: 7px;
 
-	font-size: 1.05rem;
-
-	transition: transform 0.2s ease;
-}
-
-.eo-option-btn:hover .eo-button-arrow {
-	transform: translateX(3px);
+	font-size: 15px;
 }
 
 
 /* =========================================================
-   BACK BAR
+   WATERMARK
+   ========================================================= */
+
+.eo-background-icon {
+	position: absolute;
+
+	right: -28px;
+	bottom: -32px;
+
+	z-index: 0;
+
+	pointer-events: none;
+
+	transform: rotate(-7deg);
+
+	transition:
+		transform 0.25s ease,
+		opacity 0.25s ease;
+}
+
+
+.eo-option-key .eo-background-icon {
+	color: rgba(159, 34, 51, 0.045);
+}
+
+
+.eo-option-free .eo-background-icon {
+	color: rgba(31, 41, 51, 0.045);
+}
+
+
+.eo-option-card:hover .eo-background-icon {
+	transform:
+		rotate(-4deg)
+		scale(1.04);
+}
+
+
+/* Ensure actual content stays above watermark */
+
+.eo-option-header,
+.eo-option-content,
+.eo-feature-list,
+.eo-option-btn {
+	position: relative;
+
+	z-index: 2;
+}
+
+
+/* =========================================================
+   BACK
    ========================================================= */
 
 .eo-back-bar {
-	padding: 1rem 2rem 1.5rem;
-
-	margin-top: auto;
+	padding-top: 20px;
 }
 
+
 .eo-back-btn {
+	width: fit-content;
+
 	display: inline-flex;
 	align-items: center;
 
-	gap: 0.4rem;
+	gap: 7px;
 
-	padding: 0.6rem 1.25rem;
+	padding: 9px 14px;
 
-	border: 1px solid #ddd;
+	border: 1px solid #d8dadd;
 	border-radius: 8px;
 
 	background: white;
 
-	font-size: 0.9rem;
+	color: #4b5563;
+
+	font-size: 12px;
+	font-weight: 600;
 
 	cursor: pointer;
 
-	text-decoration: none;
-
-	color: #333;
-
 	transition:
-		background 0.2s ease,
-		transform 0.2s ease;
+		background 0.18s ease,
+		color 0.18s ease,
+		transform 0.18s ease;
 }
 
+
 .eo-back-btn:hover {
-	background: #f7f8fa;
+	background: #f8f8f8;
+
+	color: var(--eo-red);
+
 	transform: translateX(-2px);
 }
 
 
 /* =========================================================
-   LOADING / ERROR STATE
+   LOADING / ERROR
    ========================================================= */
 
 .eo-state-card {
-	width: min(430px, calc(100% - 3rem));
+	width:
+		min(
+			430px,
+			calc(100% - 3rem)
+		);
 
 	margin: auto;
 
@@ -645,26 +865,33 @@
 
 	background: white;
 
+	border: 1px solid var(--eo-border);
+
 	border-radius: 14px;
 
 	text-align: center;
 
 	box-shadow:
-		0 8px 28px rgba(15, 23, 42, 0.08);
+		0 8px 28px
+		rgba(31, 41, 51, 0.07);
 }
+
 
 .eo-state-card h3 {
 	margin: 0 0 0.5rem;
 
-	color: #1a3c6e;
+	color: var(--eo-black);
 }
+
 
 .eo-state-card p {
 	margin: 0;
 
-	color: #777;
+	color: var(--eo-grey);
+
 	font-size: 0.9rem;
 }
+
 
 .eo-loading-spinner {
 	width: 34px;
@@ -672,13 +899,22 @@
 
 	margin: 0 auto 1rem;
 
-	border: 4px solid #e5e7eb;
-	border-top-color: #1a3c6e;
+	border:
+		4px solid
+		#e5e7eb;
+
+	border-top-color:
+		var(--eo-red);
 
 	border-radius: 50%;
 
-	animation: eo-spin 0.8s linear infinite;
+	animation:
+		eo-spin
+		0.8s
+		linear
+		infinite;
 }
+
 
 @keyframes eo-spin {
 	to {
@@ -686,24 +922,28 @@
 	}
 }
 
+
 .eo-error-state h3 {
 	color: #991b1b;
 }
 
+
 .eo-state-back {
 	margin-top: 1.3rem;
 
+	padding: 0.65rem 1rem;
+
 	display: inline-flex;
 	align-items: center;
+
 	gap: 0.4rem;
 
 	border: none;
 	border-radius: 8px;
 
-	padding: 0.65rem 1rem;
+	background: var(--eo-red);
 
 	color: white;
-	background: #1a3c6e;
 
 	cursor: pointer;
 }
@@ -713,33 +953,41 @@
    RESPONSIVE
    ========================================================= */
 
-@media (max-width: 1000px) {
+@media (max-width: 1100px) {
 
 	.eo-profile-card {
 		flex-wrap: wrap;
 	}
 
+
 	.eo-profile-meta {
 		width: 100%;
 
-		padding-top: 1rem;
-
-		border-top: 1px solid #eee;
-
-		justify-content: space-between;
+		max-width: none;
 	}
 
 }
 
 
-@media (max-width: 800px) {
+@media (max-width: 850px) {
 
 	.eo-options {
 		grid-template-columns: 1fr;
 	}
 
-	.eo-option-card {
-		min-height: 370px;
+
+	.eo-profile-meta {
+		grid-template-columns: 1fr;
+	}
+
+
+	.eo-content {
+		padding: 22px;
+	}
+
+
+	.eo-page .sidebar {
+		width: 220px;
 	}
 
 }
@@ -747,45 +995,764 @@
 
 @media (max-width: 600px) {
 
-	.eo-profile-card,
-	.eo-options,
-	.eo-section-heading {
-		margin-left: 1rem;
-		margin-right: 1rem;
-	}
-
-	.eo-topbar {
-		padding-left: 1rem;
-		padding-right: 1rem;
-	}
-
 	.eo-profile-card {
 		align-items: flex-start;
 	}
 
-	.eo-profile-info {
-		min-width: calc(100% - 110px);
-	}
-
-	.eo-profile-meta {
-		flex-direction: column;
-
-		gap: 1rem;
-	}
-
-	.eo-option-card {
-		padding: 1.5rem;
-
-		min-height: 390px;
-	}
 
 	.eo-card-type {
 		display: none;
 	}
 
-	.eo-back-bar {
-		padding-left: 1rem;
-		padding-right: 1rem;
+}
+
+/* =========================================================
+   ERROR OPTIONS — PROFESSIONAL UI CLEANUP
+   ========================================================= */
+
+
+/* =========================================================
+   NAVBAR
+   ========================================================= */
+
+.eo-main-topbar {
+	min-height: 76px;
+}
+
+
+.eo-topbar-right {
+	display: flex;
+	align-items: center;
+
+	gap: 14px;
+}
+
+
+/* =========================================================
+   NAVBAR SEARCH
+   ========================================================= */
+
+.eo-navbar-search {
+	width: 310px;
+	height: 40px;
+
+	display: flex;
+	align-items: center;
+
+	gap: 8px;
+
+	padding: 0 13px;
+
+	border: 1px solid #dedfe3;
+	border-radius: 10px;
+
+	background: #f8f8f9;
+
+	transition:
+		border-color 0.18s ease,
+		background 0.18s ease,
+		box-shadow 0.18s ease;
+}
+
+
+.eo-navbar-search:focus-within {
+	background: white;
+
+	border-color: #c5a0a7;
+
+	box-shadow:
+		0 0 0 3px
+		rgba(159, 34, 51, 0.06);
+}
+
+
+.eo-navbar-search button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	padding: 0;
+
+	border: 0;
+
+	background: transparent;
+
+	color: #737983;
+
+	cursor: pointer;
+}
+
+
+.eo-navbar-search button:disabled {
+	opacity: 0.45;
+}
+
+
+.eo-navbar-search input {
+	flex: 1;
+
+	min-width: 0;
+
+	border: 0;
+	outline: 0;
+
+	background: transparent;
+
+	color: #30353c;
+
+	font-size: 14px;
+}
+
+
+.eo-navbar-search input::placeholder {
+	color: #9298a1;
+}
+
+
+/* =========================================================
+   TEACHER PROFILE
+   ========================================================= */
+
+.eo-teacher-profile {
+	display: flex;
+	align-items: center;
+
+	gap: 9px;
+
+	padding: 0 14px;
+
+	border-left: 1px solid #e5e7eb;
+	border-right: 1px solid #e5e7eb;
+}
+
+
+.eo-teacher-icon {
+	width: 36px;
+	height: 36px;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	flex-shrink: 0;
+
+	border-radius: 10px;
+
+	background: #f3f3f4;
+
+	border: 1px solid #e0e1e4;
+
+	color: #4b5058;
+}
+
+
+.eo-teacher-copy {
+	display: flex;
+	flex-direction: column;
+
+	gap: 1px;
+}
+
+
+.eo-teacher-copy strong {
+	font-size: 13px;
+	font-weight: 700;
+
+	color: #30343a;
+
+	white-space: nowrap;
+}
+
+
+.eo-teacher-copy span {
+	font-size: 11px;
+
+	color: #838892;
+
+	white-space: nowrap;
+}
+
+
+/* =========================================================
+   SIDEBAR — ERROR ANALYSIS SECTION
+   ========================================================= */
+
+.eo-nav-section {
+	margin: 8px 0 10px;
+
+	padding-top: 8px;
+
+	border-top: 1px solid #f0f0f1;
+}
+
+
+.eo-nav-heading {
+	display: block;
+
+	padding: 7px 16px 6px;
+
+	color: #999da4;
+
+	font-size: 10px;
+	font-weight: 800;
+
+	letter-spacing: 0.11em;
+}
+
+
+.sidebar nav .eo-nav-subitem {
+	padding-left: 21px;
+
+	font-size: 14px;
+}
+
+
+.sidebar nav .eo-nav-subitem svg {
+	flex-shrink: 0;
+}
+
+
+/* Reference-based link gets a subtle red indication */
+
+.sidebar nav .eo-nav-subitem:hover {
+	background: #f8f4f5;
+
+	color: var(--eo-red);
+}
+
+
+/* =========================================================
+   GENERAL TYPOGRAPHY
+   ========================================================= */
+
+.eo-content {
+	padding: 32px 38px 38px;
+}
+
+
+.eo-profile-eyebrow,
+.eo-eyebrow {
+	font-size: 11px;
+}
+
+
+.eo-profile-info h1 {
+	font-size: 30px;
+}
+
+
+.eo-meta-label {
+	font-size: 10px;
+}
+
+
+.eo-meta-value {
+	font-size: 14px;
+}
+
+
+.eo-section-heading h2 {
+	font-size: 24px;
+}
+
+
+.eo-section-heading p {
+	font-size: 14px;
+}
+
+
+/* =========================================================
+   PROFILE CARD
+   ========================================================= */
+
+.eo-profile-card {
+	min-height: 158px;
+
+	padding: 28px 30px;
+}
+
+
+.eo-student-icon {
+	width: 72px;
+	height: 72px;
+}
+
+
+.eo-meta-item {
+	min-height: 76px;
+
+	padding: 14px 15px;
+}
+
+
+/* =========================================================
+   SIMPLER OPTION CARDS
+   ========================================================= */
+
+.eo-options {
+	gap: 22px;
+}
+
+
+.eo-option-card {
+	min-height: 330px;
+
+	padding: 30px;
+
+	border-radius: 14px;
+}
+
+
+/* less dramatic card movement */
+
+.eo-option-card:hover {
+	transform: translateY(-2px);
+
+	box-shadow:
+		0 10px 24px
+		rgba(31, 41, 51, 0.075);
+}
+
+
+/* slightly thinner top accent */
+
+.eo-card-accent {
+	height: 3px;
+}
+
+
+.eo-option-header {
+	margin-bottom: 24px;
+}
+
+
+.eo-option-icon {
+	width: 52px;
+	height: 52px;
+}
+
+
+.eo-card-type {
+	padding: 5px 9px;
+
+	font-size: 10px;
+
+	letter-spacing: 0.06em;
+}
+
+
+/* remove old generated-looking numbering */
+
+.eo-option-number {
+	display: none;
+}
+
+
+.eo-option-content h3 {
+	margin-bottom: 10px;
+
+	font-size: 22px;
+}
+
+
+.eo-option-content p {
+	max-width: 500px;
+
+	font-size: 14px;
+	line-height: 1.65;
+}
+
+
+.eo-feature-list {
+	gap: 9px;
+
+	margin-top: 22px;
+	margin-bottom: 24px;
+}
+
+
+.eo-feature-list span {
+	gap: 8px;
+
+	font-size: 13px;
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.eo-option-btn {
+	padding: 10px 15px;
+
+	font-size: 13px;
+}
+
+
+.eo-button-arrow {
+	margin-left: 12px;
+}
+
+/* =========================================================
+   BACK BUTTON
+   ========================================================= */
+
+.eo-back-btn {
+	padding: 10px 15px;
+
+	font-size: 13px;
+}
+
+
+/* =========================================================
+   RESPONSIVE NAVBAR
+   ========================================================= */
+
+@media (max-width: 1200px) {
+
+	.eo-navbar-search {
+		width: 240px;
 	}
 
+
+	.eo-teacher-copy {
+		display: none;
+	}
+
+}
+
+
+@media (max-width: 950px) {
+
+	.eo-navbar-search {
+		display: none;
+	}
+
+
+	.eo-teacher-profile {
+		padding: 0 10px;
+
+		border-left: 0;
+	}
+
+}
+
+/* =========================================================
+   SIDEBAR FIX
+   ========================================================= */
+
+.eo-page .sidebar nav .eo-nav-subitem {
+	display: flex;
+	align-items: center;
+
+	width: 100%;
+	min-height: 48px;
+
+	gap: 12px;
+
+	padding: 11px 18px 11px 21px;
+
+	box-sizing: border-box;
+
+	font-size: 15px;
+	font-weight: 600;
+
+	line-height: 1.3;
+
+	text-decoration: none;
+
+	border-radius: 8px;
+
+	transition:
+		background 0.18s ease,
+		color 0.18s ease;
+}
+
+
+.eo-page .sidebar nav .eo-nav-subitem span {
+	display: block;
+
+	flex: 1;
+
+	min-width: 0;
+}
+
+
+.eo-page .sidebar nav .eo-nav-subitem svg {
+	flex-shrink: 0;
+}
+
+
+.eo-page .sidebar nav .eo-nav-subitem:hover {
+	min-height: 48px;
+
+	background: #f8f1f3;
+
+	color: var(--eo-red);
+
+	transform: none;
+}
+
+/* =========================================================
+   STUDENT PROFILE — LARGER / BETTER USE OF SPACE
+   ========================================================= */
+
+.eo-profile-card {
+	min-height: 180px;
+
+	padding: 30px 34px;
+
+	gap: 30px;
+}
+
+
+.eo-student-icon {
+	width: 82px;
+	height: 82px;
+
+	border-radius: 16px;
+}
+
+
+.eo-student-icon svg {
+	width: 34px;
+	height: 34px;
+}
+
+
+.eo-profile-info {
+	flex: 0 0 220px;
+
+	min-width: 220px;
+}
+
+
+.eo-profile-info h1 {
+	margin-bottom: 14px;
+
+	font-size: 34px;
+	font-weight: 750;
+}
+
+
+.eo-profile-meta {
+	flex: 1;
+
+	max-width: none;
+
+	grid-template-columns:
+		repeat(3, minmax(190px, 1fr));
+
+	gap: 16px;
+}
+
+
+.eo-meta-item {
+	min-height: 92px;
+
+	padding: 18px 19px;
+
+	gap: 13px;
+
+	border-radius: 12px;
+}
+
+
+.eo-meta-icon {
+	width: 40px;
+	height: 40px;
+
+	border-radius: 9px;
+}
+
+
+.eo-meta-icon svg {
+	width: 19px;
+	height: 19px;
+}
+
+
+.eo-meta-label {
+	margin-bottom: 3px;
+
+	font-size: 12px;
+	font-weight: 750;
+
+	letter-spacing: 0.055em;
+}
+
+
+.eo-meta-value {
+	font-size: 17px;
+	font-weight: 700;
+
+	line-height: 1.35;
+}
+
+
+.eo-band {
+	font-size: 18px;
+}
+
+.eo-teacher-icon {
+	width: 39px;
+	height: 39px;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	flex-shrink: 0;
+
+	border-radius: 9px;
+
+	background: #f8ecef;
+
+	border: 1px solid #e7c3ca;
+
+	color: var(--eo-red);
+}
+
+/* =========================================================
+   LARGER PAGE TYPOGRAPHY
+   ========================================================= */
+
+.eo-section-heading {
+	margin: 34px 0 18px;
+}
+
+
+.eo-eyebrow {
+	font-size: 12px;
+
+	letter-spacing: 0.09em;
+}
+
+
+.eo-section-heading h2 {
+	margin-top: 3px;
+
+	font-size: 27px;
+	font-weight: 750;
+}
+
+
+.eo-section-heading p {
+	margin-top: 5px;
+
+	font-size: 16px;
+
+	line-height: 1.55;
+}
+
+
+/* CARD TYPE BADGE */
+
+.eo-card-type {
+	padding: 6px 11px;
+
+	font-size: 11px;
+	font-weight: 800;
+}
+
+
+/* CARD TITLE */
+
+.eo-option-content h3 {
+	margin-bottom: 12px;
+
+	font-size: 25px;
+	font-weight: 750;
+
+	line-height: 1.25;
+}
+
+
+/* CARD DESCRIPTION */
+
+.eo-option-content p {
+	max-width: 540px;
+
+	font-size: 16px;
+
+	line-height: 1.65;
+}
+
+
+/* CARD FEATURES */
+
+.eo-feature-list {
+	gap: 11px;
+
+	margin-top: 24px;
+	margin-bottom: 27px;
+}
+
+
+.eo-feature-list span {
+	gap: 9px;
+
+	font-size: 15px;
+	font-weight: 500;
+
+	line-height: 1.4;
+}
+
+
+.eo-feature-list svg {
+	width: 18px;
+	height: 18px;
+
+	flex-shrink: 0;
+}
+
+
+/* CARD BUTTON */
+
+.eo-option-btn {
+	padding: 11px 17px;
+
+	font-size: 15px;
+	font-weight: 700;
+}
+
+
+/* GOOGLE SHEETS */
+
+.eo-sheets-btn {
+	padding: 9px 13px;
+
+	font-size: 13px;
+}
+
+
+/* TOPBAR */
+
+.eo-page .topbar h2 {
+	font-size: 19px !important;
+}
+
+
+.eo-page .topbar-context {
+	font-size: 13px;
+}
+
+
+/* SIDEBAR */
+
+.eo-page .sidebar nav > a {
+	font-size: 15px;
+}
+
+
+.eo-nav-heading {
+	font-size: 11px;
+}
+
+.eo-page .sidebar nav .eo-nav-subitem {
+	font-weight: 500;
+}
+
+.eo-page .sidebar nav .eo-nav-subitem span {
+	font-weight: 500;
 }

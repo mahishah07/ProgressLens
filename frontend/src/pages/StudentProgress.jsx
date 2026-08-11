@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { Link, useParams, useNavigate, useSearchParams } from "react-router-dom";
+import "./../css/Landing.css";
 import "./../css/StudentProgress.css";
 import {
 	FileText,
@@ -7,6 +8,12 @@ import {
 	TrendingUp as TrendIcon,
 	FileBarChart,
 	Sheet,
+	LayoutDashboard,
+	Bell,
+	Settings,
+	UserRound,
+	CalendarDays,
+	GraduationCap,
 } from "lucide-react";
 import { Line, Radar, Bar } from "react-chartjs-2";
 import {
@@ -35,9 +42,79 @@ ChartJS.register(
 const API = import.meta.env.VITE_PMS_API;
 const SHEET_URL = import.meta.env.VITE_GOOGLE_SHEET_URL;
 
+/* NAVIGATION */
+function TeacherSidebar() {
+	return (
+		<aside className="sidebar">
+			<div className="logo-section">
+				<div className="logo-circle">DAS</div>
+
+				<div>
+					<h2>DAS Teacher</h2>
+					<p>Educational Professional</p>
+				</div>
+			</div>
+
+			<nav>
+				<Link to="/">
+					<LayoutDashboard size={20} />
+					<span>Dashboard</span>
+				</Link>
+
+				<a href="#">
+					<Bell size={20} />
+					<span>Notifications</span>
+				</a>
+
+				<a href="#">
+					<Settings size={20} />
+					<span>Settings</span>
+				</a>
+			</nav>
+		</aside>
+	);
+}
+
+
+function TeacherTopbar() {
+	return (
+		<header className="topbar">
+			<div className="topbar-brand">
+				<div>
+					<h2>DAS Assessment Portal</h2>
+
+					<span className="topbar-context">
+						Teacher Dashboard
+					</span>
+				</div>
+			</div>
+
+			<div className="top-right">
+				<div className="topbar-role">
+					<span className="role-dot" />
+
+					<div>
+						<strong>Educational Professional</strong>
+						<span>DAS Teacher Portal</span>
+					</div>
+				</div>
+
+				<button
+					className="topbar-icon-button"
+					type="button"
+					aria-label="Settings"
+				>
+					<Settings size={19} />
+				</button>
+			</div>
+		</header>
+	);
+}
+
 export default function StudentProgress() {
 	const { id } = useParams();
 	const navigate = useNavigate();
+	const [searchParams] = useSearchParams();
 
 	const [view, setView] = useState("overview");
 	const [overview, setOverview] = useState(null);
@@ -77,7 +154,7 @@ export default function StudentProgress() {
 		return () => controller.abort();
 	}, [id]);
 
-	const loadDashboard = () => {
+	const loadDashboard = useCallback(() => {
 		if (dashboard) {
 			setView("dashboard");
 			return;
@@ -95,15 +172,23 @@ export default function StudentProgress() {
 				setError(err.message);
 				setLoading(false);
 			});
-	};
+	}, [dashboard, id]);
 
-	const getInitials = (studentId) => {
-		if (!studentId) return "ST";
-		const parts = studentId.split(" ");
-		return parts.length > 1
-			? parts[0][0] + parts[1][0]
-			: studentId.slice(0, 2).toUpperCase();
-	};
+	useEffect(() => {
+		if (
+			searchParams.get("view") !== "dashboard" ||
+			!id ||
+			view !== "overview"
+		) {
+			return;
+		}
+
+		const timer = window.setTimeout(() => {
+			loadDashboard();
+		}, 0);
+
+		return () => window.clearTimeout(timer);
+	}, [id, searchParams, view, loadDashboard]);
 
 	const buildProgressChartData = () => {
 		if (!dashboard?.progressOverTime) return null;
@@ -229,105 +314,266 @@ export default function StudentProgress() {
 		);
 
 	if (view === "overview")
-		return (
-			<div className="sp-page">
-				<main className="sp-main">
-					<header className="sp-topbar">
-						<h2>DAS Assessment Portal</h2>
-						<span className="sp-topbar-sub">Student Progress</span>
-					</header>
+	return (
+		<div className="sp-page">
+			<TeacherSidebar />
 
-					<div className="sp-profile-card">
-						<div className="sp-avatar-lg">
-							{getInitials(overview?.student?.studentId)}
+			<main className="sp-main">
+				<TeacherTopbar />
+
+				<div className="sp-overview-content">
+
+					{/* =========================================
+					    STUDENT PROFILE
+					    ========================================= */}
+
+					<div className="sp-profile-card sp-profile-card-new">
+
+						<div className="sp-student-icon">
+							<UserRound size={30} />
 						</div>
+
 						<div className="sp-profile-info">
-							<h1>{overview?.student?.studentId}</h1>
+							<span className="sp-profile-eyebrow">
+								STUDENT PROFILE
+							</span>
+
+							<h1>
+								{overview?.student?.studentId}
+							</h1>
+
 							<a
 								href={SHEET_URL}
 								target="_blank"
 								rel="noopener noreferrer"
 								className="sp-sheets-btn"
 							>
-								<Sheet size={16} /> Open Google Sheets
+								<Sheet size={16} />
+								Open Google Sheets
 							</a>
 						</div>
+
+
 						<div className="sp-profile-meta">
+
 							<div className="sp-meta-item">
-								<span className="sp-meta-label">Last Assessment</span>
-								<span className="sp-meta-value">
-									{overview?.lastAssessmentDate
-										? new Date(overview.lastAssessmentDate).toLocaleDateString(
-												"en-GB",
-												{ day: "2-digit", month: "short", year: "numeric" },
-											)
-										: "No assessment yet"}
-								</span>
+								<div className="sp-meta-icon">
+									<CalendarDays size={17} />
+								</div>
+
+								<div>
+									<span className="sp-meta-label">
+										Last Assessment
+									</span>
+
+									<span className="sp-meta-value">
+										{overview?.lastAssessmentDate
+											? new Date(
+													overview.lastAssessmentDate,
+												).toLocaleDateString(
+													"en-GB",
+													{
+														day: "2-digit",
+														month: "short",
+														year: "numeric",
+													},
+												)
+											: "No assessment yet"}
+									</span>
+								</div>
 							</div>
+
+
 							<div className="sp-meta-item">
-								<span className="sp-meta-label">Assigned Band</span>
-								<span className="sp-meta-value sp-band">
-									✦
-									{overview?.latestNewBand || overview?.currentBandLevel || "—"}
-								</span>
+								<div className="sp-meta-icon">
+									<GraduationCap size={17} />
+								</div>
+
+								<div>
+									<span className="sp-meta-label">
+										Assigned Band
+									</span>
+
+									<span className="sp-meta-value sp-band">
+										{overview?.latestNewBand ||
+											overview?.currentBandLevel ||
+											"—"}
+									</span>
+								</div>
 							</div>
+
+
 							<div className="sp-meta-item">
-								<span className="sp-meta-label">Teacher</span>
-								<span className="sp-meta-value">
-									{overview?.student?.teacherId || "—"}
-								</span>
+								<div className="sp-meta-icon">
+									<UserRound size={17} />
+								</div>
+
+								<div>
+									<span className="sp-meta-label">
+										Assigned Teacher
+									</span>
+
+									<span className="sp-meta-value">
+										{overview?.student?.teacherId || "—"}
+									</span>
+								</div>
 							</div>
+
 						</div>
 					</div>
 
+
+					{/* =========================================
+					    SECTION INTRO
+					    ========================================= */}
+
+					<div className="sp-section-heading">
+						<div>
+							<span className="sp-section-eyebrow">
+								STUDENT ASSESSMENT
+							</span>
+
+							<h2>
+								Choose an analysis tool
+							</h2>
+
+							<p>
+								View longitudinal progress or analyse
+								writing and literacy error patterns.
+							</p>
+						</div>
+					</div>
+
+
+					{/* =========================================
+					    OPTIONS
+					    ========================================= */}
+
 					<div className="sp-options">
+
+						{/* PROGRESS MONITORING */}
+
 						<div
-							className="sp-option-card sp-option-blue"
+							className="sp-option-card sp-option-progress"
 							onClick={loadDashboard}
 						>
-							<div className="sp-option-icon">
-								<TrendIcon size={32} />
+							<div className="sp-option-top">
+								<div className="sp-option-icon">
+									<TrendIcon size={28} />
+								</div>
+
+								<span className="sp-option-label">
+									PROGRESS INSIGHTS
+								</span>
 							</div>
-							<h3>Progress Monitoring System</h3>
-							<p>
-								Monitor student learning progress over time. Track phonics
-								mastery, reading fluency, and comprehension metrics through
-								longitudinal data.
-							</p>
-							<button className="sp-option-btn">View Student Profile</button>
+
+							<div className="sp-option-copy">
+								<h3>
+									Progress Monitoring System
+								</h3>
+
+								<p>
+									Monitor student learning progress over
+									time. Track phonics mastery, reading
+									fluency and comprehension metrics
+									through longitudinal data.
+								</p>
+							</div>
+
+							<div className="sp-option-features">
+								<span>Longitudinal assessment trends</span>
+								<span>Skill and component breakdown</span>
+								<span>Band progression monitoring</span>
+							</div>
+
+							<button className="sp-option-btn">
+								View Student Profile
+								<span>→</span>
+							</button>
+
+							<TrendIcon
+								className="sp-option-watermark"
+								size={180}
+								strokeWidth={1}
+							/>
 						</div>
 
-						<div className="sp-option-card sp-option-purple">
-							<div className="sp-option-icon">
-								<FileBarChart size={32} />
+
+						{/* ERROR PATTERN ANALYSER */}
+
+						<div className="sp-option-card sp-option-errors">
+
+							<div className="sp-option-top">
+								<div className="sp-option-icon">
+									<FileBarChart size={28} />
+								</div>
+
+								<span className="sp-option-label">
+									ERROR ANALYSIS
+								</span>
 							</div>
-							<h3>Error Pattern Analyser</h3>
-							<p>
-								Analyse writing samples, identify recurring literacy errors, and
-								generate clinical insights to tailor individual educational
-								plans.
-							</p>
+
+							<div className="sp-option-copy">
+								<h3>
+									Error Pattern Analyser
+								</h3>
+
+								<p>
+									Analyse writing samples, identify
+									recurring literacy errors and generate
+									clinical insights to tailor individual
+									educational plans.
+								</p>
+							</div>
+
+							<div className="sp-option-features">
+								<span>Writing sample analysis</span>
+								<span>Recurring error identification</span>
+								<span>Educator-focused insights</span>
+							</div>
+
 							<button
-								className="sp-option-btn-outline"
+								className="sp-option-btn"
 								onClick={() =>
 									navigate(
-										`/error-options/${encodeURIComponent(overview.student.studentId)}`,
+										`/error-options/${encodeURIComponent(
+											overview.student.studentId,
+										)}`,
 									)
 								}
 							>
 								Open Error Pattern Analysis
+								<span>→</span>
 							</button>
+
+							<FileBarChart
+								className="sp-option-watermark"
+								size={180}
+								strokeWidth={1}
+							/>
 						</div>
+
 					</div>
 
+
+					{/* =========================================
+					    BACK
+					    ========================================= */}
+
 					<div className="sp-back-bar">
-						<Link to="/" className="sp-back-btn">
-							<ArrowLeft size={16} /> Back to Class List
+						<Link
+							to="/"
+							className="sp-back-btn"
+						>
+							<ArrowLeft size={16} />
+							Back to Class List
 						</Link>
 					</div>
-				</main>
-			</div>
-		);
+
+				</div>
+			</main>
+		</div>
+	);
 
 	const progressData = buildProgressChartData();
 	const trendGrid = buildTrendGrid();
@@ -341,21 +587,33 @@ export default function StudentProgress() {
 
 	return (
 		<div className="sp-page">
+			<TeacherSidebar />
+
 			<main className="sp-main">
-				<header className="sp-topbar">
-					<h2>DAS Assessment Portal</h2>
-					<span className="sp-topbar-sub">Student Progress</span>
-				</header>
+				<TeacherTopbar />
 
 				<div className="sp-profile-strip">
-					<div className="sp-avatar-md">
-						{getInitials(dashboard?.student?.studentId)}
+
+					<div className="sp-student-icon sp-student-icon-small">
+						<UserRound size={24} />
 					</div>
-					<div>
-						<h2>{dashboard?.student?.studentId}</h2>
+
+					<div className="sp-dashboard-student">
+						<span className="sp-profile-eyebrow">
+							PROGRESS MONITORING
+						</span>
+
+						<h2>
+							{dashboard?.student?.studentId}
+						</h2>
+
 						<div className="sp-strip-meta">
+
 							<span>
+								<CalendarDays size={14} />
+
 								Last Assessment:{" "}
+
 								{dashboard?.latestAssessment?.assessmentDate
 									? new Date(
 											dashboard.latestAssessment.assessmentDate,
@@ -366,37 +624,67 @@ export default function StudentProgress() {
 										})
 									: "—"}
 							</span>
+
+
 							<span className="sp-band-tag">
-								✦{" "}
+								<GraduationCap size={14} />
+
 								{dashboard?.latestAssessment?.newBand ||
 									dashboard?.currentBandLevel ||
 									"—"}
 							</span>
-							<span>Teacher: {dashboard?.student?.teacherId || "—"}</span>
+
+
+							<span>
+								<UserRound size={14} />
+
+								Teacher:{" "}
+								{dashboard?.student?.teacherId || "—"}
+							</span>
+
 						</div>
 					</div>
+
+
 					<div className="sp-quick-actions">
+
 						<button
 							className="sp-compare-btn"
-							onClick={() => navigate(`/assessment-comparison?studentId=${id}`)}
+							onClick={() =>
+								navigate(
+									`/assessment-comparison?studentId=${id}`,
+								)
+							}
 						>
 							Compare Assessments
 						</button>
+
+
 						<button
 							className="sp-qa-primary"
-							onClick={() => navigate(`/progress-report?studentId=${id}`)}
+							onClick={() =>
+								navigate(
+									`/progress-report?studentId=${id}`,
+								)
+							}
 						>
-							<FileText size={16} /> Generate Report
+							<FileText size={16} />
+							Generate Report
 						</button>
+
+
 						<a
 							href={SHEET_URL}
 							target="_blank"
 							rel="noopener noreferrer"
 							className="sp-qa-secondary"
 						>
-							<Sheet size={16} /> Open Google Sheets
+							<Sheet size={16} />
+							Open Google Sheets
 						</a>
+
 					</div>
+
 				</div>
 
 				<div className="sp-row">
@@ -783,8 +1071,15 @@ export default function StudentProgress() {
 				</div>
 
 				<div className="sp-bottom-bar">
-					<button className="sp-back-btn" onClick={() => setView("overview")}>
-						<ArrowLeft size={16} /> Back to Overview
+					<button
+						className="sp-back-btn"
+						onClick={() => {
+							setView("overview");
+							navigate(`/student/${encodeURIComponent(id)}`);
+						}}
+					>
+						<ArrowLeft size={16} />
+						Back to Overview
 					</button>
 				</div>
 			</main>
