@@ -1186,7 +1186,6 @@ select,
 }
 
 /* SIDEBAR ACTIVE ITEM SAME STYLE AS LANDING DASHBOARD */
-
 .ea-page .sidebar nav a.active {
 	background: #f8ecef !important;
 	color: #9f2233 !important;

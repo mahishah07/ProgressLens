@@ -1,4 +1,5 @@
 const Assessment = require("../models/Assessment");
+const mongoose = require("mongoose");
 const { resolveStudent } = require("../services/studentIdentityService");
 
 // GET /api/assessments  (optional ?student=<id>&subject=<subject> filters)
@@ -24,6 +25,9 @@ exports.getAssessments = async (req, res) => {
 // GET /api/assessments/:id
 exports.getAssessmentById = async (req, res) => {
 	try {
+		if (!mongoose.isValidObjectId(req.params.id)) {
+			return res.status(400).json({ message: "Invalid assessment ID" });
+		}
 		const assessment = await Assessment.findById(req.params.id).populate(
 			"student",
 			"name studentId classGroup",
@@ -51,6 +55,9 @@ exports.createAssessment = async (req, res) => {
 // PUT /api/assessments/:id
 exports.updateAssessment = async (req, res) => {
 	try {
+		if (!mongoose.isValidObjectId(req.params.id)) {
+			return res.status(400).json({ message: "Invalid assessment ID" });
+		}
 		const updates = { ...req.body };
 		if (updates.student) {
 			const student = await resolveStudent(updates.student);
@@ -76,6 +83,9 @@ exports.updateAssessment = async (req, res) => {
 // DELETE /api/assessments/:id
 exports.deleteAssessment = async (req, res) => {
 	try {
+		if (!mongoose.isValidObjectId(req.params.id)) {
+			return res.status(400).json({ message: "Invalid assessment ID" });
+		}
 		const assessment = await Assessment.findByIdAndDelete(req.params.id);
 		if (!assessment)
 			return res.status(404).json({ message: "Assessment not found" });

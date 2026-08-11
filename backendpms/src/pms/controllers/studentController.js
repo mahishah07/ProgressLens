@@ -54,7 +54,23 @@ exports.updateStudent = async (req, res) => {
 	try {
 		const existing = await resolveStudent(req.params.id);
 		if (!existing) return res.status(404).json({ message: "Student not found" });
-		const student = await Student.findByIdAndUpdate(existing._id, req.body, {
+		const allowed = [
+			"centreId",
+			"teacherId",
+			"schoolId",
+			"age",
+			"schLevel",
+			"enrollmentDate",
+			"summaryBand",
+			"progress",
+			"parentName",
+			"parentEmail",
+			"parentContact",
+		];
+		const updates = Object.fromEntries(
+			allowed.filter((key) => req.body[key] !== undefined).map((key) => [key, req.body[key]]),
+		);
+		const student = await Student.findByIdAndUpdate(existing._id, updates, {
 			new: true,
 			runValidators: true,
 		});
