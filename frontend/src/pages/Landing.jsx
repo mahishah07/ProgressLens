@@ -9,6 +9,7 @@ import {
 	ExternalLink,
 	UserPlus,
 	UserRound,
+	BriefcaseBusiness,
 } from "lucide-react";
 
 const API = import.meta.env.VITE_PMS_API;
@@ -173,8 +174,10 @@ export default function Landing() {
 
 						<div className="top-right">
 							<div className="topbar-role">
-								<span className="role-dot" />
-								<div>
+								<div className="topbar-role-icon">
+									<BriefcaseBusiness size={20} />
+								</div>
+								<div className="topbar-role-copy">
 									<strong>Educational Professional</strong>
 									<span>DAS Teacher Portal</span>
 								</div>

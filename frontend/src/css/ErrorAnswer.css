@@ -459,6 +459,11 @@
 	min-width: 0;
 }
 
+.ea-page .topbar-brand::before {
+	top: -5px;
+	bottom: -5px;
+}
+
 
 .ea-content {
 	padding: 30px 36px 42px;
@@ -521,6 +526,9 @@ nav
 	color: var(--ea-black);
 
 	font-size: 30px;
+	font-weight: 750;
+	line-height: 1.15;
+	letter-spacing: -0.02em;
 }
 
 
@@ -1200,4 +1208,9 @@ select,
 .ea-page .sidebar nav a.active:hover {
 	background: #f8ecef !important;
 	color: #9f2233 !important;
+}
+
+.ea-page .sidebar nav .eo-nav-subitem.active,
+.ea-page .sidebar nav .eo-nav-subitem.active span {
+	font-weight: 700;
 }

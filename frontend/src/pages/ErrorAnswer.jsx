@@ -1348,14 +1348,14 @@ const visibleHistory = analysedHistory
         </section>
 
 
-        <div className="ea-page-heading">
+        <div className="ea-page-heading analysis-page-heading">
 
           <div>
             <span className="ea-eyebrow">
               REFERENCE-BASED ANALYSIS
             </span>
 
-            <h1 className="page-title">
+            <h1 className="page-title analysis-upload-title">
               Upload Assignment
             </h1>
 
@@ -1368,7 +1368,7 @@ const visibleHistory = analysedHistory
 
           <button
             type="button"
-            className="ea-back-options"
+            className="ea-back-options analysis-back-options"
             onClick={() =>
               navigate(
                 `/error-options/${encodeURIComponent(id)}`
@@ -1383,7 +1383,7 @@ const visibleHistory = analysedHistory
 
 
         {/* PAGE */}
-        <section className="page-content">
+        <section className="analysis-upload-section">
 
           {/* =================================================
               TWO UPLOAD AREAS

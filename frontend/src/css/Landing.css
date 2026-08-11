@@ -173,21 +173,25 @@ body {
 .topbar-role {
 	display: flex;
 	align-items: center;
-	gap: 10px;
+	gap: 12px;
 	padding-right: 15px;
 	border-right: 1px solid var(--das-border);
 }
 
-.role-dot {
-	width: 8px;
-	height: 8px;
-	border-radius: 50%;
-	background: #9f2233 !important;
-	box-shadow:
-		0 0 0 4px rgba(159, 34, 51, 0.07) !important;
+.topbar-role-icon {
+	width: 40px;
+	height: 40px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	border: 1px solid var(--das-red-border);
+	border-radius: 10px;
+	background: var(--das-red-soft);
+	color: var(--das-red);
 }
 
-.topbar-role > div {
+.topbar-role-copy {
 	display: flex;
 	flex-direction: column;
 	gap: 1px;
@@ -679,4 +683,3 @@ body {
 	background: #f8ecef !important;
 	color: #9f2233 !important;
 }
-

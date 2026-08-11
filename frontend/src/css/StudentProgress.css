@@ -794,7 +794,7 @@
 
 
 .sp-page .topbar h2 {
-	color: var(--sp-charcoal) !important;
+	color: #1f2933 !important;
 }
 
 
@@ -1734,6 +1734,8 @@
    ========================================================= */
 .sp-page .topbar-brand::before {
 	background: #9f2233 !important;
+	top: -5px;
+	bottom: -5px;
 }
 
 

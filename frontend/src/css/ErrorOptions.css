@@ -19,6 +19,57 @@
 	--eo-white: #ffffff;
 }
 
+/* Shared upload heading used by both analysis modes */
+h1.analysis-upload-title {
+	font-size: 30px !important;
+	font-weight: 750 !important;
+	line-height: 1.15 !important;
+	letter-spacing: -0.02em !important;
+}
+
+/* Shared typography and spacing for both assignment upload modes. */
+.eo-main-topbar .topbar-brand > div {
+	gap: 2px;
+}
+
+.eo-main-topbar .topbar-brand h2 {
+	font-size: 19px !important;
+	line-height: 1.2;
+}
+
+.eo-main-topbar .topbar-context {
+	font-size: 13px;
+	line-height: 1.2;
+}
+
+.analysis-page-heading.dashboard-section-heading,
+.analysis-page-heading.ea-page-heading {
+	align-items: flex-end;
+	gap: 20px;
+	margin-bottom: 22px;
+}
+
+.analysis-page-heading h1.analysis-upload-title {
+	margin: 0 0 5px;
+}
+
+.analysis-page-heading .page-subtitle {
+	margin: 0;
+	font-size: 15px;
+	line-height: 1.4;
+}
+
+.analysis-back-options.dashboard-back-button,
+.analysis-back-options.ea-back-options {
+	gap: 7px;
+	padding: 10px 14px;
+	border: 1px solid #d8dade;
+	border-radius: 9px;
+	font-size: 13px;
+	font-weight: 600;
+	line-height: normal;
+}
+
 
 /* =========================================================
    PAGE

@@ -269,42 +269,31 @@ export default function StudentProgress() {
 		setStudentSearching(true);
 
 		try {
-			let profiles = [];
+			const pmsResponse = await fetch(
+				`${API}/api/progress/search?studentId=${encodeURIComponent(query)}`,
+			);
+			const pmsData = await pmsResponse.json();
 
-			/* =========================================
-		   ERROR ANALYSER DIRECTORY
-		   ========================================= */
-
-			if (ERROR_API) {
-				const response = await fetch(
-					`${ERROR_API}/api/students?q=${encodeURIComponent(query)}`,
+			if (!pmsResponse.ok) {
+				throw new Error(
+					pmsData.message || "Unable to search the student directory.",
 				);
-
-				const data = await response.json();
-
-				if (response.ok) {
-					profiles = data?.students || data?.data || [];
-				}
 			}
 
-			/* =========================================
-		   PMS FALLBACK
-		   ========================================= */
+			let profiles = Array.isArray(pmsData) ? pmsData : [];
 
-			if (profiles.length === 0) {
-				const response = await fetch(
-					`${API}/api/progress/search?studentId=${encodeURIComponent(query)}`,
-				);
-
-				const data = await response.json();
-
-				if (!response.ok) {
-					throw new Error(
-						data.message || "Unable to search the student directory.",
+			if (profiles.length === 0 && ERROR_API) {
+				try {
+					const response = await fetch(
+						`${ERROR_API}/api/students?q=${encodeURIComponent(query)}`,
 					);
+					const data = await response.json();
+					if (response.ok) {
+						profiles = data?.students || data?.data || [];
+					}
+				} catch (error) {
+					console.warn("Error Analyser directory unavailable:", error);
 				}
-
-				profiles = Array.isArray(data) ? data : [];
 			}
 
 			const normalised = query.toLowerCase();
@@ -331,13 +320,22 @@ export default function StudentProgress() {
 
 			setStudentSearch("");
 
-			navigate(`/student/${encodeURIComponent(profile.studentId)}`);
+			navigate(
+				`/student/${encodeURIComponent(profile.studentId)}?view=dashboard`,
+			);
 		} catch (error) {
 			alert(error.message);
 		} finally {
 			setStudentSearching(false);
 		}
 	};
+
+	useEffect(() => {
+		setOverview(null);
+		setDashboard(null);
+		setSelectedSkills([]);
+		setView("overview");
+	}, [id]);
 
 	const loadDashboard = useCallback(() => {
 		if (dashboard) {

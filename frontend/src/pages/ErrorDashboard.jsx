@@ -1,3 +1,5 @@
+import "./../css/Landing.css";
+import "./../css/ErrorOptions.css";
 import "./../css/ErrorDashboard.css";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
@@ -17,8 +19,6 @@ import {
   CalendarDays,
   FileType2,
   AlertTriangle,
-  CheckCircle2,
-  Clock3,
   ArrowRight,
   UserRound,
   Sheet,
@@ -68,11 +68,12 @@ const writingType = (assessment) => {
   return "Writing Assignment";
 };
 
-const analysisStatus = (assessment) => {
-  if (assessment.reviewStatus === "finalised") return { label: "Finalised", className: "finalised", icon: CheckCircle2 };
-  if (assessment.interventionRecommendation?.status === "completed") return { label: "Analysed", className: "analysed", icon: CheckCircle2 };
-  return { label: "Processing", className: "processing", icon: Clock3 };
-};
+const isAnalysedAssessment = (assessment) => Boolean(
+  assessment.reviewStatus === "finalised" ||
+  assessment.interventionRecommendation?.status === "completed" ||
+  assessment.openAiAnalysedAt ||
+  assessment.writingSample?.status === "analysed"
+);
 
 export default function ErrorDashboard() {
   const navigate = useNavigate();
@@ -312,8 +313,11 @@ const analyzeAssessment = async () => {
     return () => controller.abort();
   }, [id]);
 
-  const visibleHistory = history
+  const analysedHistory = history
+  .filter(isAnalysedAssessment)
   .filter((assessment) => !assessment.answerKey)
+
+  const visibleHistory = analysedHistory
   .filter((assessment) => {
       const query = search.trim().toLowerCase();
       if (!query) return true;
@@ -386,16 +390,16 @@ const analyzeAssessment = async () => {
 
       {/* ================= Main ================= */}
       <main className="main-content">
-        <header className="topbar">
-          <div className="dashboard-topbar-brand">
+        <header className="topbar eo-main-topbar dashboard-shared-topbar">
+          <div className="topbar-brand">
             <div>
               <h2>DAS Assessment Portal</h2>
-              <span>Reference-Based Analysis</span>
+              <span className="topbar-context">Reference-Based Analysis</span>
             </div>
           </div>
 
-          <div className="top-right">
-            <form className="search-box-top" onSubmit={openStudentDashboard}>
+          <div className="eo-topbar-right">
+            <form className="eo-navbar-search" onSubmit={openStudentDashboard}>
               <button type="submit" aria-label="Open student error dashboard" disabled={studentSearching}>
                 <Search size={18} />
               </button>
@@ -407,11 +411,11 @@ const analyzeAssessment = async () => {
               />
             </form>
 
-            <div className="dashboard-teacher-profile">
-              <div className="dashboard-teacher-icon">
+            <div className="eo-teacher-profile">
+              <div className="eo-teacher-icon">
                 <BriefcaseBusiness size={20} />
               </div>
-              <div className="dashboard-teacher-copy">
+              <div className="eo-teacher-copy">
                 <strong>Educational Professional</strong>
                 <span>DAS Teacher Portal</span>
               </div>
@@ -471,17 +475,17 @@ const analyzeAssessment = async () => {
             </div>
           </section>
 
-          <div className="dashboard-section-heading">
+          <div className="dashboard-section-heading analysis-page-heading">
             <div>
               <span className="dashboard-section-eyebrow">FREE-FORM ANALYSIS</span>
-              <h1 className="page-title">Upload Assignment</h1>
+              <h1 className="page-title analysis-upload-title">Upload Assignment</h1>
               <p className="page-subtitle">
                 Upload the student submission for free-form error analysis.
               </p>
             </div>
 
-            <Link to={`/error-options/${encodeURIComponent(id)}`} className="dashboard-back-button">
-              <ArrowLeft size={18} />
+            <Link to={`/error-options/${encodeURIComponent(id)}`} className="dashboard-back-button analysis-back-options">
+              <ArrowLeft size={16} />
               Back to Analysis Options
             </Link>
           </div>
@@ -592,15 +596,15 @@ const analyzeAssessment = async () => {
   </button>
 </div>
           {/* ================= History ================= */}
-          {history.length > 0 && (
+          {analysedHistory.length > 0 && (
             <>
               <div className="history-header">
                 <div>
                   <p className="history-eyebrow">RECENT SUBMISSIONS</p>
                   <h2>Assignment History</h2>
-                  <p className="history-intro">Review assignments, error patterns and analysis status.</p>
+                  <p className="history-intro">Review analysed assignments and their error patterns.</p>
                 </div>
-                <span className="history-count">{history.length} {history.length === 1 ? "record" : "records"}</span>
+                <span className="history-count">{analysedHistory.length} {analysedHistory.length === 1 ? "record" : "records"}</span>
               </div>
 
               <div className="toolbar history-toolbar">
@@ -622,8 +626,6 @@ const analyzeAssessment = async () => {
 
               <div className="history-grid">
                 {visibleHistory.map((assessment) => {
-                  const status = analysisStatus(assessment);
-                  const StatusIcon = status.icon;
                   const errorCount = assessment.summary?.errorCount || assessment.errorCounts?.total || 0;
                   const dominantPattern = assessment.errorType || "Writing analysis";
                   const file = assessment.writingSample || {};
@@ -637,9 +639,6 @@ const analyzeAssessment = async () => {
                           <span className="history-type">{writingType(assessment)}</span>
                           <h3>{assessmentName(assessment)}</h3>
                         </div>
-                        <span className={`history-status ${status.className}`}>
-                          <StatusIcon size={14} /> {status.label}
-                        </span>
                       </div>
 
                       <div className="history-meta-row">
