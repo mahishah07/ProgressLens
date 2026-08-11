@@ -938,21 +938,6 @@ export default function ErrorAnswerAnalysis() {
 		"Student";
 
 
-	const studentName =
-		[
-			report.student
-				?.firstName,
-
-			report.student
-				?.lastName,
-		]
-			.filter(Boolean)
-			.join(" ") ||
-
-		report.student?.name ||
-		"";
-
-
 	const currentBand =
 		overview?.latestNewBand ||
 		overview?.currentBandLevel ||
@@ -1031,23 +1016,23 @@ export default function ErrorAnswerAnalysis() {
 
 						<div className="eo-profile-info">
 
-	<h1>
-		{studentId}
-	</h1>
+              <h1>
+                {studentId}
+              </h1>
 
-	{SHEET_URL && (
-		<a
-			href={SHEET_URL}
-			target="_blank"
-			rel="noopener noreferrer"
-			className="eo-sheets-btn"
-		>
-			<Sheet size={16} />
-			Open Google Sheets
-		</a>
-	)}
+              {SHEET_URL && (
+                <a
+                  href={SHEET_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="eo-sheets-btn"
+                >
+                  <Sheet size={16} />
+                  Open Google Sheets
+                </a>
+              )}
 
-</div>
+            </div>
 
 
 						<div className="eo-profile-meta">

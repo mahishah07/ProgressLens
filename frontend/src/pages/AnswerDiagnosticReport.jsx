@@ -1,51 +1,323 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
 
+import {
+	Link,
+	useNavigate,
+	useParams,
+} from "react-router-dom";
+
+import "../css/Landing.css";
+import "../css/ErrorOptions.css";
 import "../css/DiagnosticReport.css";
 import "../css/AnswerDiagnosticReport.css";
 
 import {
-  LayoutDashboard,
-  TrendingUp,
-  BarChart3,
-  FileText,
-  Bell,
-  Settings,
-  Printer,
-  Download,
-  Share2,
-  User,
-  Sparkles,
-  KeyRound,
-  FileCheck2,
-  CheckCircle2,
-  GitCompareArrows,
+	LayoutDashboard,
+	TrendingUp,
+	BarChart3,
+	FileText,
+	Bell,
+	Settings,
+	Search,
+	Download,
+	UserRound,
+	BriefcaseBusiness,
+	CalendarDays,
+	GraduationCap,
+	Sheet,
+	ArrowLeft,
+	KeyRound,
+	FileCheck2,
+	Sparkles,
+	ChartNoAxesCombined,
+	BrainCircuit,
 } from "lucide-react";
 
 
-const ERROR_API = import.meta.env.VITE_ERROR_API;
-const PMS_API = import.meta.env.VITE_PMS_API;
+const ERROR_API =
+	import.meta.env.VITE_ERROR_API;
+
+const PMS_API =
+	import.meta.env.VITE_PMS_API;
+
+const SHEET_URL =
+	import.meta.env.VITE_GOOGLE_SHEET_URL;
 
 
 /* =========================================================
    DATE FORMATTER
-   SAME AS DIAGNOSTIC REPORT
    ========================================================= */
 
 function formatDate(date) {
-  if (!date) return "—";
+	if (!date) return "—";
 
-  const parsed = new Date(date);
+	const parsed = new Date(date);
 
-  if (Number.isNaN(parsed.getTime())) {
-    return "—";
-  }
+	if (Number.isNaN(parsed.getTime())) {
+		return "—";
+	}
 
-  return parsed.toLocaleDateString("en-SG", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+	return parsed.toLocaleDateString(
+		"en-SG",
+		{
+			day: "2-digit",
+			month: "short",
+			year: "numeric",
+		}
+	);
+}
+
+
+/* =========================================================
+   SHARED DAS SIDEBAR
+   ========================================================= */
+
+function TeacherSidebar({
+	studentId,
+}) {
+	const encodedId =
+		studentId
+			? encodeURIComponent(
+					studentId
+				)
+			: "";
+
+	return (
+		<aside className="sidebar">
+
+			{/* LOGO */}
+
+			<div className="logo-section">
+
+				<div className="logo-circle">
+					DAS
+				</div>
+
+				<div>
+					<h2>
+						DAS Teacher
+					</h2>
+
+					<p>
+						Educational Professional
+					</p>
+				</div>
+
+			</div>
+
+
+			{/* NAVIGATION */}
+
+			<nav>
+
+				<Link to="/">
+					<LayoutDashboard
+						size={20}
+					/>
+
+					<span>
+						Dashboard
+					</span>
+				</Link>
+
+
+				{studentId && (
+					<Link
+						to={`/student/${encodedId}?view=dashboard`}
+					>
+						<TrendingUp
+							size={20}
+						/>
+
+						<span>
+							Progress Monitoring
+						</span>
+					</Link>
+				)}
+
+
+				<div className="eo-nav-section">
+
+					<span className="eo-nav-heading">
+						ERROR ANALYSIS
+					</span>
+
+
+					{studentId && (
+						<>
+
+							<Link
+								to={`/error-answer/${encodedId}`}
+								className="eo-nav-subitem active"
+							>
+								<FileCheck2
+									size={18}
+								/>
+
+								<span>
+									Reference-Based Analysis
+								</span>
+							</Link>
+
+
+							<Link
+								to={`/error-dashboard/${encodedId}`}
+								className="eo-nav-subitem"
+							>
+								<BarChart3
+									size={19}
+								/>
+
+								<span>
+									Free-Form Analysis
+								</span>
+							</Link>
+
+						</>
+					)}
+
+				</div>
+
+
+				<a href="#">
+					<Bell size={20} />
+
+					<span>
+						Notifications
+					</span>
+				</a>
+
+
+				<a href="#">
+					<Settings size={20} />
+
+					<span>
+						Settings
+					</span>
+				</a>
+
+			</nav>
+
+		</aside>
+	);
+}
+
+
+/* =========================================================
+   SHARED DAS NAVBAR
+   ========================================================= */
+
+function TeacherTopbar({
+	studentSearch,
+	setStudentSearch,
+	studentSearching,
+	onStudentSearch,
+}) {
+	return (
+		<header className="topbar eo-main-topbar">
+
+			{/* BRAND */}
+
+			<div className="topbar-brand">
+
+				<div>
+
+					<h2>
+						DAS Assessment Portal
+					</h2>
+
+					<span className="topbar-context">
+						Reference-Based Analysis
+					</span>
+
+				</div>
+
+			</div>
+
+
+			{/* RIGHT SIDE */}
+
+			<div className="eo-topbar-right">
+
+				{/* SEARCH */}
+
+				<form
+					className="eo-navbar-search"
+					onSubmit={
+						onStudentSearch
+					}
+				>
+
+					<button
+						type="submit"
+						aria-label="Search student"
+						disabled={
+							studentSearching
+						}
+					>
+						<Search
+							size={18}
+						/>
+					</button>
+
+
+					<input
+						type="text"
+						value={
+							studentSearch
+						}
+						onChange={(
+							event
+						) =>
+							setStudentSearch(
+								event.target
+									.value
+							)
+						}
+						placeholder={
+							studentSearching
+								? "Searching..."
+								: "Search student by name or ID..."
+						}
+						disabled={
+							studentSearching
+						}
+					/>
+
+				</form>
+
+
+				{/* TEACHER */}
+
+				<div className="eo-teacher-profile">
+
+					<div className="eo-teacher-icon">
+
+						<BriefcaseBusiness
+							size={20}
+						/>
+
+					</div>
+
+
+					<div className="eo-teacher-copy">
+
+						<strong>
+							Educational Professional
+						</strong>
+
+						<span>
+							DAS Teacher Portal
+						</span>
+
+					</div>
+
+				</div>
+
+			</div>
+
+		</header>
+	);
 }
 
 
@@ -54,1206 +326,1453 @@ function formatDate(date) {
    ========================================================= */
 
 export default function AnswerDiagnosticReport() {
-  const { reportId } = useParams();
+	const { reportId } =
+		useParams();
 
-  const [report, setReport] = useState(null);
-  const [student, setStudent] = useState(null);
-
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+	const navigate =
+		useNavigate();
 
 
-  /* =====================================================
-     LOAD REPORT + PMS STUDENT DATA
-     ===================================================== */
+	/* =====================================================
+	   STATE
+	   ===================================================== */
 
-  useEffect(() => {
-    async function loadReport() {
-      try {
-        setLoading(true);
-        setError("");
+	const [report, setReport] =
+		useState(null);
 
-        if (!ERROR_API) {
-          throw new Error(
-            "Error Analyser API is not configured."
-          );
-        }
+	const [student, setStudent] =
+		useState(null);
 
-        // ================================================
-        // 1. GET ERROR ANALYSIS REPORT
-        // ================================================
+	const [loading, setLoading] =
+		useState(true);
 
-        const reportResponse = await fetch(
-          `${ERROR_API}/api/reports/${reportId}`
-        );
-
-        const reportJson = await reportResponse.json();
-
-        if (
-          !reportResponse.ok ||
-          !reportJson.success
-        ) {
-          throw new Error(
-            reportJson.error ||
-              "Unable to load diagnostic report."
-          );
-        }
-
-        const reportData = reportJson.data;
-
-        setReport(reportData);
+	const [error, setError] =
+		useState("");
 
 
-        // ================================================
-        // 2. GET STUDENT ID FROM POPULATED REPORT
-        // ================================================
+	const [
+		studentSearch,
+		setStudentSearch,
+	] = useState("");
 
-        const studentId =
-          reportData?.student?.studentId;
-
-        if (!studentId) {
-          throw new Error(
-            "Student ID is missing from this diagnostic report."
-          );
-        }
+	const [
+		studentSearching,
+		setStudentSearching,
+	] = useState(false);
 
 
-        // ================================================
-        // 3. GET FULL PMS STUDENT PROFILE
-        // ================================================
+	/* =====================================================
+	   LOAD REPORT + PMS STUDENT DATA
 
-        if (!PMS_API) {
-          throw new Error(
-            "PMS API is not configured."
-          );
-        }
+	   EXISTING BACKEND LOGIC
+	   ===================================================== */
 
-        const studentResponse = await fetch(
-          `${PMS_API}/api/students/${encodeURIComponent(
-            studentId
-          )}`
-        );
+	useEffect(() => {
 
-        if (!studentResponse.ok) {
-          const studentJson =
-            await studentResponse
-              .json()
-              .catch(() => ({}));
+		async function loadReport() {
 
-          throw new Error(
-            studentJson.message ||
-              "Unable to load student profile."
-          );
-        }
+			try {
 
-        const studentData =
-          await studentResponse.json();
+				setLoading(true);
 
-        setStudent(studentData);
-
-      } catch (err) {
-        console.error(
-          "Failed to load answer diagnostic report:",
-          err
-        );
-
-        setError(
-          err.message ||
-            "Unable to load diagnostic report."
-        );
-
-      } finally {
-        setLoading(false);
-      }
-    }
+				setError("");
 
 
-    if (reportId) {
-      loadReport();
-    }
+				/* ==========================================
+				   1. ERROR ANALYSIS REPORT
+				   ========================================== */
 
-  }, [reportId]);
-
-
-  /* =====================================================
-     LOADING
-     ===================================================== */
-
-  if (loading) {
-    return (
-      <div className="dr-loading">
-
-        <div className="dr-loading-card">
-
-          <div className="dr-loading-spinner" />
-
-          <h2>
-            Loading Diagnostic Report
-          </h2>
-
-          <p>
-            Retrieving the student's assessment,
-            answer key and analysis...
-          </p>
-
-        </div>
-
-      </div>
-    );
-  }
+				if (!ERROR_API) {
+					throw new Error(
+						"Error Analyser API is not configured."
+					);
+				}
 
 
-  /* =====================================================
-     ERROR
-     ===================================================== */
-
-  if (
-    error ||
-    !report ||
-    !student
-  ) {
-    return (
-      <div className="dr-loading">
-
-        <div className="dr-loading-card">
-
-          <h2>
-            Unable to Load Report
-          </h2>
-
-          <p>
-            {error ||
-              "Diagnostic report could not be found."}
-          </p>
-
-          <Link
-            to="/"
-            className="dr-back-link"
-          >
-            Return to Dashboard
-          </Link>
-
-        </div>
-
-      </div>
-    );
-  }
+				const reportResponse =
+					await fetch(
+						`${ERROR_API}/api/reports/${reportId}`
+					);
 
 
-  /* =====================================================
-     REPORT VALUES
-     ===================================================== */
+				const reportJson =
+					await reportResponse.json();
 
-  const writingSample =
-    report.writingSample || {};
 
-  const answerKey =
-    report.answerKey || {};
+				if (
+					!reportResponse.ok ||
+					!reportJson.success
+				) {
+					throw new Error(
+						reportJson.error ||
+							"Unable to load diagnostic report."
+					);
+				}
 
-  const recommendation =
-    report.interventionRecommendation || {};
 
+				const reportData =
+					reportJson.data;
+
+
+				setReport(
+					reportData
+				);
+
+
+				/* ==========================================
+				   2. STUDENT ID FROM REPORT
+				   ========================================== */
+
+				const studentId =
+					reportData
+						?.student
+						?.studentId;
+
+
+				if (!studentId) {
+					throw new Error(
+						"Student ID is missing from this diagnostic report."
+					);
+				}
+
+
+				/* ==========================================
+				   3. PMS STUDENT PROFILE
+				   ========================================== */
+
+				if (!PMS_API) {
+					throw new Error(
+						"PMS API is not configured."
+					);
+				}
+
+
+				const studentResponse =
+					await fetch(
+						`${PMS_API}/api/students/${encodeURIComponent(
+							studentId
+						)}`
+					);
+
+
+				if (!studentResponse.ok) {
+
+					const studentJson =
+						await studentResponse
+							.json()
+							.catch(
+								() => ({})
+							);
+
+
+					throw new Error(
+						studentJson.message ||
+							"Unable to load student profile."
+					);
+				}
+
+
+				const studentData =
+					await studentResponse.json();
+
+
+				setStudent(
+					studentData
+				);
+
+			} catch (err) {
+
+				console.error(
+					"Failed to load answer diagnostic report:",
+					err
+				);
+
+
+				setError(
+					err.message ||
+						"Unable to load diagnostic report."
+				);
+
+			} finally {
+
+				setLoading(false);
+
+			}
+		}
+
+
+		if (reportId) {
+			loadReport();
+		}
+
+	}, [reportId]);
+
+
+	/* =====================================================
+	   STUDENT SEARCH
+	   SAME BEHAVIOUR AS ERRORANSWER
+	   ===================================================== */
+
+	const openStudentDashboard =
+		async (event) => {
+
+			event.preventDefault();
+
+
+			const query =
+				studentSearch.trim();
+
+
+			if (!query) {
+				return;
+			}
+
+
+			setStudentSearching(
+				true
+			);
+
+
+			try {
+
+				let profiles = [];
+
+
+				/* ==========================================
+				   SEARCH ERROR ANALYSER STUDENTS
+				   ========================================== */
+
+				if (ERROR_API) {
+
+					const response =
+						await fetch(
+							`${ERROR_API}/api/students?q=${encodeURIComponent(
+								query
+							)}`
+						);
+
+
+					const data =
+						await response.json();
+
+
+					if (response.ok) {
+
+						profiles =
+							data?.students ||
+							data?.data ||
+							[];
+
+					}
+				}
+
+
+				/* ==========================================
+				   PMS FALLBACK
+				   ========================================== */
+
+				if (
+					profiles.length ===
+						0 &&
+					PMS_API
+				) {
+
+					const response =
+						await fetch(
+							`${PMS_API}/api/progress/search?studentId=${encodeURIComponent(
+								query
+							)}`
+						);
+
+
+					const data =
+						await response.json();
+
+
+					if (!response.ok) {
+						throw new Error(
+							data.message ||
+								"Unable to search the student directory."
+						);
+					}
+
+
+					profiles =
+						Array.isArray(
+							data
+						)
+							? data
+							: [];
+
+				}
+
+
+				/* ==========================================
+				   BEST MATCH
+				   ========================================== */
+
+				const normalised =
+					query.toLowerCase();
+
+
+				const profile =
+					profiles.find(
+						(item) => {
+
+							const fullName =
+								[
+									item.firstName,
+									item.lastName,
+								]
+									.filter(
+										Boolean
+									)
+									.join(" ")
+									.toLowerCase();
+
+
+							return (
+								item.studentId
+									?.toLowerCase() ===
+									normalised ||
+
+								item.name
+									?.toLowerCase() ===
+									normalised ||
+
+								fullName ===
+									normalised
+							);
+
+						}
+					) ||
+					profiles[0];
+
+
+				if (
+					!profile?.studentId
+				) {
+
+					alert(
+						`No student found for “${query}”.`
+					);
+
+					return;
+				}
+
+
+				setStudentSearch("");
+
+
+				navigate(
+					`/error-options/${encodeURIComponent(
+						profile.studentId
+					)}`
+				);
+
+			} catch (error) {
+
+				alert(
+					error.message
+				);
+
+			} finally {
+
+				setStudentSearching(
+					false
+				);
+
+			}
+		};
+
+
+	/* =====================================================
+	   LOADING
+	   ===================================================== */
+
+	if (loading) {
+
+		return (
+			<div className="dr-loading">
+
+				<div className="dr-loading-card">
+
+					<div className="dr-loading-spinner" />
+
+
+					<h2>
+						Loading Diagnostic Report
+					</h2>
+
+
+					<p>
+						Retrieving the student's
+						assessment and answer key...
+					</p>
+
+				</div>
+
+			</div>
+		);
+	}
+
+
+	/* =====================================================
+	   ERROR
+	   ===================================================== */
+
+	if (
+		error ||
+		!report ||
+		!student
+	) {
+
+		return (
+			<div className="dr-loading">
+
+				<div className="dr-loading-card">
+
+					<h2>
+						Unable to Load Report
+					</h2>
+
+
+					<p>
+						{error ||
+							"Diagnostic report could not be found."}
+					</p>
+
+
+					<Link
+						to="/"
+						className="dr-back-link"
+					>
+						Return to Dashboard
+					</Link>
+
+				</div>
+
+			</div>
+		);
+	}
+
+
+	/* =====================================================
+	   REPORT VALUES
+	   ===================================================== */
+
+	const writingSample =
+		report.writingSample ||
+		{};
+
+
+	const answerKey =
+		report.answerKey ||
+		{};
+
+
+	const recommendation =
+		report.interventionRecommendation ||
+		{};
+
+
+	const assessmentDate =
+		report.analysedAt ||
+		report.createdAt ||
+		writingSample.createdAt;
+
+
+	const studentText =
+		writingSample.cleanedText ||
+		writingSample.handwrittenText ||
+		writingSample.ocrText ||
+		"No student response text available.";
+
+
+	const expectedAnswers =
+		Array.isArray(
+			answerKey.answers
+		)
+			? answerKey.answers
+			: [];
+
+  
   const chartData =
-    report.chartData || [];
+	Array.isArray(report.chartData)
+		? report.chartData
+		: [];
 
-  const errors =
-    report.errors || [];
+	const studentId =
+		student.studentId ||
+		report.student?.studentId ||
+		"";
 
 
-  const totalErrors =
-    report.errorCounts?.total ??
-    report.summary?.errorCount ??
-    errors.length;
+	/* =====================================================
+	   PAGE
+	   ===================================================== */
 
+	return (
+		<div className="eo-page adr-page">
 
-  const assessmentDate =
-    report.analysedAt ||
-    report.createdAt ||
-    writingSample.createdAt;
+			{/* =============================================
+			    SIDEBAR
+			    ============================================= */}
 
+			<TeacherSidebar
+				studentId={
+					studentId
+				}
+			/>
 
-  const lastReview =
-    report.updatedAt ||
-    assessmentDate;
 
+			{/* =============================================
+			    MAIN
+			    ============================================= */}
 
-  /* =====================================================
-     IMPORTANT:
-     Use answerKey.expectedText for reference answer.
+			<main className="eo-main adr-main">
 
-     Do NOT use report.expectedText as the answer key,
-     because report.expectedText can contain analysis/
-     corrected text later in the pipeline.
-     ===================================================== */
+				{/* NAVBAR */}
 
-  const studentText =
-    writingSample.cleanedText ||
-    writingSample.handwrittenText ||
-    writingSample.ocrText ||
-    "No student response text available.";
+				<TeacherTopbar
+					studentSearch={
+						studentSearch
+					}
+					setStudentSearch={
+						setStudentSearch
+					}
+					studentSearching={
+						studentSearching
+					}
+					onStudentSearch={
+						openStudentDashboard
+					}
+				/>
 
 
-  const referenceText =
-    answerKey.expectedText ||
-    "No answer key text available.";
+				<div className="adr-page-content">
 
+					{/* =====================================
+					    STUDENT INFORMATION
+					    SAME STYLE AS OTHER PAGES
+					    ===================================== */}
 
-  const expectedAnswers =
-    Array.isArray(answerKey.answers)
-      ? answerKey.answers
-      : [];
+					<section className="eo-profile-card adr-profile-card">
 
+						<div className="eo-student-icon">
 
-  /* =====================================================
-     PAGE
-     ===================================================== */
+							<UserRound
+								size={29}
+							/>
 
-  return (
-    <div className="dr-page">
+						</div>
 
-      {/* =================================================
-          SIDEBAR
-          ================================================= */}
 
-      <aside className="dr-sidebar">
+						<div className="eo-profile-info">
 
-        <div className="dr-logo-section">
+							<h1>
+								{
+									studentId
+								}
+							</h1>
 
-          <div className="dr-logo-circle">
-            DAS
-          </div>
 
-          <div>
-            <h2>DAS Teacher</h2>
+							{SHEET_URL && (
 
-            <p>
-              Educational Professional
-            </p>
-          </div>
+								<a
+									href={
+										SHEET_URL
+									}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="eo-sheets-btn"
+								>
 
-        </div>
+									<Sheet
+										size={16}
+									/>
 
+									Open Google Sheets
 
-        <nav className="dr-nav">
+								</a>
 
-          <Link to="/">
-            <LayoutDashboard size={20} />
-            <span>Dashboard</span>
-          </Link>
+							)}
 
+						</div>
 
-          <a href="#">
-            <TrendingUp size={20} />
-            <span>Progress Monitoring</span>
-          </a>
 
+						<div className="eo-profile-meta">
 
-          <a href="#">
-            <BarChart3 size={20} />
-            <span>Error Pattern Analysis</span>
-          </a>
+							{/* ASSESSMENT DATE */}
 
+							<div className="eo-meta-item">
 
-          <a className="active">
-            <FileText size={20} />
-            <span>Reports</span>
-          </a>
+								<div className="eo-meta-icon">
 
+									<CalendarDays
+										size={17}
+									/>
 
-          <a href="#">
-            <Bell size={20} />
-            <span>Notifications</span>
-          </a>
+								</div>
 
 
-          <a href="#">
-            <Settings size={20} />
-            <span>Settings</span>
-          </a>
+								<div>
 
-        </nav>
+									<span className="eo-meta-label">
+										Last Assessment
+									</span>
 
+									<span className="eo-meta-value">
+										{formatDate(
+											assessmentDate
+										)}
+									</span>
 
-        <div className="dr-sidebar-profile">
+								</div>
 
-          <div className="dr-sidebar-avatar">
-            MF
-          </div>
+							</div>
 
-          <div>
-            <strong>Teacher</strong>
 
-            <span>
-              Educational Professional
-            </span>
-          </div>
+							{/* BAND */}
 
-        </div>
+							<div className="eo-meta-item">
 
-      </aside>
+								<div className="eo-meta-icon">
 
+									<GraduationCap
+										size={17}
+									/>
 
-      {/* =================================================
-          MAIN
-          ================================================= */}
+								</div>
 
-      <main className="dr-main">
 
-        {/* =================================================
-            TOP BAR
-            ================================================= */}
+								<div>
 
-        <header className="dr-topbar">
+									<span className="eo-meta-label">
+										Band Level
+									</span>
 
-          <h2>
-            DAS Assessment Portal
-          </h2>
+									<span className="eo-meta-value eo-band">
+										{student.summaryBand ||
+											"—"}
+									</span>
 
+								</div>
 
-          <div className="dr-topbar-actions">
+							</div>
 
-            <button
-              className="dr-btn-primary"
-              onClick={() =>
-                window.print()
-              }
-            >
-              <Printer size={15} />
-              Print Report
-            </button>
 
+							{/* CENTRE */}
 
-            <button
-              className="dr-btn-secondary"
-              onClick={() =>
-                window.print()
-              }
-            >
-              <Download size={15} />
-              Download PDF
-            </button>
+							<div className="eo-meta-item">
 
+								<div className="eo-meta-icon">
 
-            <span className="dr-updated">
-              Last updated:{" "}
-              {formatDate(lastReview)}
-            </span>
+									<BriefcaseBusiness
+										size={17}
+									/>
 
+								</div>
 
-            <button
-              className="dr-icon-btn"
-              title="Share report"
-            >
-              <Share2 size={16} />
-            </button>
 
-          </div>
+								<div>
 
-        </header>
+									<span className="eo-meta-label">
+										Centre
+									</span>
 
+									<span className="eo-meta-value">
+										{student.centreId ||
+											"—"}
+									</span>
 
-        {/* =================================================
-            REPORT DOCUMENT
-            ================================================= */}
+								</div>
 
-        <div className="dr-doc-wrapper">
+							</div>
 
-          <div className="dr-doc adr-doc">
+						</div>
 
-            {/* =================================================
-                REPORT HEADER
-                ================================================= */}
+					</section>
 
-            <div className="dr-doc-header">
 
-              <div>
+					{/* =====================================
+					    PAGE HEADER + BUTTONS
+					    ===================================== */}
 
-                <div className="adr-report-type">
-                  <KeyRound size={14} />
-                  ANSWER-KEY ASSESSMENT
-                </div>
+					<div className="adr-page-actions">
 
-                <h1>
-                  Edit & Diagram Diagnostic Report
-                </h1>
+						<div>
 
-                <p className="dr-org">
-                  Dyslexia Association of Singapore (DAS)
-                </p>
+							<span className="adr-page-eyebrow">
+								REFERENCE-BASED REPORT
+							</span>
 
-              </div>
 
+							<h1>
+								Diagnostic Report
+							</h1>
 
-              <div className="dr-report-meta">
 
-                <p className="dr-meta-label">
+							<p>
+								Review the student submission,
+								answer-key breakdown and
+								recommended interventions.
+							</p>
 
-                  REPORT ID:{" "}
+						</div>
 
-                  <strong>
-                    #
-                    {String(report._id)
-                      .slice(-8)
-                      .toUpperCase()}
-                  </strong>
 
-                </p>
+						<div className="adr-action-buttons">
 
+							{/* BACK */}
 
-                <p className="dr-meta-label">
+							<button
+								type="button"
+								className="adr-back-button"
+								onClick={() =>
+									navigate(
+										`/answer-analysis/${reportId}`
+									)
+								}
+							>
 
-                  Assessment Date:{" "}
+								<ArrowLeft
+									size={16}
+								/>
 
-                  <strong>
-                    {formatDate(
-                      assessmentDate
-                    )}
-                  </strong>
+								Back to Analysis
 
-                </p>
+							</button>
 
-              </div>
 
-            </div>
+							{/* PDF */}
 
+							<button
+								type="button"
+								className="adr-download-button"
+								onClick={() =>
+									window.print()
+								}
+							>
 
-            <hr className="dr-divider" />
+								<Download
+									size={16}
+								/>
 
+								Download PDF
 
-            {/* =================================================
-                STUDENT PROFILE
-                SAME AS EXISTING REPORT
-                ================================================= */}
+							</button>
 
-            <div className="dr-section-heading">
+						</div>
 
-              <User size={18} />
+					</div>
 
-              <h2 className="dr-section-title">
-                Student Profile
-              </h2>
 
-            </div>
+					{/* =====================================
+					    REPORT DOCUMENT
+					    ===================================== */}
 
+					<div className="dr-doc-wrapper">
 
-            <div className="dr-profile-grid">
+						<div className="dr-doc adr-doc">
 
-              <div className="dr-profile-field">
+							{/* ===============================
+							    REPORT HEADER
+							    =============================== */}
 
-                <p className="dr-field-label">
-                  STUDENT ID
-                </p>
+							<div className="dr-doc-header">
 
-                <p className="dr-field-value">
-                  {student.studentId ||
-                    report.student?.studentId ||
-                    "—"}
-                </p>
+								<div>
 
-              </div>
+									<div className="adr-report-type">
 
+										<KeyRound
+											size={14}
+										/>
 
-              <div className="dr-profile-field">
+										ANSWER-KEY ASSIGNMENT
 
-                <p className="dr-field-label">
-                  CENTRE
-                </p>
+									</div>
 
-                <p className="dr-field-value">
-                  {student.centreId || "—"}
-                </p>
 
-              </div>
+									<h1>
+										Edit & Diagram Diagnostic Report
+									</h1>
 
 
-              <div className="dr-profile-field">
+									<p className="dr-org">
+										Dyslexia Association of Singapore
+										(DAS)
+									</p>
 
-                <p className="dr-field-label">
-                  LEVEL
-                </p>
+								</div>
 
-                <p className="dr-field-value">
-                  {student.schLevel || "—"}
-                </p>
 
-              </div>
+								<div className="dr-report-meta">
 
+									<p className="dr-meta-label">
 
-              <div className="dr-profile-field">
+										REPORT ID:{" "}
 
-                <p className="dr-field-label">
-                  BAND LEVEL
-                </p>
+										<strong>
+											#
+											{String(
+												report._id
+											)
+												.slice(
+													-8
+												)
+												.toUpperCase()}
+										</strong>
 
-                <p className="dr-field-value dr-band-value">
-                  {student.summaryBand || "—"}
-                </p>
+									</p>
 
-              </div>
 
+									<p className="dr-meta-label">
 
-              <div className="dr-profile-field">
+										Assessment Date:{" "}
 
-                <p className="dr-field-label">
-                  ASSESSMENT DATE
-                </p>
+										<strong>
+											{formatDate(
+												assessmentDate
+											)}
+										</strong>
 
-                <p className="dr-field-value">
-                  {formatDate(
-                    assessmentDate
-                  )}
-                </p>
+									</p>
 
-              </div>
+								</div>
 
-            </div>
+							</div>
+							{/* ===============================
+							    STUDENT SUBMISSION
+							    =============================== */}
 
+							<div className="dr-section-heading">
 
-            <hr className="dr-divider" />
+								<FileText
+									size={18}
+								/>
 
+								<h2 className="dr-section-title">
+									Student Submission
+								</h2>
 
-            {/* =================================================
-                RESPONSE COMPARISON
-                NEW MAIN FEATURE
-                ================================================= */}
+							</div>
 
-            <div className="dr-section-heading">
 
-              <GitCompareArrows size={18} />
+							<p className="adr-section-description">
+								Extracted text from the
+								submitted student assessment.
+							</p>
 
-              <h2 className="dr-section-title">
-                Student Response vs Answer Key
-              </h2>
 
-            </div>
+							<div className="adr-comparison-grid adr-single-submission">
 
+								<div className="adr-comparison-card adr-student-card">
 
-            <p className="adr-section-description">
-              Comparison between the student's extracted
-              submission and the expected response from the
-              uploaded answer key.
-            </p>
+									<div className="adr-comparison-header">
 
+										<div className="adr-header-title">
 
-            <div className="adr-comparison-grid">
+											<FileText
+												size={17}
+											/>
 
-              {/* STUDENT RESPONSE */}
+											<strong>
+												Student Submission
+											</strong>
 
-              <div className="adr-comparison-card adr-student-card">
+										</div>
 
-                <div className="adr-comparison-header">
 
-                  <div className="adr-header-title">
+										<span>
+											{writingSample.originalName ||
+												"Student response"}
+										</span>
 
-                    <FileText size={17} />
+									</div>
 
-                    <strong>
-                      Student Submission
-                    </strong>
 
-                  </div>
+									<div className="adr-comparison-text">
 
+										{
+											studentText
+										}
 
-                  <span>
-                    {writingSample.originalName ||
-                      "Student response"}
-                  </span>
+									</div>
 
-                </div>
+								</div>
 
+							</div>
 
-                <div className="adr-comparison-text">
-                  {studentText}
-                </div>
 
-              </div>
+							{/* ===============================
+							    ANSWER KEY BREAKDOWN
+							    =============================== */}
 
+							{expectedAnswers.length >
+								0 && (
 
-              {/* ANSWER KEY */}
+								<div className="adr-extracted-section">
 
-              <div className="adr-comparison-card adr-key-card">
+									<div className="adr-extracted-header">
 
-                <div className="adr-comparison-header">
+										<div>
 
-                  <div className="adr-header-title">
+											<span className="adr-small-label">
+												ANSWER KEY BREAKDOWN
+											</span>
 
-                    <KeyRound size={17} />
 
-                    <strong>
-                      Expected Answer
-                    </strong>
+											<h3>
+												Expected Responses
+											</h3>
 
-                  </div>
 
+											<p>
+												Individual responses
+												extracted from the
+												uploaded marking
+												reference.
+											</p>
 
-                  <span>
-                    {answerKey.originalName ||
-                      "Answer key"}
-                  </span>
+										</div>
 
-                </div>
 
+										<span className="adr-answer-count">
 
-                <div className="adr-comparison-text adr-reference-text">
-                  {referenceText}
-                </div>
+											{
+												expectedAnswers.length
+											}{" "}
 
-              </div>
+											{expectedAnswers.length ===
+											1
+												? "response"
+												: "responses"}
 
-            </div>
+										</span>
 
+									</div>
 
-            {/* =================================================
-                EXTRACTED EXPECTED ANSWERS
-                ================================================= */}
 
-            {expectedAnswers.length > 0 && (
-              <div className="adr-extracted-section">
+									<div className="adr-answer-list">
 
-                <div className="adr-extracted-header">
+										{expectedAnswers.map(
+											(
+												answer,
+												index
+											) => (
 
-                  <div>
+												<div
+													className="adr-answer-item"
+													key={
+														index
+													}
+												>
 
-                    <span className="adr-small-label">
-                      ANSWER KEY BREAKDOWN
-                    </span>
+													<div className="adr-answer-number">
+														{index +
+															1}
+													</div>
 
-                    <h3>
-                      Expected Responses
-                    </h3>
 
-                    <p>
-                      Individual answers extracted from
-                      the uploaded marking reference.
-                    </p>
+													<div>
 
-                  </div>
+														<span>
+															EXPECTED RESPONSE
+														</span>
 
 
-                  <span className="adr-answer-count">
+														<p>
+															{
+																answer
+															}
+														</p>
 
-                    {expectedAnswers.length}{" "}
+													</div>
 
-                    {expectedAnswers.length === 1
-                      ? "response"
-                      : "responses"}
+												</div>
 
-                  </span>
+											)
+										)}
 
-                </div>
+									</div>
 
+								</div>
 
-                <div className="adr-answer-list">
+							)}
 
-                  {expectedAnswers.map(
-                    (answer, index) => (
-                      <div
-                        className="adr-answer-item"
-                        key={index}
-                      >
 
-                        <div className="adr-answer-number">
-                          {index + 1}
-                        </div>
+							<hr className="dr-divider" />
 
+              {/* =====================================
+    ANALYSIS BREAKDOWN
+    ===================================== */}
 
-                        <div>
+<div className="adr-analysis-section">
 
-                          <span>
-                            EXPECTED RESPONSE
-                          </span>
+	<div className="adr-analysis-heading">
 
-                          <p>
-                            {answer}
-                          </p>
+		<span className="adr-small-label">
+			ASSESSMENT ANALYSIS
+		</span>
 
-                        </div>
+		<h2>
+			Error Pattern Analysis
+		</h2>
 
-                      </div>
-                    )
-                  )}
+		<p>
+			Summary of detected error categories and
+			the main writing patterns identified in
+			this assessment.
+		</p>
 
-                </div>
+	</div>
 
-              </div>
-            )}
 
+	<div className="adr-analysis-grid">
 
-            <hr className="dr-divider" />
+		{/* =================================
+		    ERROR FREQUENCY CHART
+		    ================================= */}
 
+		<div className="adr-analysis-panel adr-chart-panel">
 
-            {/* =================================================
-                ERROR FREQUENCY ANALYSIS
-                SAME LOGIC AS EXISTING REPORT
-                ================================================= */}
+			<div className="adr-analysis-panel-header">
 
-            <div className="dr-section-heading">
+				<div className="adr-analysis-icon adr-chart-icon">
+					<ChartNoAxesCombined size={19} />
+				</div>
 
-              <BarChart3 size={18} />
+				<div>
+					<span>
+						ERROR DISTRIBUTION
+					</span>
 
-              <h2 className="dr-section-title">
-                Error Frequency Analysis
-              </h2>
+					<h3>
+						Error Frequency Analysis
+					</h3>
+				</div>
 
-            </div>
+			</div>
 
 
-            <div className="dr-error-grid">
+			{chartData.length > 0 ? (
 
-              {/* ERROR BARS */}
+				<div className="adr-report-chart">
 
-              <div className="dr-error-bars">
+					{chartData.map((item, index) => {
 
-                <div className="dr-bars-header">
+						const maxCount = Math.max(
+							1,
+							...chartData.map(
+								(entry) =>
+									entry.count || 0
+							)
+						);
 
-                  <div>
 
-                    <p className="dr-bars-title">
-                      Error Type Distribution
-                    </p>
+						const percentage =
+							((item.count || 0) /
+								maxCount) *
+							100;
 
-                    <p className="dr-bars-subtitle">
-                      Errors detected during analysis
-                      against the supplied reference answer.
-                    </p>
 
-                  </div>
+						return (
+							<div
+								className="adr-chart-row"
+								key={
+									item.key ||
+									item.label ||
+									index
+								}
+							>
 
+								<div className="adr-chart-row-label">
 
-                  <div className="dr-total-errors">
+									<div>
 
-                    <strong>
-                      {totalErrors}
-                    </strong>
+										<span
+											className="adr-chart-dot"
+											style={{
+												background:
+													item.color,
+											}}
+										/>
 
-                    <span>
-                      Total Errors
-                    </span>
+										<span>
+											{item.label}
+										</span>
 
-                  </div>
+									</div>
 
-                </div>
 
+									<strong>
+										{item.count || 0}
+									</strong>
 
-                {chartData.length > 0 ? (
+								</div>
 
-                  chartData.map((item) => (
 
-                    <div
-                      key={item.key}
-                      className="dr-bar-item"
-                    >
+								<div className="adr-chart-track">
 
-                      <div className="dr-bar-label-row">
+									<div
+										className="adr-chart-fill"
+										style={{
+											width: `${percentage}%`,
+											background:
+												item.color,
+										}}
+									/>
 
-                        <span>
-                          {item.label}
-                        </span>
+								</div>
 
-                        <span>
+							</div>
+						);
+					})}
 
-                          {item.count}{" "}
+				</div>
 
-                          <small>
-                            (
-                            {Number(
-                              item.percentage || 0
-                            ).toFixed(1)}
-                            %)
-                          </small>
+			) : (
 
-                        </span>
+				<p className="adr-analysis-empty">
+					No error-frequency data is
+					available for this report.
+				</p>
 
-                      </div>
+			)}
 
+		</div>
 
-                      <div className="dr-bar-bg">
 
-                        <div
-                          className="dr-bar-fill"
-                          style={{
-                            width: `${Math.min(
-                              100,
-                              Number(
-                                item.percentage || 0
-                              )
-                            )}%`,
+		{/* =================================
+		    AI WRITING ANALYSIS
+		    ================================= */}
 
-                            background:
-                              item.color,
-                          }}
-                        />
+		<div className="adr-analysis-panel adr-ai-panel">
 
-                      </div>
+			<div className="adr-analysis-panel-header">
 
-                    </div>
+				<div className="adr-analysis-icon adr-ai-icon">
+					<BrainCircuit size={19} />
+				</div>
 
-                  ))
+				<div>
+					<span>
+						WRITING INSIGHTS
+					</span>
 
-                ) : (
+					<h3>
+						AI Writing Analysis
+					</h3>
+				</div>
 
-                  <p className="dr-empty">
-                    No error frequency data is available
-                    for this report.
-                  </p>
+			</div>
 
-                )}
 
-              </div>
+			<div className="adr-ai-analysis-content">
 
+				<div className="adr-ai-summary-block">
 
-              {/* AI ANALYSIS */}
+					<span className="adr-analysis-mini-label">
+						ASSESSMENT SUMMARY
+					</span>
 
-              <div className="dr-ai-recognition">
+					<p>
+						{recommendation.overview ||
+							"No writing analysis summary is available."}
+					</p>
 
-                <div className="dr-ai-icon">
-                  <Sparkles size={22} />
-                </div>
+				</div>
 
 
-                <h3>
-                  AI Pattern Analysis
-                </h3>
+				{recommendation.dominantPattern && (
 
+					<div className="adr-ai-insight">
 
-                {recommendation.dominantPattern && (
+						<span>
+							Dominant Pattern
+						</span>
 
-                  <div className="dr-dominant-pattern">
+						<strong>
+							{
+								recommendation.dominantPattern
+							}
+						</strong>
 
-                    <span>
-                      Dominant Pattern
-                    </span>
+					</div>
 
-                    <strong>
-                      {
-                        recommendation.dominantPattern
-                      }
-                    </strong>
+				)}
 
-                  </div>
+			</div>
 
-                )}
+		</div>
 
+	</div>
 
-                <p>
-                  {recommendation.overview ||
-                    "No AI analysis is available for this report yet."}
-                </p>
+</div>
 
-              </div>
 
-            </div>
+<hr className="dr-divider" />
 
 
-            <hr className="dr-divider" />
+							{/* ===============================
+							    TARGETED INTERVENTIONS
+							    =============================== */}
 
+							<div className="adr-interventions-card">
 
-            {/* =================================================
-                ANALYSIS OUTPUT
+	<div className="adr-interventions-header">
 
-                Notice this is NOT called Answer Key.
-                report.expectedText may now contain AI output.
-                ================================================= */}
+		<div>
 
-            <div className="dr-section-heading">
+			<span className="adr-interventions-eyebrow">
+				RECOMMENDED SUPPORT
+			</span>
 
-              <Sparkles size={18} />
+			<h2>
+				Targeted Interventions
+			</h2>
 
-              <h2 className="dr-section-title">
-                Analysis Output
-              </h2>
+			<p>
+				Recommended next steps based on the
+				student's response patterns.
+			</p>
 
-            </div>
+		</div>
 
 
-            <div className="dr-samples-grid">
+		<div className="adr-interventions-icon">
 
-              <div className="dr-sample-card">
+			<Sparkles size={20} />
 
-                <div className="dr-sample-header">
+		</div>
 
-                  <strong>
-                    Analysed Student Submission
-                  </strong>
+	</div>
 
-                  <span>
-                    {formatDate(
-                      writingSample.createdAt ||
-                        assessmentDate
-                    )}
-                  </span>
 
-                </div>
+	{recommendation.interventions?.length > 0 ? (
 
+		<div className="adr-interventions-list">
 
-                <div className="dr-sample-text">
-                  {studentText}
-                </div>
+			{recommendation.interventions.map(
+				(item, index) => (
 
-              </div>
+					<div
+						key={`${item.title}-${index}`}
+						className="adr-intervention-card"
+					>
 
+						<div className="adr-intervention-top">
 
-              <div className="dr-sample-card">
+							<div className="adr-intervention-number">
+								{index + 1}
+							</div>
 
-                <div className="dr-sample-header">
 
-                  <strong>
-                    AI-Corrected Transcription
-                  </strong>
+							<div className="adr-intervention-heading">
 
-                  <span>
-                    Analysis Output
-                  </span>
+								<h3>
+									{item.title}
+								</h3>
 
-                </div>
+								{item.frequency && (
 
+									<span className="adr-frequency-pill">
+										{item.frequency}
+									</span>
 
-                <div className="dr-sample-text dr-corrected-text">
+								)}
 
-                  {report.expectedText ||
-                    writingSample.expectedText ||
-                    "No corrected transcription available."}
+							</div>
 
-                </div>
+						</div>
 
-              </div>
 
-            </div>
+						<p className="adr-intervention-rationale">
+							{item.rationale}
+						</p>
 
 
-            <hr className="dr-divider" />
+						{item.activities?.length > 0 && (
 
+							<div className="adr-activities-block">
 
-            {/* =================================================
-                TARGETED INTERVENTIONS
-                SAME AS ORIGINAL
-                ================================================= */}
+								<span className="adr-activities-label">
+									SUGGESTED ACTIVITIES
+								</span>
 
-            <div className="dr-interventions-card">
 
-              <div className="dr-interventions-header">
+								<ul>
 
-                <div>
+									{item.activities.map(
+										(
+											activity,
+											activityIndex
+										) => (
 
-                  <h2 className="dr-interventions-title">
-                    Targeted Interventions
-                  </h2>
+											<li
+												key={
+													activityIndex
+												}
+											>
+												{activity}
+											</li>
 
-                  <p>
-                    Recommendations generated from
-                    the student's answer-key and
-                    error pattern analysis.
-                  </p>
+										)
+									)}
 
-                </div>
+								</ul>
 
-                <Sparkles size={22} />
+							</div>
 
-              </div>
+						)}
 
+					</div>
 
-              {recommendation.interventions?.length >
-              0 ? (
+				)
+			)}
 
-                recommendation.interventions.map(
-                  (item, index) => (
+		</div>
 
-                    <div
-                      key={`${item.title}-${index}`}
-                      className="dr-intervention-item"
-                    >
+	) : (
 
-                      <div className="dr-intervention-num">
-                        {index + 1}
-                      </div>
+		<p className="dr-empty">
+			No intervention recommendations
+			are available yet.
+		</p>
 
+	)}
 
-                      <div className="dr-intervention-content">
+</div>
 
-                        <p className="dr-intervention-title">
-                          {item.title}
-                        </p>
 
+							<hr className="dr-divider" />
 
-                        <p className="dr-intervention-desc">
-                          {item.rationale}
-                        </p>
 
+							{/* ===============================
+							    EDUCATOR SUMMARY
+							    =============================== */}
 
-                        {item.activities?.length > 0 && (
+							<div className="adr-summary-section">
 
-                          <div className="dr-activities">
+								<span className="adr-small-label">
+									EDUCATOR SUMMARY
+								</span>
 
-                            <strong>
-                              Activities:
-                            </strong>
 
-                            <ul>
+								<h2 className="dr-section-title">
+									Assessment Summary
+								</h2>
 
-                              {item.activities.map(
-                                (
-                                  activity,
-                                  activityIndex
-                                ) => (
 
-                                  <li key={activityIndex}>
-                                    {activity}
-                                  </li>
+								<blockquote className="dr-summary">
 
-                                )
-                              )}
+									{recommendation.overview ||
+										"No summary is available for this report."}
 
-                            </ul>
+								</blockquote>
 
-                          </div>
 
-                        )}
+								{recommendation
+									.educatorCaution && (
 
+									<div className="dr-educator-note">
 
-                        {item.frequency && (
+										<strong>
+											Educator Note
+										</strong>
 
-                          <p className="dr-frequency">
 
-                            <strong>
-                              Frequency:
-                            </strong>{" "}
+										<p>
+											{
+												recommendation.educatorCaution
+											}
+										</p>
 
-                            {item.frequency}
+									</div>
 
-                          </p>
+								)}
 
-                        )}
+							</div>
 
-                      </div>
 
-                    </div>
+							<hr className="dr-divider" />
 
-                  )
-                )
 
-              ) : (
+							{/* ===============================
+							    REPORT FOOTER
+							    =============================== */}
 
-                <p className="dr-empty">
-                  No intervention recommendations
-                  are available yet.
-                </p>
+							<div className="dr-report-footer">
 
-              )}
+								<div>
 
-            </div>
+									<p className="dr-footer-title">
+										Edit & Diagram Diagnostic Report
+									</p>
 
 
-            <hr className="dr-divider" />
+									<p className="dr-sig-sub">
+										Generated from the DAS
+										Assessment Engine
+									</p>
 
 
-            {/* =================================================
-                AI SUMMARY
-                ================================================= */}
+									{recommendation.model && (
 
-            <div className="dr-section-heading">
+										<p className="dr-sig-sub">
 
-              <Sparkles size={18} />
+											Analysis model:{" "}
 
-              <h2 className="dr-section-title">
-                AI Analysis Summary
-              </h2>
+											{
+												recommendation.model
+											}
 
-            </div>
+										</p>
 
+									)}
 
-            <blockquote className="dr-summary">
+								</div>
 
-              {recommendation.overview ||
-                "No AI-generated summary is available for this report."}
 
-            </blockquote>
+								<div className="dr-footer-right">
 
+									<p className="dr-sig-sub">
 
-            {recommendation.educatorCaution && (
+										Report generated:{" "}
 
-              <div className="dr-educator-note">
+										{formatDate(
+											report.createdAt
+										)}
 
-                <strong>
-                  Educator Note
-                </strong>
+									</p>
 
-                <p>
-                  {
-                    recommendation.educatorCaution
-                  }
-                </p>
 
-              </div>
+									<p className="dr-sig-sub">
 
-            )}
+										Last analysis:{" "}
 
+										{formatDate(
+											report
+												.openAiAnalysedAt ||
+												report.analysedAt
+										)}
 
-            <hr className="dr-divider" />
+									</p>
 
+								</div>
 
-            {/* =================================================
-                FOOTER
-                ================================================= */}
+							</div>
 
-            <div className="dr-report-footer">
+						</div>
 
-              <div>
+					</div>
 
-                <p className="dr-footer-title">
-                  Edit & Diagram Diagnostic Report
-                </p>
+				</div>
 
-                <p className="dr-sig-sub">
-                  Generated from the DAS Assessment Engine
-                </p>
+			</main>
 
-
-                {recommendation.model && (
-
-                  <p className="dr-sig-sub">
-                    Analysis model:{" "}
-                    {recommendation.model}
-                  </p>
-
-                )}
-
-              </div>
-
-
-              <div className="dr-footer-right">
-
-                <p className="dr-sig-sub">
-
-                  Report generated:{" "}
-
-                  {formatDate(
-                    report.createdAt
-                  )}
-
-                </p>
-
-
-                <p className="dr-sig-sub">
-
-                  Last analysis:{" "}
-
-                  {formatDate(
-                    report.openAiAnalysedAt ||
-                      report.analysedAt
-                  )}
-
-                </p>
-
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </main>
-
-    </div>
-  );
+		</div>
+	);
 }
