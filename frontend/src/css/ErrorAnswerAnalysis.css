@@ -3,6 +3,222 @@
    EXTENDS StudentError.css
    ========================================================= */
 
+:root {
+	--eaa-red: #9f2233;
+	--eaa-red-dark: #7f1d2d;
+	--eaa-red-soft: #f8ecef;
+	--eaa-red-border: #e7c3ca;
+
+	--eaa-black: #1f2933;
+	--eaa-charcoal: #374151;
+
+	--eaa-grey: #6b7280;
+
+	--eaa-border: #e5e7eb;
+	--eaa-bg: #f5f7fa;
+}
+
+
+/* =========================================================
+   PAGE
+   ========================================================= */
+
+.eaa-page {
+	display: flex;
+
+	width: 100%;
+
+	min-height: 100vh;
+
+	background: var(--eaa-bg);
+}
+
+
+.eaa-main {
+	flex: 1;
+
+	min-width: 0;
+
+	display: flex;
+	flex-direction: column;
+}
+
+
+.eaa-content {
+	padding: 30px 36px 42px;
+
+	display: flex;
+	flex-direction: column;
+
+	gap: 24px;
+}
+
+
+/* =========================================================
+   SIDEBAR / TOPBAR
+   ========================================================= */
+
+.eaa-page .logo-circle {
+	background: var(--eaa-red) !important;
+
+	color: white !important;
+}
+
+
+.eaa-page .topbar h2 {
+	color: var(--eaa-black) !important;
+}
+
+
+.eaa-page .topbar-brand::before {
+	background: var(--eaa-red) !important;
+}
+
+
+/* exact same selected look as landing/dashboard */
+
+.eaa-page .sidebar nav a.active {
+	background: #f8ecef !important;
+
+	color: #9f2233 !important;
+
+	font-weight: 700;
+}
+
+
+.eaa-page .sidebar nav a.active svg {
+	color: #9f2233 !important;
+
+	stroke: #9f2233 !important;
+}
+
+
+.eaa-page .sidebar nav a.active:hover {
+	background: #f8ecef !important;
+
+	color: #9f2233 !important;
+}
+
+
+.eaa-page .sidebar nav .eo-nav-subitem {
+	font-weight: 500;
+}
+
+
+/* =========================================================
+   PAGE HEADING
+   ========================================================= */
+
+.eaa-page-heading {
+	display: flex;
+
+	align-items: flex-end;
+	justify-content: space-between;
+
+	gap: 20px;
+}
+
+
+.eaa-page-eyebrow {
+	display: block;
+
+	margin-bottom: 4px;
+
+	color: var(--eaa-red);
+
+	font-size: 11px;
+	font-weight: 800;
+
+	letter-spacing: 0.09em;
+}
+
+
+.eaa-page-heading h1 {
+	margin: 0 0 5px;
+
+	color: var(--eaa-black);
+
+	font-size: 29px;
+}
+
+
+.eaa-page-heading p {
+	margin: 0;
+
+	color: var(--eaa-grey);
+
+	font-size: 14px;
+
+	line-height: 1.55;
+}
+
+
+/* =========================================================
+   ACTION BUTTONS
+   ========================================================= */
+
+.eaa-heading-actions {
+	display: flex;
+
+	align-items: center;
+
+	gap: 9px;
+}
+
+
+.eaa-back-btn,
+.eaa-report-btn {
+	min-height: 40px;
+
+	display: inline-flex;
+
+	align-items: center;
+	justify-content: center;
+
+	gap: 7px;
+
+	padding: 0 14px;
+
+	border-radius: 9px;
+
+	font-size: 13px;
+	font-weight: 600;
+
+	cursor: pointer;
+}
+
+
+.eaa-back-btn {
+	border: 1px solid #d8dade;
+
+	background: white;
+
+	color: #4b5563;
+}
+
+
+.eaa-back-btn:hover {
+	background: #f7f7f7;
+
+	color: var(--eaa-red);
+
+	border-color: var(--eaa-red-border);
+}
+
+
+.eaa-report-btn {
+	border: 1px solid var(--eaa-red);
+
+	background: var(--eaa-red);
+
+	color: white;
+}
+
+
+.eaa-report-btn:hover {
+	background: var(--eaa-red-dark);
+}
+
 
 /* =========================================================
    ANSWER KEY STATUS BANNER
@@ -10,7 +226,9 @@
 
 .eaa-key-banner {
 	display: flex;
+
 	align-items: center;
+
 	gap: 1rem;
 
 	padding: 1.15rem 1.4rem;
@@ -18,17 +236,18 @@
 	background:
 		linear-gradient(
 			135deg,
-			#f5f3ff 0%,
-			#faf8ff 55%,
+			#fffafa 0%,
+			#fdf7f8 55%,
 			#ffffff 100%
 		);
 
-	border: 1px solid #ddd6fe;
+	border: 1px solid var(--eaa-red-border);
+
 	border-radius: 12px;
 
 	box-shadow:
-		0 1px 4px
-		rgba(0, 0, 0, 0.04);
+		0 2px 8px
+		rgba(31, 41, 51, 0.035);
 }
 
 
@@ -37,6 +256,7 @@
 	height: 46px;
 
 	display: flex;
+
 	align-items: center;
 	justify-content: center;
 
@@ -44,13 +264,11 @@
 
 	border-radius: 11px;
 
-	background: #7c3aed;
+	background: var(--eaa-red-soft);
 
-	color: white;
+	border: 1px solid var(--eaa-red-border);
 
-	box-shadow:
-		0 5px 12px
-		rgba(124, 58, 237, 0.16);
+	color: var(--eaa-red);
 }
 
 
@@ -64,12 +282,12 @@
 
 	margin-bottom: 0.2rem;
 
-	font-size: 0.65rem;
+	font-size: 0.68rem;
 	font-weight: 700;
 
 	letter-spacing: 0.09em;
 
-	color: #7c3aed;
+	color: var(--eaa-red);
 }
 
 
@@ -78,33 +296,36 @@
 
 	font-size: 1rem;
 
-	color: #24212d;
+	color: var(--eaa-black);
 }
 
 
 .eaa-key-banner p {
 	margin: 0;
 
-	font-size: 0.82rem;
+	font-size: 0.84rem;
 
-	color: #6c6677;
+	color: var(--eaa-grey);
 }
 
 
 .eaa-key-connected {
 	display: inline-flex;
+
 	align-items: center;
+
 	gap: 0.35rem;
 
 	padding: 0.4rem 0.75rem;
 
 	border-radius: 99px;
 
-	background: #dcfce7;
+	background: #f3f4f6;
 
-	color: #166534;
+	color: #4b5563;
 
 	font-size: 0.75rem;
+
 	font-weight: 600;
 
 	white-space: nowrap;
@@ -129,6 +350,14 @@
 	position: relative;
 
 	overflow: hidden;
+
+	border: 1px solid #e2e4e7;
+
+	border-radius: 12px;
+
+	box-shadow:
+		0 3px 12px
+		rgba(31, 41, 51, 0.04);
 }
 
 
@@ -146,8 +375,8 @@
 	background:
 		linear-gradient(
 			90deg,
-			#2563eb,
-			#60a5fa
+			#343a43,
+			#767d87
 		);
 }
 
@@ -156,8 +385,8 @@
 	background:
 		linear-gradient(
 			90deg,
-			#7c3aed,
-			#a855f7
+			var(--eaa-red),
+			#c65a6d
 		);
 }
 
@@ -168,6 +397,7 @@
 
 .eaa-card-title {
 	display: flex;
+
 	align-items: center;
 
 	gap: 0.45rem;
@@ -175,13 +405,13 @@
 
 
 .eaa-card-title svg {
-	color: #1a3c6e;
+	color: #424850;
 }
 
 
 .eaa-answer-card
-	.eaa-card-title svg {
-	color: #7c3aed;
+.eaa-card-title svg {
+	color: var(--eaa-red);
 }
 
 
@@ -205,20 +435,21 @@
    ========================================================= */
 
 .eaa-student-text {
-	background: #f8fafc;
+	background: #f8f9fa;
 
-	border:
-		1px solid
-		#e7ebf0;
+	border: 1px solid #e7e9ec;
 }
 
 
 .eaa-answer-text {
-	background: #faf8ff;
+	background:
+		linear-gradient(
+			145deg,
+			#ffffff,
+			#fdf8f9
+		);
 
-	border:
-		1px solid
-		#ede9fe;
+	border: 1px solid #eadde0;
 }
 
 
@@ -234,11 +465,21 @@
 
 .eaa-answers-section {
 	padding: 1.5rem;
+
+	border: 1px solid #e6e7ea;
+
+	background:
+		linear-gradient(
+			145deg,
+			#ffffff,
+			#fdfafb
+		);
 }
 
 
 .eaa-section-header {
 	display: flex;
+
 	align-items: flex-end;
 	justify-content: space-between;
 
@@ -255,12 +496,12 @@
 
 	margin-bottom: 0.25rem;
 
-	font-size: 0.65rem;
+	font-size: 0.68rem;
 	font-weight: 700;
 
 	letter-spacing: 0.1em;
 
-	color: #7c3aed;
+	color: var(--eaa-red);
 }
 
 
@@ -268,13 +509,15 @@
 	margin: 0 0 0.25rem;
 
 	font-size: 1.05rem;
+
+	color: var(--eaa-black);
 }
 
 
 .eaa-section-header p {
 	margin: 0;
 
-	font-size: 0.8rem;
+	font-size: 0.82rem;
 
 	color: #777f8d;
 }
@@ -285,15 +528,16 @@
 		0.35rem
 		0.75rem;
 
-	background: #f5f3ff;
+	background: var(--eaa-red-soft);
 
-	border: 1px solid #ddd6fe;
+	border: 1px solid var(--eaa-red-border);
 
 	border-radius: 99px;
 
-	color: #6d28d9;
+	color: var(--eaa-red);
 
 	font-size: 0.75rem;
+
 	font-weight: 600;
 }
 
@@ -339,11 +583,11 @@
 .eaa-answer-item:hover {
 	transform: translateY(-2px);
 
-	border-color: #c4b5fd;
+	border-color: var(--eaa-red-border);
 
 	box-shadow:
 		0 6px 16px
-		rgba(124, 58, 237, 0.07);
+		rgba(159, 34, 51, 0.06);
 }
 
 
@@ -354,16 +598,18 @@
 	flex-shrink: 0;
 
 	display: flex;
+
 	align-items: center;
 	justify-content: center;
 
 	border-radius: 8px;
 
-	background: #ede9fe;
+	background: var(--eaa-red-soft);
 
-	color: #6d28d9;
+	color: var(--eaa-red);
 
 	font-size: 0.78rem;
+
 	font-weight: 700;
 }
 
@@ -379,6 +625,7 @@
 	margin-bottom: 0.25rem;
 
 	font-size: 0.65rem;
+
 	font-weight: 700;
 
 	letter-spacing: 0.05em;
@@ -401,17 +648,264 @@
 
 
 /* =========================================================
+   ANALYSIS CARDS
+   ========================================================= */
+
+.eaa-analysis-card {
+	border: 1px solid #e2e4e7;
+
+	border-radius: 12px;
+
+	box-shadow:
+		0 3px 12px
+		rgba(31, 41, 51, 0.04);
+}
+
+
+/* =========================================================
+   SEA CARD OVERRIDES
+   ========================================================= */
+
+.eaa-page .sea-card {
+	background: white;
+
+	padding: 1.5rem;
+}
+
+
+.eaa-page .sea-text-block {
+	background: #fafafa;
+
+	border: 1px solid #eceef0;
+
+	color: #333;
+}
+
+
+/* =========================================================
+   CHART TOGGLE
+   ========================================================= */
+
+.eaa-page .sea-chart-toggle {
+	border-color: #d8dade;
+
+	background: #f6f6f7;
+}
+
+
+.eaa-page .sea-chart-toggle button {
+	color: #5d6675;
+}
+
+
+.eaa-page .sea-chart-toggle button.active {
+	background: var(--eaa-red);
+
+	color: white;
+}
+
+
+/* =========================================================
+   KEEP ANALYSIS COLOURS
+   ========================================================= */
+
+.eaa-page .sea-legend-item,
+.eaa-page .sea-donut-item {
+	color: #555;
+}
+
+
+/* =========================================================
+   AI PATTERN ANALYSIS
+   ========================================================= */
+
+.eaa-ai-card {
+	background:
+		linear-gradient(
+			145deg,
+			#30353c,
+			#252a31
+		);
+
+	color: white;
+
+	padding: 1.6rem;
+
+	border-radius: 12px;
+
+	box-shadow:
+		0 5px 16px
+		rgba(31, 41, 51, 0.09);
+}
+
+
+.eaa-ai-heading span {
+	display: block;
+
+	margin-bottom: 4px;
+
+	color: #ddb1b9;
+
+	font-size: 0.68rem;
+
+	font-weight: 800;
+
+	letter-spacing: 0.08em;
+}
+
+
+.eaa-ai-heading h3 {
+	margin: 0 0 0.8rem;
+
+	font-size: 1rem;
+
+	color: white;
+}
+
+
+.eaa-ai-overview {
+	font-size: 0.9rem;
+
+	line-height: 1.65;
+
+	margin: 0 0 1rem;
+
+	color: #f2f3f4;
+}
+
+
+.eaa-ai-card .sea-interventions {
+	background:
+		rgba(
+			255,
+			255,
+			255,
+			0.065
+		);
+
+	border:
+		1px solid
+		rgba(
+			255,
+			255,
+			255,
+			0.09
+		);
+
+	padding: 1rem;
+
+	border-radius: 8px;
+}
+
+
+.eaa-ai-card
+.sea-interventions-label {
+	color: #ddb1b9;
+
+	opacity: 1;
+}
+
+
+.eaa-intervention {
+	padding: 0.75rem 0;
+
+	border-bottom:
+		1px solid
+		rgba(
+			255,
+			255,
+			255,
+			0.08
+		);
+}
+
+
+.eaa-intervention:last-child {
+	border-bottom: 0;
+}
+
+
+/* =========================================================
+   LOADING
+   ========================================================= */
+
+.eaa-state {
+	min-height: 100vh;
+
+	display: flex;
+
+	flex-direction: column;
+
+	align-items: center;
+	justify-content: center;
+
+	gap: 12px;
+
+	background: #f5f7fa;
+
+	color: var(--eaa-black);
+}
+
+
+.eaa-spinner {
+	width: 34px;
+	height: 34px;
+
+	border: 4px solid #e5e7eb;
+
+	border-top-color: var(--eaa-red);
+
+	border-radius: 50%;
+
+	animation:
+		eaa-spin
+		0.8s
+		linear
+		infinite;
+}
+
+
+@keyframes eaa-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+
+/* =========================================================
    RESPONSIVE
    ========================================================= */
 
+@media (max-width: 1100px) {
+
+	.eaa-profile-card {
+		flex-wrap: wrap;
+	}
+
+
+	.eaa-profile-card
+	.eo-profile-meta {
+		width: 100%;
+
+		max-width: none;
+	}
+
+}
+
+
 @media (max-width: 900px) {
 
-	.eaa-comparison-grid {
+	.eaa-comparison-grid,
+	.eaa-answer-list,
+	.eaa-page .sea-grid {
 		grid-template-columns: 1fr;
 	}
 
-	.eaa-answer-list {
-		grid-template-columns: 1fr;
+
+	.eaa-page-heading {
+		align-items: flex-start;
+
+		flex-direction: column;
 	}
 
 }
@@ -425,9 +919,11 @@
 		flex-wrap: wrap;
 	}
 
+
 	.eaa-key-connected {
 		margin-left: 62px;
 	}
+
 
 	.eaa-section-header {
 		align-items: flex-start;
@@ -435,4 +931,167 @@
 		flex-direction: column;
 	}
 
+}
+
+/* =========================================================
+   AI PATTERN ANALYSIS
+   ========================================================= */
+
+.eaa-ai-card {
+	background: #eceff2;
+
+	color: #1f2933;
+
+	padding: 1.7rem;
+
+	border: 1px solid #d8dde3;
+	border-radius: 14px;
+
+	box-shadow:
+		0 3px 12px
+		rgba(31, 41, 51, 0.05);
+}
+
+
+/* =========================================================
+   HEADING
+   ========================================================= */
+
+.eaa-ai-heading span {
+	display: block;
+
+	margin-bottom: 5px;
+
+	color: #9f2233;
+
+	font-size: 0.7rem;
+	font-weight: 800;
+
+	letter-spacing: 0.09em;
+}
+
+
+.eaa-ai-heading h3 {
+	margin: 0 0 0.75rem;
+
+	color: #1f2933;
+
+	font-size: 1.08rem;
+}
+
+
+/* Main AI summary */
+
+.eaa-ai-overview {
+	margin: 0 0 1.3rem;
+
+	color: #4b5563;
+
+	font-size: 0.92rem;
+
+	line-height: 1.7;
+}
+
+
+/* =========================================================
+   INTERVENTIONS CONTAINER
+   ========================================================= */
+
+.eaa-ai-card .sea-interventions {
+	background: transparent;
+
+	border: none;
+
+	padding: 0;
+
+	border-radius: 0;
+}
+
+
+.eaa-ai-card .sea-interventions-label {
+	margin: 0 0 0.7rem;
+
+	color: #7b303c;
+
+	font-size: 0.7rem;
+	font-weight: 800;
+
+	letter-spacing: 0.08em;
+
+	opacity: 1;
+}
+
+
+/* =========================================================
+   INDIVIDUAL INTERVENTION CARDS
+   ========================================================= */
+
+.eaa-intervention {
+	position: relative;
+
+	margin-bottom: 10px;
+
+	padding: 1rem 1.15rem 1rem 1.3rem;
+
+	background: #ffffff;
+
+	border: 1px solid #dfe3e7;
+	border-left: 4px solid #9f2233;
+
+	border-radius: 9px;
+
+	box-shadow:
+		0 2px 5px
+		rgba(31, 41, 51, 0.035);
+
+	transition:
+		transform 0.18s ease,
+		box-shadow 0.18s ease,
+		border-color 0.18s ease;
+}
+
+
+.eaa-intervention:last-child {
+	margin-bottom: 0;
+
+	border-bottom: 1px solid #dfe3e7;
+}
+
+
+/* Small hover — keeps dashboard feeling interactive */
+
+.eaa-intervention:hover {
+	transform: translateY(-1px);
+
+	border-color: #d2d6dc;
+	border-left-color: #7f1d2d;
+
+	box-shadow:
+		0 4px 10px
+		rgba(31, 41, 51, 0.06);
+}
+
+
+/* =========================================================
+   INTERVENTION TEXT
+   ========================================================= */
+
+.eaa-intervention p {
+	margin: 0.3rem 0;
+
+	color: #59616c;
+
+	font-size: 0.87rem;
+
+	line-height: 1.6;
+}
+
+
+/* Intervention title */
+
+.eaa-intervention p strong {
+	color: #222831;
+
+	font-size: 0.92rem;
+	font-weight: 700;
 }
