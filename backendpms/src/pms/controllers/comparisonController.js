@@ -1,10 +1,14 @@
 const comparisonService = require("../services/comparisonService");
 
-// UC4: GET /api/comparison/:studentId
+// UC4: GET /api/comparison/:studentId?assessmentIdA=&assessmentIdB=
 exports.compareAssessments = async (req, res) => {
 	try {
+		const { assessmentIdA, assessmentIdB } = req.query;
+
 		const result = await comparisonService.compareAssessments(
 			req.params.studentId,
+			assessmentIdA,
+			assessmentIdB,
 		);
 
 		if (!result) {

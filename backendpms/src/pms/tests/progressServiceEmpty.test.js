@@ -1,21 +1,22 @@
-const Student = require("../models/Student");
 const Assessment = require("../models/Assessment");
 
-jest.mock("../models/Student");
 jest.mock("../models/Assessment");
+jest.mock("../services/studentIdentityService");
 
+const { resolveStudent } = require("../services/studentIdentityService");
 const progressService = require("../services/progressService");
 
-describe("UT-20 — ProgressService empty state", () => {
+describe("UT-PMS-07 — buildDashboard empty state", () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 	});
 
 	test("should return assessment_pending when student has no assessments", async () => {
-		Student.findOne.mockResolvedValue({
+		resolveStudent.mockResolvedValue({
 			_id: "mockid123",
 			studentId: "Student 0001",
 			summaryBand: "A1",
+			schLevel: "Primary",
 			progress: "Same level",
 			teacherId: "Teacher 001",
 		});
@@ -31,7 +32,7 @@ describe("UT-20 — ProgressService empty state", () => {
 	});
 
 	test("should return null when student does not exist", async () => {
-		Student.findOne.mockResolvedValue(null);
+		resolveStudent.mockResolvedValue(null);
 
 		const result = await progressService.buildDashboard("nonexistentid");
 

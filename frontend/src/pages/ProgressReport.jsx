@@ -38,6 +38,25 @@ ChartJS.register(
 );
 
 const API = import.meta.env.VITE_PMS_API;
+const COMPONENT_LABELS = {
+	pictureNaming: "Picture Naming",
+	pictureDescription: "Picture Description",
+	paIdentification: "PA Identification",
+	phonics: "Phonics",
+	wra: "Word Reading Accuracy",
+	fluency: "Fluency",
+	wordSpelling: "Word Spelling",
+	letterFormation: "Letter Formation",
+	editDiagram1: "Edit and Diagram 1",
+	editDiagram2: "Edit and Diagram 2",
+	editDiagram3: "Edit and Diagram 3",
+	narrative: "Narrative Writing",
+	exposition: "Exposition Writing",
+	persuasive: "Persuasive Writing",
+	listeningComp: "Listening Comprehension",
+	readingComp: "Reading Comprehension",
+	writtenVocab: "Written Vocab",
+};
 
 function Sidebar() {
 	return (
@@ -100,7 +119,8 @@ export default function ProgressReport() {
 	const [editing, setEditing] = useState(false);
 	const [editedComments, setEditedComments] = useState("");
 	const [reportId] = useState(
-		() => `DAS-${new Date().getFullYear()}-PR-${Math.floor(Math.random() * 9000) + 1000}`,
+		() =>
+			`DAS-${new Date().getFullYear()}-PR-${Math.floor(Math.random() * 9000) + 1000}`,
 	);
 
 	useEffect(() => {
@@ -206,7 +226,7 @@ export default function ProgressReport() {
 			datasets: [
 				{
 					label: "Score",
-					data: dashboard.progressOverTime.map((p) => p.averageScore || 0),
+					data: dashboard.progressOverTime.map((p) => p.weightedScore ?? null),
 					borderColor: "#1a3c6e",
 					backgroundColor: "rgba(26,60,110,0.08)",
 					tension: 0.4,
@@ -218,17 +238,17 @@ export default function ProgressReport() {
 	};
 
 	const buildRadarData = () => {
-		if (!dashboard?.latestAssessment?.skillScores) return null;
-		const scores = dashboard.latestAssessment.skillScores;
-		const entries = Object.entries(scores)
-			.filter(([, v]) => v !== null)
-			.slice(0, 6);
+		if (!dashboard?.bandScore?.componentResults) return null;
+		const entries = dashboard.bandScore.componentResults.filter(
+			(c) => !c.skipped && c.score !== null && c.score !== undefined,
+		);
+		if (entries.length === 0) return null;
 		return {
-			labels: entries.map(([k]) => k.replace(/([A-Z])/g, " $1").trim()),
+			labels: entries.map((c) => c.name.replace(/([A-Z])/g, " $1").trim()),
 			datasets: [
 				{
-					label: "Proficiency",
-					data: entries.map(([, v]) => v),
+					label: "Score",
+					data: entries.map((c) => c.score),
 					borderColor: "#7c3aed",
 					backgroundColor: "rgba(124,58,237,0.2)",
 				},
@@ -259,7 +279,7 @@ export default function ProgressReport() {
 		);
 
 	const lineData = buildLineData();
-	const radarData = buildRadarData();
+	// const radarData = buildRadarData();
 
 	return (
 		<div className="pr-page">
@@ -342,12 +362,12 @@ export default function ProgressReport() {
 								<div className="pr-overall-progress">
 									<span className="pr-op-label">OVERALL PROGRESS</span>
 									<span className="pr-op-score">
-										{dashboard?.latestAssessment?.averageScore != null
-											? `${Math.round(dashboard.latestAssessment.averageScore)}%`
+										{dashboard?.bandScore?.totalScore != null
+											? `${dashboard.bandScore.totalScore}%`
 											: "—"}
 									</span>
 									<span className="pr-op-tag">
-										↑ {dashboard?.student?.progress || "In Progress"}
+										{dashboard?.bandScore?.passed ? "✓ Passed" : "In Progress"}
 									</span>
 								</div>
 							</div>
@@ -370,15 +390,48 @@ export default function ProgressReport() {
 									)}
 								</div>
 								<div className="pr-chart-block">
-									<h3>◎ Skill Proficiency Profile</h3>
-									{radarData ? (
-										<Radar
-											data={radarData}
-											options={{
-												responsive: true,
-												scales: { r: { min: 0, max: 100 } },
-											}}
-										/>
+									<h3>◎ Component Breakdown</h3>
+									{dashboard?.bandScore?.componentResults ? (
+										<table className="pr-comp-table">
+											<thead>
+												<tr>
+													<th>Component</th>
+													<th>Score</th>
+													<th>Pass Mark</th>
+													<th>Weight</th>
+													<th>Result</th>
+												</tr>
+											</thead>
+											<tbody>
+												{dashboard.bandScore.componentResults
+													.filter((c) => !c.skipped)
+													.map((c, i) => (
+														<tr key={i}>
+															<td className="pr-comp-name">
+																{COMPONENT_LABELS[c.name] || c.name}
+															</td>
+															<td>
+																{c.score !== null && c.score !== undefined
+																	? c.score
+																	: "—"}
+															</td>
+															<td>
+																{c.passMark !== null && c.passMark !== undefined
+																	? c.passMark
+																	: "—"}
+															</td>
+															<td>{parseFloat(c.weight).toFixed(2)}%</td>
+															<td
+																className={
+																	c.passed ? "pr-comp-pass" : "pr-comp-fail"
+																}
+															>
+																{c.passed ? "Pass" : "Fail"}
+															</td>
+														</tr>
+													))}
+											</tbody>
+										</table>
 									) : (
 										<p className="state-msg">No data available</p>
 									)}
