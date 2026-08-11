@@ -57,7 +57,18 @@ exports.buildDashboard = async (studentId) => {
 	});
 
 	if (assessments.length === 0) {
-		return { status: "assessment_pending", student };
+		return {
+			status: "assessment_pending",
+			student: {
+				_id: student._id,
+				studentId: student.studentId,
+				centreId: student.centreId,
+				teacherId: student.teacherId,
+				schLevel: student.schLevel,
+				summaryBand: student.summaryBand,
+			},
+			currentBandLevel: student.summaryBand,
+		};
 	}
 
 	const latest = assessments[assessments.length - 1];
@@ -83,7 +94,7 @@ exports.buildDashboard = async (studentId) => {
 		};
 	});
 
-	const componentTrend = assessments.map((a, index) => {
+	const componentTrend = assessments.map((a) => {
 		const bandForThisAssessment = a.summaryBand || student.summaryBand;
 		const scored = calculateBandScore(
 			a,
@@ -98,7 +109,7 @@ exports.buildDashboard = async (studentId) => {
 						name: c.name,
 						score: c.score,
 						passMark: c.passMark,
-						result: c.skipped ? null : c.passed ? 1 : 0, // null = not taken, 1 = pass, 0 = fail
+						result: c.skipped ? null : c.passed ? 1 : 0,
 					}))
 				: [],
 		};
@@ -123,7 +134,7 @@ exports.buildDashboard = async (studentId) => {
 			summaryBand: student.summaryBand,
 			progress: student.progress,
 		},
-		currentBandLevel: student.newBand,
+		currentBandLevel: student.summaryBand,
 		bandScore,
 		componentTrend,
 		latestAssessment: {
@@ -142,7 +153,7 @@ exports.buildDashboard = async (studentId) => {
 		progressOverTime,
 		bandProgression,
 		assessmentHistory: assessments
-			.map((a, index) => {
+			.map((a) => {
 				const bandForThisAssessment = a.summaryBand || student.summaryBand;
 				const aScore = calculateBandScore(
 					a,
@@ -177,16 +188,29 @@ exports.getStudentOverview = async (studentId) => {
 		assessmentDate: -1,
 	});
 
-	const bandScore = latest
-		? calculateBandScore(
+	let bandScore = null;
+	if (latest && student) {
+		try {
+			bandScore = calculateBandScore(
 				latest,
 				latest.summaryBand || student.summaryBand,
 				student.schLevel,
-			)
-		: null;
+			);
+		} catch (err) {
+			bandScore = null;
+		}
+	}
 
 	return {
-		student,
+		student: {
+			_id: student._id,
+			studentId: student.studentId,
+			centreId: student.centreId,
+			teacherId: student.teacherId,
+			schLevel: student.schLevel,
+			summaryBand: student.summaryBand,
+			progress: student.progress,
+		},
 		currentBandLevel: student.summaryBand,
 		latestNewBand: latest ? latest.newBand : null,
 		bandScore,

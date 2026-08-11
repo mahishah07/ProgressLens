@@ -167,9 +167,7 @@ export default function Landing() {
 						<div className="topbar-brand">
 							<div>
 								<h2>DAS Assessment Portal</h2>
-								<span className="topbar-context">
-									Teacher Dashboard
-								</span>
+								<span className="topbar-context">Teacher Dashboard</span>
 							</div>
 						</div>
 
@@ -442,6 +440,7 @@ export default function Landing() {
 										type="date"
 										value={form.enrollmentDate}
 										onChange={handleFormChange}
+										max={new Date().toISOString().split("T")[0]}
 									/>
 								</div>
 							</div>
