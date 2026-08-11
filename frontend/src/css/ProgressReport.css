@@ -24,7 +24,7 @@
 .pr-topbar h2 {
 	font-size: 1.1rem;
 	font-weight: 700;
-	color: #1a3c6e;
+	color: #7f1d2d;
 	margin: 0;
 }
 .pr-topbar-sub {
@@ -44,7 +44,7 @@
 }
 .pr-gen-btn {
 	padding: 0.6rem 1.5rem;
-	background: #1a3c6e;
+	background: #7f1d2d;
 	color: white;
 	border: none;
 	border-radius: 8px;
@@ -76,7 +76,7 @@
 	margin-bottom: 1.5rem;
 }
 .pr-das-logo {
-	color: #1a3c6e;
+	color: #7f1d2d;
 	font-weight: 700;
 	font-size: 1rem;
 	margin-bottom: 0.5rem;
@@ -103,7 +103,7 @@
 	margin-bottom: 0.3rem;
 }
 .pr-report-id-value {
-	background: #1a3c6e;
+	background: #7f1d2d;
 	color: white;
 	padding: 0.3rem 0.75rem;
 	border-radius: 6px;
@@ -157,7 +157,7 @@
 	color: #333;
 }
 .pr-overall-progress {
-	background: #1a3c6e;
+	background: #7f1d2d;
 	color: white;
 	padding: 1.25rem 1.75rem;
 	border-radius: 12px;
@@ -214,7 +214,7 @@
 	margin: 0;
 	padding: 1rem 1.25rem;
 	background: #f9f9f9;
-	border-left: 3px solid #1a3c6e;
+	border-left: 3px solid #7f1d2d;
 	border-radius: 4px;
 }
 .pr-textarea {
@@ -233,7 +233,7 @@
 }
 .pr-save-btn {
 	padding: 0.5rem 1rem;
-	background: #1a3c6e;
+	background: #7f1d2d;
 	color: white;
 	border: none;
 	border-radius: 6px;
@@ -331,7 +331,7 @@
 	align-items: center;
 	gap: 0.4rem;
 	padding: 0.6rem 1.25rem;
-	background: #1a3c6e;
+	background: #7f1d2d;
 	color: white;
 	border: none;
 	border-radius: 8px;

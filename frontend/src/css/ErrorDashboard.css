@@ -37,7 +37,7 @@ body{
 .logo-circle{
     width:52px;
     height:52px;
-    background:#2563eb;
+    background:#9f2233;
     color:white;
     border-radius:14px;
     display:flex;
@@ -82,7 +82,7 @@ body{
 
 .sidebar nav .active{
     background:#e8f0ff;
-    color:#2563eb;
+    color:#9f2233;
     font-weight:600;
 }
 
@@ -107,7 +107,7 @@ body{
 }
 
 .topbar h2{
-    color:#165db8;
+    color:#9f2233;
     font-size:20px;
     font-weight:700;
 }
@@ -246,7 +246,7 @@ body{
 }
 
 .upload-area:hover{
-    border-color:#2563eb;
+    border-color:#9f2233;
     background:#f8fbff;
 }
 
@@ -276,7 +276,7 @@ body{
     align-items:center;
     justify-content:center;
     gap:10px;
-    background:#165db8;
+    background:#9f2233;
     color:white;
     border:none;
     border-radius:12px;
@@ -309,7 +309,7 @@ body{
 }
 
 .history-eyebrow{
-    color:#165db8;
+    color:#9f2233;
     font-size:12px;
     font-weight:800;
     letter-spacing:1.5px;
@@ -371,7 +371,7 @@ body{
     left:0;
     width:100%;
     height:5px;
-    background:linear-gradient(90deg,#165db8,#4f8ee8);
+    background:linear-gradient(90deg,#9f2233,#f8ecef);
 }
 
 /* CARD HEADER */
@@ -548,7 +548,7 @@ body{
     align-items:center;
     gap:7px;
     text-decoration:none;
-    background:#165db8;
+    background:#9f2233;
     color:white;
     padding:10px 13px;
     border-radius:10px;
@@ -558,9 +558,9 @@ body{
 }
 
 .analysis-button{
-    border:1px solid #165db8;
+    border:1px solid #9f2233;
     background:white;
-    color:#165db8;
+    color:#9f2233;
 }
 
 .report-button:hover{
@@ -633,7 +633,7 @@ body{
 }
 
 .upload-area.dragging {
-    border-color: #2563eb;
+    border-color: #9f2233;
     background: #eef6ff;
     transform: scale(1.02);
 }
@@ -697,7 +697,7 @@ body{
 }
 
 .preview-file{
-    background:#2563eb;
+    background:#9f2233;
     color:white;
 }
 

@@ -24,7 +24,7 @@
 .ac-topbar h2 {
 	font-size: 1.1rem;
 	font-weight: 700;
-	color: #1a3c6e;
+	color: #7f1d2d;
 	margin: 0;
 }
 .ac-topbar-sub {
@@ -46,7 +46,7 @@
 	margin: 0 0 0.5rem;
 }
 .ac-breadcrumb span {
-	color: #1a3c6e;
+	color: #7f1d2d;
 	font-weight: 500;
 }
 .ac-header h1 {
@@ -82,7 +82,7 @@
 	padding: 0.6rem 1.25rem;
 	border: none;
 	border-radius: 8px;
-	background: #1a3c6e;
+	background: #7f1d2d;
 	color: white;
 	font-size: 0.85rem;
 	font-weight: 600;
@@ -126,7 +126,7 @@
 	color: #dc2626 !important;
 }
 .ac-highlight {
-	color: #1a3c6e;
+	color: #7f1d2d;
 	font-weight: 600;
 }
 
@@ -149,12 +149,12 @@
 	font-weight: 600;
 }
 .ac-cycle-active {
-	background: #1a3c6e;
+	background: #7f1d2d;
 	color: white;
 }
 .ac-latest {
 	margin-left: auto;
-	color: #1a3c6e;
+	color: #7f1d2d;
 	font-weight: 600;
 	font-size: 0.8rem;
 }
@@ -287,7 +287,7 @@
 	padding: 0.6rem 1.25rem;
 	border: none;
 	border-radius: 8px;
-	background: #1a3c6e;
+	background: #7f1d2d;
 	color: white;
 	font-size: 0.9rem;
 	font-weight: 600;

@@ -24,7 +24,7 @@
 .ah-topbar h2 {
 	font-size: 1.1rem;
 	font-weight: 700;
-	color: #1a3c6e;
+	color: #7f1d2d;
 	margin: 0;
 }
 .ah-sep {
@@ -112,7 +112,7 @@
 	padding: 0.2rem 0.6rem;
 	border-radius: 99px;
 	background: #eff6ff;
-	color: #1a3c6e;
+	color: #7f1d2d;
 }
 .ah-band-moved {
 	background: #dcfce7;
@@ -161,7 +161,7 @@
 	padding: 0.25rem 0.75rem;
 	border-radius: 99px;
 	background: #eff6ff;
-	color: #1a3c6e;
+	color: #7f1d2d;
 }
 .ah-band-tag-new {
 	background: #dcfce7;
@@ -244,7 +244,7 @@
 .ah-weight-bar {
 	height: 5px;
 	border-radius: 99px;
-	background: #1a3c6e;
+	background: #7f1d2d;
 }
 .ah-weight-pass {
 	background: #22c55e;
@@ -305,7 +305,7 @@
 	padding: 0.75rem 1rem;
 	background: #f9fafb;
 	border-radius: 8px;
-	border-left: 3px solid #1a3c6e;
+	border-left: 3px solid #7f1d2d;
 }
 .ah-comments-label {
 	font-size: 0.72rem;
