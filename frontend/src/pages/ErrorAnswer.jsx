@@ -1631,7 +1631,7 @@ const visibleHistory = analysedHistory
                   </h2>
 
                   <p className="history-intro">
-                    Review Assignment
+                    Review assignment
                     details, error
                     patterns and analysis
                     status.
