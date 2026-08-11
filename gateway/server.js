@@ -26,7 +26,11 @@ function requestServiceHealth(target, healthPath, timeoutMs = 2000) {
   });
 }
 
-function createStreamingProxy({ target, rewritePath = (path) => path }) {
+function createStreamingProxy({
+  target,
+  rewritePath = (path) => path,
+  timeoutMs = 120000,
+}) {
   const targetUrl = new URL(target);
   const transport = targetUrl.protocol === "https:" ? https : http;
 
@@ -48,7 +52,7 @@ function createStreamingProxy({ target, rewritePath = (path) => path }) {
       method: req.method,
       path,
       headers,
-      timeout: 120000,
+      timeout: timeoutMs,
     }, (proxyResponse) => {
       res.status(proxyResponse.statusCode || 502);
       for (const [name, value] of Object.entries(proxyResponse.headers)) {
@@ -72,6 +76,7 @@ function createStreamingProxy({ target, rewritePath = (path) => path }) {
 function createGatewayApp(options = {}) {
   const progressTarget = options.progressTarget || process.env.PROGRESS_API_URL || "http://127.0.0.1:5001";
   const errorAnalyserTarget = options.errorAnalyserTarget || process.env.ERROR_ANALYSER_API_URL || "http://127.0.0.1:5002";
+  const proxyTimeoutMs = options.proxyTimeoutMs ?? options.timeoutMs ?? 120000;
   const app = express();
 
   app.disable("x-powered-by");
@@ -96,11 +101,26 @@ function createGatewayApp(options = {}) {
     });
   });
 
-  app.use("/api/error-analyser", createStreamingProxy({
+  app.use(
+  "/api/error-analyser",
+  createStreamingProxy({
     target: errorAnalyserTarget,
-    rewritePath: (path) => path.replace(/^\/api\/error-analyser(?=\/|$)/, "/api"),
-  }));
-  app.use("/api", createStreamingProxy({ target: progressTarget }));
+    timeoutMs: proxyTimeoutMs,
+    rewritePath: (path) =>
+      path.replace(
+        /^\/api\/error-analyser(?=\/|$)/,
+        "/api"
+      ),
+  })
+);
+
+app.use(
+  "/api",
+  createStreamingProxy({
+    target: progressTarget,
+    timeoutMs: proxyTimeoutMs,
+  })
+);
 
   app.use((req, res) => res.status(404).json({ message: "Gateway route not found" }));
   app.use((error, req, res, next) => res.status(error.statusCode || 500).json({

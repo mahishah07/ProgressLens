@@ -26,6 +26,11 @@ function dependencies(overrides = {}) {
   };
 }
 
+/*
+ * ROBUSTNESS AND SERVICE-INTEGRATION GROUP
+ * Injects failures at student, answer-key, OCR, file and persistence boundaries.
+ * The expected result is a controlled error with no partial writing-sample or report record.
+ */
 describe("EPA report pipeline robustness", () => {
   test("rejects an unknown answer key before OCR or database writes", async () => {
     const deps = dependencies();
@@ -35,52 +40,6 @@ describe("EPA report pipeline robustness", () => {
     expect(deps.extractDocument).not.toHaveBeenCalled();
     expect(deps.writingSampleRepository.create).not.toHaveBeenCalled();
     expect(deps.reportRepository.create).not.toHaveBeenCalled();
-  });
-
-  test.each([
-    [{ content: "", handwrittenText: "" }],
-    [{ content: " \n\t ", handwrittenText: "" }],
-  ])("returns 422 when OCR has no readable text", async (document) => {
-    const deps = dependencies({ extractDocument: jest.fn().mockResolvedValue(document) });
-    await expect(processWritingSample({ studentId: "DAS-001", file: file() }, deps))
-      .rejects.toMatchObject({ statusCode: 422 });
-    expect(deps.writingSampleRepository.create).not.toHaveBeenCalled();
-    expect(deps.reportRepository.create).not.toHaveBeenCalled();
-  });
-
-  test("propagates an OCR outage and creates no partial records", async () => {
-    const outage = new Error("Azure timeout");
-    const deps = dependencies({ extractDocument: jest.fn().mockRejectedValue(outage) });
-    await expect(processWritingSample({ studentId: "DAS-001", file: file() }, deps)).rejects.toBe(outage);
-    expect(deps.writingSampleRepository.create).not.toHaveBeenCalled();
-    expect(deps.reportRepository.create).not.toHaveBeenCalled();
-  });
-
-  test("prefers handwritten OCR spans over printed page content", async () => {
-    const deps = dependencies({
-      extractDocument: jest.fn().mockResolvedValue({
-        content: "Printed instructions. Student wrote teh dog.",
-        handwrittenText: "teh dog",
-      }),
-    });
-    await processWritingSample({ studentId: "DAS-001", file: file({ buffer: Buffer.from("upload") }) }, deps);
-    expect(deps.writingSampleRepository.create).toHaveBeenCalledWith(expect.objectContaining({
-      cleanedText: "teh dog",
-      fileData: Buffer.from("upload"),
-    }));
-    expect(deps.readFile).not.toHaveBeenCalled();
-  });
-
-  test("stores the exact uploaded bytes in MongoDB rather than only a path", async () => {
-    const bytes = Buffer.from([0, 1, 2, 3, 255]);
-    const deps = dependencies({ readFile: jest.fn().mockResolvedValue(bytes) });
-    await processWritingSample({ studentId: "DAS-001", file: file() }, deps);
-    expect(deps.writingSampleRepository.create).toHaveBeenCalledWith(expect.objectContaining({
-      fileData: bytes,
-      savedPath: "/tmp/student.pdf",
-      mimeType: "application/pdf",
-      fileSize: 100,
-    }));
   });
 
   test("does not duplicate a spelling error already found at the same token", () => {

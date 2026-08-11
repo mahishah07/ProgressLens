@@ -311,7 +311,7 @@ export default function StudentProgress() {
 								className="sp-option-btn-outline"
 								onClick={() =>
 									navigate(
-										`/error-dashboard/${encodeURIComponent(overview.student.studentId)}`,
+										`/error-options/${encodeURIComponent(overview.student.studentId)}`,
 									)
 								}
 							>

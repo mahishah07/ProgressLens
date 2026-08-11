@@ -8,6 +8,7 @@ import {
 	Search,
 	ExternalLink,
 	UserPlus,
+	UserRound,
 } from "lucide-react";
 
 const API = import.meta.env.VITE_PMS_API;
@@ -131,14 +132,6 @@ export default function Landing() {
 		setSaving(false);
 	};
 
-	const getInitials = (studentId) => {
-		if (!studentId) return "ST";
-		const parts = studentId.split(" ");
-		return parts.length > 1
-			? parts[0][0] + parts[1][0]
-			: studentId.slice(0, 2).toUpperCase();
-	};
-
 	return (
 		<>
 			<div className="landing-page">
@@ -171,11 +164,22 @@ export default function Landing() {
 				{/* Main */}
 				<main className="main-content">
 					<header className="topbar">
-						<h2>DAS Assessment Portal</h2>
+						<div className="topbar-brand">
+							<div>
+								<h2>DAS Assessment Portal</h2>
+								<span className="topbar-context">
+									Teacher Dashboard
+								</span>
+							</div>
+						</div>
+
 						<div className="top-right">
-							<div className="teacher">
-								<span className="teacher-avatar">T1</span>
-								<span>Teacher 1</span>
+							<div className="topbar-role">
+								<span className="role-dot" />
+								<div>
+									<strong>Educational Professional</strong>
+									<span>DAS Teacher Portal</span>
+								</div>
 							</div>
 						</div>
 					</header>
@@ -251,9 +255,7 @@ export default function Landing() {
 									{/* Existing students */}
 									{students.map((student) => (
 										<div className="student-card" key={student._id}>
-											<div className="avatar">
-												{getInitials(student.studentId)}
-											</div>
+											<UserRound size={24} />
 
 											<h3>{student.studentId}</h3>
 

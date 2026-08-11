@@ -72,7 +72,7 @@ export default function ErrorDashboard() {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const [student, setStudent] = useState(null);
+  const [, setStudent] = useState(null);
   const [history, setHistory] = useState([]);
   const [search, setSearch] = useState("");
   const [sortOrder, setSortOrder] = useState("latest");
@@ -283,7 +283,8 @@ const analyzeAssessment = async () => {
   }, [id]);
 
   const visibleHistory = history
-    .filter((assessment) => {
+  .filter((assessment) => !assessment.answerKey)
+  .filter((assessment) => {
       const query = search.trim().toLowerCase();
       if (!query) return true;
       return [assessmentName(assessment), writingType(assessment), assessment.errorType]
@@ -511,6 +512,7 @@ const analyzeAssessment = async () => {
                   const errorCount = assessment.summary?.errorCount || assessment.errorCounts?.total || 0;
                   const dominantPattern = assessment.errorType || "Writing analysis";
                   const file = assessment.writingSample || {};
+                  const hasAnswerKey = Boolean(assessment.answerKey);
 
                   return (
                     <article className="history-card" key={assessment._id}>
@@ -548,11 +550,29 @@ const analyzeAssessment = async () => {
 
                       <div className="history-card-footer">
                         <div className="history-card-actions">
-                          <Link to={`/student-errors/${assessment._id}`} className="analysis-button">
-                            <BarChart3 size={17} /> View analysis
+                          <Link
+                            to={
+                              hasAnswerKey
+                                ? `/answer-analysis/${assessment._id}`
+                                : `/student-errors/${assessment._id}`
+                            }
+                            className="analysis-button"
+                          >
+                            <BarChart3 size={17} />
+                            View analysis
                           </Link>
-                          <Link to={`/error-report/${assessment._id}`} className="report-button">
-                            <Eye size={17} /> View report <ArrowRight size={16} />
+
+                          <Link
+                            to={
+                              hasAnswerKey
+                                ? `/answer-report/${assessment._id}`
+                                : `/error-report/${assessment._id}`
+                            }
+                            className="report-button"
+                          >
+                            <Eye size={17} />
+                            View report
+                            <ArrowRight size={16} />
                           </Link>
                         </div>
                       </div>
