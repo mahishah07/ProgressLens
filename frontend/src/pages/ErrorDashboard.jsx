@@ -3,13 +3,14 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import {
   LayoutDashboard,
+  TrendingUp,
   BarChart3,
   FileText,
+  FileCheck2,
   Bell,
   Settings,
   Search,
-  HelpCircle,
-  Grid3X3,
+  BriefcaseBusiness,
   Upload,
   Image,
   Eye,
@@ -317,15 +318,30 @@ const analyzeAssessment = async () => {
             <span>Dashboard</span>
           </Link>
 
-          <Link className="active">
-            <BarChart3 size={20} />
-            <span>Error Pattern Analysis</span>
+          <Link to={`/student/${encodeURIComponent(id)}?view=dashboard`}>
+            <TrendingUp size={20} />
+            <span>Progress Monitoring</span>
           </Link>
 
-          <Link>
-            <FileText size={20} />
-            <span>Reports</span>
-          </Link>
+          <div className="dashboard-nav-section">
+            <span className="dashboard-nav-heading">ERROR ANALYSIS</span>
+
+            <Link
+              to={`/error-answer/${encodeURIComponent(id)}`}
+              className="dashboard-nav-subitem"
+            >
+              <FileCheck2 size={18} />
+              <span>Reference-Based Analysis</span>
+            </Link>
+
+            <Link
+              to={`/error-dashboard/${encodeURIComponent(id)}`}
+              className="dashboard-nav-subitem active"
+            >
+              <BarChart3 size={19} />
+              <span>Free-Form Analysis</span>
+            </Link>
+          </div>
 
           <Link>
             <Bell size={20} />
@@ -342,7 +358,12 @@ const analyzeAssessment = async () => {
       {/* ================= Main ================= */}
       <main className="main-content">
         <header className="topbar">
-          <h2>DAS Assessment Portal</h2>
+          <div className="dashboard-topbar-brand">
+            <div>
+              <h2>DAS Assessment Portal</h2>
+              <span>Reference-Based Analysis</span>
+            </div>
+          </div>
 
           <div className="top-right">
             <form className="search-box-top" onSubmit={openStudentDashboard}>
@@ -357,9 +378,15 @@ const analyzeAssessment = async () => {
               />
             </form>
 
-            <HelpCircle size={22} />
-            <Grid3X3 size={22} />
-            <div className="teacher-avatar"></div>
+            <div className="dashboard-teacher-profile">
+              <div className="dashboard-teacher-icon">
+                <BriefcaseBusiness size={20} />
+              </div>
+              <div className="dashboard-teacher-copy">
+                <strong>Educational Professional</strong>
+                <span>DAS Teacher Portal</span>
+              </div>
+            </div>
           </div>
         </header>
 

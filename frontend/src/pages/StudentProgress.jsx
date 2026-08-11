@@ -103,7 +103,8 @@ function TeacherSidebar({ studentId }) {
 				{studentId && (
 					<Link
 						to={`/student/${encodedId}?view=dashboard`}
-						className="sp-nav-progress"
+						className="sp-nav-progress active"
+						aria-current="page"
 					>
 						<TrendIcon size={20} />
 						<span>Progress Monitoring</span>

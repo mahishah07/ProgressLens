@@ -11,6 +11,8 @@ import {
 	Settings,
 	Search,
 	FileBarChart2,
+	BriefcaseBusiness,
+	FileCheck2,
 } 
 from "lucide-react";
 
@@ -236,18 +238,21 @@ export default function StudentErrorAnalysis() {
 						<LayoutDashboard size={20} />
 						<span>Dashboard</span>
 					</Link>
-					<a href="#">
+					<Link to={`/student/${encodeURIComponent(report.student.studentId)}?view=dashboard`}>
 						<TrendingUp size={20} />
 						<span>Progress Monitoring</span>
-					</a>
-					<a className="active">
-						<BarChart3 size={20} />
-						<span>Error Pattern Analysis</span>
-					</a>
-					<a href="#">
-						<FileText size={20} />
-						<span>Reports</span>
-					</a>
+					</Link>
+					<div className="sea-nav-section">
+						<span className="sea-nav-heading">ERROR ANALYSIS</span>
+						<Link to={`/error-answer/${encodeURIComponent(report.student.studentId)}`} className="sea-nav-subitem">
+							<FileCheck2 size={18} />
+							<span>Reference-Based Analysis</span>
+						</Link>
+						<Link to={`/error-dashboard/${encodeURIComponent(report.student.studentId)}`} className="sea-nav-subitem active">
+							<BarChart3 size={19} />
+							<span>Free-Form Analysis</span>
+						</Link>
+					</div>
 					<a href="#">
 						<Bell size={20} />
 						<span>Notifications</span>
@@ -261,10 +266,16 @@ export default function StudentErrorAnalysis() {
 
 			<main className="sea-main">
 				<header className="sea-topbar">
-					<h2>DAS Assessment Portal</h2>
+					<div className="sea-topbar-brand">
+						<div>
+							<h2>DAS Assessment Portal</h2>
+							<span>Reference-Based Analysis</span>
+						</div>
+					</div>
+					<div className="sea-topbar-right">
 					<form className="sea-topbar-search" onSubmit={openStudentDashboard}>
 						<button type="submit" aria-label="Open student error dashboard" disabled={studentSearching}>
-							<Search size={16} />
+							<Search size={18} />
 						</button>
 						<input
 							type="text"
@@ -274,7 +285,16 @@ export default function StudentErrorAnalysis() {
 							disabled={studentSearching}
 						/>
 					</form>
-					<div className="sea-topbar-avatar">MF</div>
+					<div className="sea-teacher-profile">
+						<div className="sea-teacher-icon">
+							<BriefcaseBusiness size={20} />
+						</div>
+						<div className="sea-teacher-copy">
+							<strong>Educational Professional</strong>
+							<span>DAS Teacher Portal</span>
+						</div>
+					</div>
+					</div>
 				</header>
 
 				<div className="sea-content">
@@ -352,15 +372,18 @@ export default function StudentErrorAnalysis() {
 					</div>
 
 					{/* AI Pattern Analysis */}
-					<div className="sea-ai-card">
-						<h3>✦ AI Pattern Analysis</h3>
-						<p>
+					<div className="sea-ai-card sea-ai-recommendation">
+						<div className="sea-ai-heading">
+							<span>ANALYSIS SUMMARY</span>
+							<h3>AI Pattern Analysis</h3>
+						</div>
+						<p className="sea-ai-overview">
 							{report.interventionRecommendation.overview}
 						</p>
 						<div className="sea-interventions">
 							<p className="sea-interventions-label">SUGGESTED INTERVENTIONS</p>
 							{report.interventionRecommendation.interventions.map((item, i) => (
-								<div key={i}>
+								<div className="sea-intervention-card" key={i}>
 									<p>
 										<strong>{item.title}</strong>
 									</p>

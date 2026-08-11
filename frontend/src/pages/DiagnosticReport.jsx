@@ -13,6 +13,7 @@ import {
 	Share2,
 	User,
 	Sparkles,
+	FileCheck2,
 } from "lucide-react";
 
 const ERROR_API = import.meta.env.VITE_ERROR_API;
@@ -193,20 +194,22 @@ export default function DiagnosticReport() {
 						<span>Dashboard</span>
 					</Link>
 
-					<a href="#">
+					<Link to={`/student/${encodeURIComponent(report.student.studentId)}?view=dashboard`}>
 						<TrendingUp size={20} />
 						<span>Progress Monitoring</span>
-					</a>
+					</Link>
 
-					<a href="#">
-						<BarChart3 size={20} />
-						<span>Error Pattern Analysis</span>
-					</a>
-
-					<a className="active">
-						<FileText size={20} />
-						<span>Reports</span>
-					</a>
+					<div className="dr-nav-section">
+						<span className="dr-nav-heading">ERROR ANALYSIS</span>
+						<Link to={`/error-answer/${encodeURIComponent(report.student.studentId)}`} className="dr-nav-subitem">
+							<FileCheck2 size={18} />
+							<span>Reference-Based Analysis</span>
+						</Link>
+						<Link to={`/error-dashboard/${encodeURIComponent(report.student.studentId)}`} className="dr-nav-subitem active">
+							<BarChart3 size={19} />
+							<span>Free-Form Analysis</span>
+						</Link>
+					</div>
 
 					<a href="#">
 						<Bell size={20} />
@@ -219,14 +222,6 @@ export default function DiagnosticReport() {
 					</a>
 				</nav>
 
-				<div className="dr-sidebar-profile">
-					<div className="dr-sidebar-avatar">MF</div>
-
-					<div>
-						<strong>Teacher</strong>
-						<span>Educational Professional</span>
-					</div>
-				</div>
 			</aside>
 
 			<main className="dr-main">
