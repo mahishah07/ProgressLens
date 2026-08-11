@@ -1,32 +1,39 @@
+const mongoose = require("mongoose");
 const Student = require("../models/Student");
+const { resolveStudent } = require("../services/studentIdentityService");
 
 jest.mock("../models/Student");
 
-const { resolveStudent } = require("../services/studentIdentityService");
+describe("UT-PMS-02 — resolveStudent identifier resolution", () => {
+	beforeEach(() => jest.clearAllMocks());
 
-describe("Student identity service", () => {
-  beforeEach(() => jest.clearAllMocks());
+	test("resolves by studentId string first", async () => {
+		Student.findOne.mockResolvedValue({
+			_id: "mockid",
+			studentId: "Student 0001",
+		});
+		const result = await resolveStudent("Student 0001");
+		expect(Student.findOne).toHaveBeenCalledWith({ studentId: "Student 0001" });
+		expect(result.studentId).toBe("Student 0001");
+	});
 
-  test("resolves the shared business studentId first", async () => {
-    const student = { _id: "64b000000000000000000001", studentId: "DAS-0707" };
-    Student.findOne.mockResolvedValue(student);
+	test("falls back to ObjectId lookup when not found by studentId", async () => {
+		Student.findOne.mockResolvedValue(null);
+		Student.findById.mockResolvedValue({ _id: "6a72f0d56130c6aed484de61" });
+		const validId = "6a72f0d56130c6aed484de61";
+		const result = await resolveStudent(validId);
+		expect(Student.findById).toHaveBeenCalledWith(validId);
+		expect(result._id).toBe(validId);
+	});
 
-    await expect(resolveStudent("DAS-0707")).resolves.toBe(student);
-    expect(Student.findOne).toHaveBeenCalledWith({ studentId: "DAS-0707" });
-    expect(Student.findById).not.toHaveBeenCalled();
-  });
+	test("returns null for completely unknown identifier", async () => {
+		Student.findOne.mockResolvedValue(null);
+		const result = await resolveStudent("not-a-real-id");
+		expect(result).toBeNull();
+	});
 
-  test("keeps existing MongoDB ObjectId URLs compatible", async () => {
-    const student = { _id: "64b000000000000000000001", studentId: "DAS-0707" };
-    Student.findOne.mockResolvedValue(null);
-    Student.findById.mockResolvedValue(student);
-
-    await expect(resolveStudent("64b000000000000000000001")).resolves.toBe(student);
-    expect(Student.findById).toHaveBeenCalledWith("64b000000000000000000001");
-  });
-
-  test("returns null for an unknown identifier", async () => {
-    Student.findOne.mockResolvedValue(null);
-    await expect(resolveStudent("DAS-MISSING")).resolves.toBeNull();
-  });
+	test("returns null for empty identifier", async () => {
+		const result = await resolveStudent("");
+		expect(result).toBeNull();
+	});
 });

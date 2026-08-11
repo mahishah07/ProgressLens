@@ -10,8 +10,8 @@ jest.mock("openai", () => {
 							message: {
 								content: JSON.stringify({
 									summary: "Student shows steady progress",
-									strengths: "Strong phonics and reading fluency",
-									interventionAreas: "Needs support in writing composition",
+									strengths: "Strong word reading and writing skills",
+									interventionAreas: "Needs support in reading comprehension",
 									teachingStrategies:
 										"Use visual aids and structured writing frames",
 									suggestedActivities:
@@ -30,31 +30,28 @@ const mockComparisonData = {
 	totalAssessments: 3,
 	comparisonPeriod: { from: "2022 Sem 1", to: "2023 Sem 2" },
 	bandChange: { direction: "improved", steps: 2 },
-	overallScore: {
-		earliest: 14.83,
-		latest: 28.5,
-		change: 13.67,
-		improved: true,
-	},
-	errorReduction: { before: 18, after: 6, reduction: 12, improved: true },
-	skillChanges: {
-		phonics: { before: 20, after: 45, change: 25, improved: true },
-		wra: { before: 10, after: 30, change: 20, improved: true },
-	},
-	proficiencyChange: {
-		earlier: {
-			strongest: { skill: "phonics", score: 20 },
-			weakest: { skill: "wra", score: 10 },
+	componentComparison: {
+		wra: {
+			before: 6,
+			after: 9,
+			change: 3,
+			beforePassed: false,
+			afterPassed: true,
+			bothTaken: true,
 		},
-		later: {
-			strongest: { skill: "phonics", score: 45 },
-			weakest: { skill: "wra", score: 30 },
+		narrative: {
+			before: null,
+			after: 12,
+			change: null,
+			beforePassed: null,
+			afterPassed: true,
+			bothTaken: false,
 		},
 	},
-	varianceAnalysis: { mean: 21, stdDev: 5.2 },
+	transitions: { newlyPassing: 1, newlyFailing: 0 },
 };
 
-describe("UT-27 — AIService PII exclusion", () => {
+describe("UT-PMS-22 — AIService PII exclusion and data contract", () => {
 	test("should exclude PII fields before sending to OpenAI", async () => {
 		const OpenAI = require("openai");
 		const mockCreate = OpenAI.mock.results[0].value.chat.completions.create;
@@ -68,6 +65,21 @@ describe("UT-27 — AIService PII exclusion", () => {
 		expect(promptContent).not.toMatch(/Teacher \d+/);
 		expect(promptContent).not.toMatch(/Centre [A-Z]/);
 		expect(promptContent).not.toMatch(/School \d+/);
+	});
+
+	test("should send componentComparison and transitions, not old skillChanges shape", async () => {
+		const OpenAI = require("openai");
+		const mockCreate = OpenAI.mock.results[0].value.chat.completions.create;
+
+		await aiService.generateRecommendations(mockComparisonData);
+
+		const callArgs = mockCreate.mock.calls[0][0];
+		const promptContent = callArgs.messages[0].content;
+
+		expect(promptContent).toMatch(/componentComparison/);
+		expect(promptContent).toMatch(/transitions/);
+		expect(promptContent).not.toMatch(/skillChanges/);
+		expect(promptContent).not.toMatch(/overallScore/);
 	});
 
 	test("should return all five recommendation fields", async () => {

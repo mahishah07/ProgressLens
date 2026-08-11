@@ -24,14 +24,16 @@ const SKILL_LABELS = {
 };
 
 const sanitiseForAI = (comparison) => {
-	const skillChanges = {};
-	if (comparison.skillChanges) {
-		for (const [key, val] of Object.entries(comparison.skillChanges)) {
-			skillChanges[SKILL_LABELS[key] || key] = {
+	const componentComparison = {};
+	if (comparison.componentComparison) {
+		for (const [key, val] of Object.entries(comparison.componentComparison)) {
+			componentComparison[SKILL_LABELS[key] || key] = {
 				before: val.before,
 				after: val.after,
 				change: val.change,
-				improved: val.improved,
+				beforePassed: val.beforePassed,
+				afterPassed: val.afterPassed,
+				bothTaken: val.bothTaken,
 			};
 		}
 	}
@@ -40,14 +42,8 @@ const sanitiseForAI = (comparison) => {
 		totalAssessments: comparison.totalAssessments,
 		comparisonPeriod: comparison.comparisonPeriod,
 		bandChange: comparison.bandChange,
-		overallScore: comparison.overallScore,
-		errorReduction: comparison.errorReduction,
-		skillChanges,
-		proficiencyChange: comparison.proficiencyChange,
-		varianceAnalysis: {
-			mean: comparison.varianceAnalysis?.mean,
-			stdDev: comparison.varianceAnalysis?.stdDev,
-		},
+		componentComparison,
+		transitions: comparison.transitions,
 	};
 };
 
