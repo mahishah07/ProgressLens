@@ -1,4 +1,6 @@
 import "./../css/ErrorDashboard.css";
+import "./../css/Landing.css";
+import "./../css/ErrorOptions.css";
 import "./../css/ErrorAnswer.css";
 
 import { Link, useParams, useNavigate } from "react-router-dom";
@@ -12,12 +14,9 @@ import {
 import {
   LayoutDashboard,
   BarChart3,
-  FileText,
   Bell,
   Settings,
   Search,
-  HelpCircle,
-  Grid3X3,
   Upload,
   Image,
   Eye,
@@ -28,18 +27,24 @@ import {
   Clock3,
   ArrowRight,
   FileCheck2,
+  ArrowLeft,
+  Sheet,
+  TrendingUp,
+  BriefcaseBusiness,
+  UserRound,
+  GraduationCap,
+  Trash2,
 } from "lucide-react";
 
 const API = import.meta.env.VITE_ERROR_API;
 const PMS_API = import.meta.env.VITE_PMS_API;
+const SHEET_URL = import.meta.env.VITE_GOOGLE_SHEET_URL;
 
 const studentResults = (payload) =>
   payload?.students || payload?.data || [];
 
 
-/* =========================================================
-   HELPERS COPIED FROM ERROR DASHBOARD
-   ========================================================= */
+/* HELPERS COPIED FROM ERROR DASHBOARD */
 
 const formatAssessmentDate = (value) => {
   if (!value) return "Date unavailable";
@@ -143,70 +148,321 @@ const UploadedFileCard = ({
   onPreview,
   onRemove,
 }) => {
+  const isImage =
+    file.type.startsWith("image/");
+
+  const isPdf =
+    file.type === "application/pdf";
+
   return (
-    <>
-      {file.type.startsWith("image/") ? (
-        <img
-          src={previewURL}
-          className="sa-upload-preview"
-          alt="File preview"
+    <div
+      className="sa-file-card-content"
+      onClick={(event) =>
+        event.stopPropagation()
+      }
+    >
+
+      {/* ACTUAL FILE PREVIEW */}
+
+      <div className="sa-preview-frame">
+
+        {isImage && (
+          <img
+            src={previewURL}
+            className="sa-upload-preview"
+            alt="Uploaded file preview"
+          />
+        )}
+
+
+        {isPdf && (
+          <iframe
+            src={`${previewURL}#toolbar=0&navpanes=0`}
+            className="sa-pdf-live-preview"
+            title={`${file.name} preview`}
+          />
+        )}
+
+      </div>
+
+
+      <div className="sa-file-details">
+
+        <CheckCircle2
+          size={17}
+          className="sa-upload-success-icon"
         />
-      ) : (
-        <div className="sa-pdf-preview">
-          <FileText size={54} />
 
-          <h4>{file.name}</h4>
+        <div>
+          <h4 className="sa-file-name">
+            {file.name}
+          </h4>
 
-          <p>PDF Document</p>
+          <p>
+            {(file.size / 1024 / 1024).toFixed(2)} MB
+          </p>
         </div>
-      )}
 
-      <h3>Upload Complete</h3>
+      </div>
 
-      <h4 className="sa-file-name">
-        {file.name}
-      </h4>
-
-      <p>
-        {(file.size / 1024 / 1024).toFixed(2)} MB
-      </p>
 
       <div className="sa-upload-actions">
+
         <button
           type="button"
           className="sa-preview-file"
-          onClick={(event) => {
-            event.stopPropagation();
-
-            onPreview();
-          }}
+          onClick={onPreview}
         >
-          Preview
+          <Eye size={15} />
+          Open preview
         </button>
+
 
         <button
           type="button"
           className="sa-remove-file"
-          onClick={(event) => {
-            event.stopPropagation();
-
-            onRemove();
-          }}
+          onClick={onRemove}
         >
+          <Trash2 size={15} />
           Remove
         </button>
+
       </div>
-    </>
+
+    </div>
   );
 };
 
-/* =========================================================
-   COMPONENT
-   ========================================================= */
+/* SHARED DAS NAVIGATION; SAME STRUCTURE AS ERROR OPTIONS  */
+function TeacherSidebar({ studentId }) {
+  const encodedId = studentId
+    ? encodeURIComponent(studentId)
+    : "";
+
+  return (
+    <aside className="sidebar">
+
+      <div className="logo-section">
+        <div className="logo-circle">
+          DAS
+        </div>
+
+        <div>
+          <h2>DAS Teacher</h2>
+          <p>Educational Professional</p>
+        </div>
+      </div>
+
+
+      <nav>
+
+        <Link to="/">
+          <LayoutDashboard size={20} />
+          <span>Dashboard</span>
+        </Link>
+
+
+        {studentId && (
+          <Link
+            to={`/student/${encodedId}?view=dashboard`}
+          >
+            <TrendingUp size={20} />
+            <span>Progress Monitoring</span>
+          </Link>
+        )}
+
+
+        <div className="eo-nav-section">
+
+          <span className="eo-nav-heading">
+            ERROR ANALYSIS
+          </span>
+
+
+          {studentId && (
+            <>
+              <Link
+                to={`/error-answer/${encodedId}`}
+                className="eo-nav-subitem active"
+              >
+                <FileCheck2 size={18} />
+
+                <span>
+                  Reference-Based Analysis
+                </span>
+              </Link>
+
+
+              <Link
+                to={`/error-dashboard/${encodedId}`}
+                className="eo-nav-subitem"
+              >
+                <BarChart3 size={19} />
+
+                <span>
+                  Free-Form Analysis
+                </span>
+              </Link>
+            </>
+          )}
+
+        </div>
+
+
+        <a href="#">
+          <Bell size={20} />
+          <span>Notifications</span>
+        </a>
+
+
+        <a href="#">
+          <Settings size={20} />
+          <span>Settings</span>
+        </a>
+
+      </nav>
+
+    </aside>
+  );
+}
+
+
+function TeacherTopbar({
+  studentSearch,
+  setStudentSearch,
+  studentSearching,
+  onStudentSearch,
+}) {
+  return (
+    <header className="topbar eo-main-topbar">
+
+      <div className="topbar-brand">
+
+        <div>
+          <h2>DAS Assessment Portal</h2>
+
+          <span className="topbar-context">
+            Reference-Based Analysis
+          </span>
+        </div>
+
+      </div>
+
+
+      <div className="eo-topbar-right">
+
+        <form
+          className="eo-navbar-search"
+          onSubmit={onStudentSearch}
+        >
+          <button
+            type="submit"
+            aria-label="Search student"
+            disabled={studentSearching}
+          >
+            <Search size={18} />
+          </button>
+
+
+          <input
+            type="text"
+            value={studentSearch}
+            onChange={(event) =>
+              setStudentSearch(
+                event.target.value
+              )
+            }
+            placeholder={
+              studentSearching
+                ? "Searching..."
+                : "Search student by name or ID..."
+            }
+            disabled={studentSearching}
+          />
+        </form>
+
+
+        <div className="eo-teacher-profile">
+
+          <div className="eo-teacher-icon">
+            <BriefcaseBusiness size={20} />
+          </div>
+
+
+          <div className="eo-teacher-copy">
+
+            <strong>
+              Educational Professional
+            </strong>
+
+            <span>
+              DAS Teacher Portal
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </header>
+  );
+}
+
+/* COMPONENT */
 
 export default function ErrorAnswer() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const [overview, setOverview] = useState(null);
+
+  /* STUDENT OVERVIEW; READ ONLY — SAME PMS DATA AS ERROR OPTIONS */
+  useEffect(() => {
+    if (!id || !PMS_API) return;
+
+    const controller = new AbortController();
+
+    const loadOverview = async () => {
+      try {
+        const response = await fetch(
+          `${PMS_API}/api/progress/${encodeURIComponent(
+            id
+          )}/overview`,
+          {
+            signal: controller.signal,
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok && !data.message) {
+          setOverview(data);
+        }
+
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          console.warn(
+            "Unable to load student overview:",
+            error
+          );
+        }
+      }
+    };
+
+    loadOverview();
+
+    return () => controller.abort();
+
+  }, [id]);
+
+  const currentBand =
+    overview?.latestNewBand ||
+    overview?.currentBandLevel ||
+    "—";
+
+const assignedTeacher =
+  overview?.student?.teacherId ||
+  "—";
 
   /* ================= HISTORY / STUDENT ================= */
 
@@ -215,6 +471,19 @@ export default function ErrorAnswer() {
     studentId: id,
     name: id,
   });
+
+  const [historyCategory, setHistoryCategory] =
+    useState("all");
+
+  const isAnalysedAssessment = (assessment) => {
+    return Boolean(
+      assessment.reviewStatus === "finalised" ||
+      assessment.interventionRecommendation?.status ===
+        "completed" ||
+      assessment.openAiAnalysedAt ||
+      assessment.writingSample?.status === "analysed"
+    );
+  };
 
   const [search, setSearch] = useState("");
   const [sortOrder, setSortOrder] =
@@ -865,191 +1134,256 @@ export default function ErrorAnswer() {
      COPIED FROM ERROR DASHBOARD
      ===================================================== */
 
-  const visibleHistory = history
-  .filter((assessment) => Boolean(assessment.answerKey))
+  const analysedHistory =
+  history.filter(isAnalysedAssessment);
+
+
+const visibleHistory = analysedHistory
   .filter((assessment) => {
-      const query =
-        search.trim().toLowerCase();
 
-      if (!query) return true;
+    if (historyCategory === "all") {
+      return true;
+    }
 
-      return [
-        assessmentName(assessment),
-        writingType(assessment),
-        assessment.errorType,
-      ].some((value) =>
-        value
-          .toLowerCase()
-          .includes(query),
+    if (historyCategory === "reference") {
+      return Boolean(
+        assessment.answerKey
       );
-    })
-    .sort((left, right) => {
-      if (
-        sortOrder === "highest-risk"
-      ) {
-        return (
-          (right.summary?.errorCount ||
-            0) -
-          (left.summary?.errorCount ||
-            0)
-        );
-      }
+    }
 
-      const leftDate = new Date(
-        left.createdAt ||
-          left.analysedAt ||
-          0,
-      ).getTime();
+    if (historyCategory === "free-form") {
+      return !assessment.answerKey;
+    }
 
-      const rightDate = new Date(
-        right.createdAt ||
-          right.analysedAt ||
-          0,
-      ).getTime();
+    if (historyCategory === "edit-diagram") {
+      return (
+        writingType(assessment) ===
+        "Edit and diagram"
+      );
+    }
 
-      return sortOrder === "oldest"
-        ? leftDate - rightDate
-        : rightDate - leftDate;
-    });
+    if (historyCategory === "narrative") {
+      return (
+        writingType(assessment) ===
+        "Narrative writing"
+      );
+    }
 
+    if (historyCategory === "expository") {
+      return (
+        writingType(assessment) ===
+        "Expository writing"
+      );
+    }
+
+    if (historyCategory === "persuasive") {
+      return (
+        writingType(assessment) ===
+        "Persuasive writing"
+      );
+    }
+
+    return true;
+  })
+
+  .filter((assessment) => {
+    const query =
+      search.trim().toLowerCase();
+
+    if (!query) return true;
+
+    return [
+      assessmentName(assessment),
+      writingType(assessment),
+      assessment.errorType,
+    ].some((value) =>
+      value
+        .toLowerCase()
+        .includes(query)
+    );
+  })
+
+  .sort((left, right) => {
+
+    if (
+      sortOrder === "highest-risk"
+    ) {
+      return (
+        (right.summary?.errorCount || 0) -
+        (left.summary?.errorCount || 0)
+      );
+    }
+
+    const leftDate = new Date(
+      left.createdAt ||
+      left.analysedAt ||
+      0
+    ).getTime();
+
+    const rightDate = new Date(
+      right.createdAt ||
+      right.analysedAt ||
+      0
+    ).getTime();
+
+    return sortOrder === "oldest"
+      ? leftDate - rightDate
+      : rightDate - leftDate;
+  });
 
   /* =====================================================
      RENDER
      ===================================================== */
 
   return (
-    <div className="landing-page">
+  <div className="eo-page ea-page">
 
-      {/* =================================================
-          SIDEBAR
-          SAME AS ERROR DASHBOARD
-          ================================================= */}
+    <TeacherSidebar studentId={id} />
 
-      <aside className="sidebar">
-        <div className="logo-section">
-          <div className="logo-circle">
-            DAS
+    <main className="eo-main ea-main">
+
+      <TeacherTopbar
+        studentSearch={studentSearch}
+        setStudentSearch={setStudentSearch}
+        studentSearching={studentSearching}
+        onStudentSearch={openStudentDashboard}
+      />
+
+      <section className="page-content ea-content">
+
+        {/* STUDENT PROFILE */}
+        <section className="eo-profile-card ea-profile-card">
+
+          <div className="eo-student-icon">
+            <UserRound size={29} />
           </div>
+
+
+          <div className="eo-profile-info">
+
+            <h1>
+              {overview?.student?.studentId || id}
+            </h1>
+
+
+            {SHEET_URL && (
+              <a
+                href={SHEET_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="eo-sheets-btn"
+              >
+                <Sheet size={16} />
+                Open Google Sheets
+              </a>
+            )}
+
+          </div>
+
+
+          <div className="eo-profile-meta">
+
+            <div className="eo-meta-item">
+
+              <div className="eo-meta-icon">
+                <CalendarDays size={17} />
+              </div>
+
+              <div>
+                <span className="eo-meta-label">
+                  Last Assessment
+                </span>
+
+                <span className="eo-meta-value">
+                  {overview?.lastAssessmentDate
+                    ? formatAssessmentDate(
+                        overview.lastAssessmentDate
+                      )
+                    : "No assessment yet"}
+                </span>
+              </div>
+
+            </div>
+
+
+            <div className="eo-meta-item">
+
+              <div className="eo-meta-icon">
+                <GraduationCap size={17} />
+              </div>
+
+              <div>
+                <span className="eo-meta-label">
+                  Assigned Band
+                </span>
+
+                <span className="eo-meta-value eo-band">
+                  {currentBand}
+                </span>
+              </div>
+
+            </div>
+
+
+            <div className="eo-meta-item">
+
+              <div className="eo-meta-icon">
+                <BriefcaseBusiness size={17} />
+              </div>
+
+              <div>
+                <span className="eo-meta-label">
+                  Assigned Teacher
+                </span>
+
+                <span className="eo-meta-value">
+                  {assignedTeacher}
+                </span>
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        <div className="ea-page-heading">
 
           <div>
-            <h2>DAS Teacher</h2>
+            <span className="ea-eyebrow">
+              REFERENCE-BASED ANALYSIS
+            </span>
 
-            <p>
-              Educational Professional
+            <h1 className="page-title">
+              Upload Assessment
+            </h1>
+
+            <p className="page-subtitle">
+              Upload the student submission and its
+              corresponding answer key.
             </p>
           </div>
+
+
+          <button
+            type="button"
+            className="ea-back-options"
+            onClick={() =>
+              navigate(
+                `/error-options/${encodeURIComponent(id)}`
+              )
+            }
+          >
+            <ArrowLeft size={16} />
+            Back to Analysis Options
+          </button>
+
         </div>
 
-        <nav>
-          <Link to="/">
-            <LayoutDashboard
-              size={20}
-            />
 
-            <span>Dashboard</span>
-          </Link>
-
-          <Link className="active">
-            <BarChart3 size={20} />
-
-            <span>
-              Error Pattern Analysis
-            </span>
-          </Link>
-
-          <Link>
-            <FileText size={20} />
-
-            <span>Reports</span>
-          </Link>
-
-          <Link>
-            <Bell size={20} />
-
-            <span>Notifications</span>
-          </Link>
-
-          <Link>
-            <Settings size={20} />
-
-            <span>Settings</span>
-          </Link>
-        </nav>
-      </aside>
-
-
-      {/* =================================================
-          MAIN
-          ================================================= */}
-
-      <main className="main-content">
-
-        {/* TOPBAR */}
-
-        <header className="topbar">
-          <h2>DAS Assessment Portal</h2>
-
-          <div className="top-right">
-
-            <form
-              className="search-box-top"
-              onSubmit={
-                openStudentDashboard
-              }
-            >
-              <button
-                type="submit"
-                aria-label="Open student error dashboard"
-                disabled={
-                  studentSearching
-                }
-              >
-                <Search size={18} />
-              </button>
-
-              <input
-                placeholder={
-                  studentSearching
-                    ? "Searching..."
-                    : "Search student by name or ID..."
-                }
-                value={studentSearch}
-                onChange={(event) =>
-                  setStudentSearch(
-                    event.target.value,
-                  )
-                }
-                disabled={
-                  studentSearching
-                }
-              />
-            </form>
-
-            <HelpCircle size={22} />
-
-            <Grid3X3 size={22} />
-
-            <div className="teacher-avatar" />
-          </div>
-        </header>
-
-
-        {/* =================================================
-            PAGE
-            ================================================= */}
-
+        {/* PAGE */}
         <section className="page-content">
-
-          <h1 className="page-title">
-            Student Error Pattern Analyser
-          </h1>
-
-          <p className="page-subtitle">
-            Overview of linguistic and
-            visual-spatial errors across
-            student submissions.
-          </p>
-
 
           {/* =================================================
               TWO UPLOAD AREAS
@@ -1074,7 +1408,9 @@ export default function ErrorAnswer() {
                     : ""
                 }`}
                 onClick={
-                  handleStudentBrowse
+                  studentFile
+                    ? undefined
+                    : handleStudentBrowse
                 }
                 onDragOver={(event) => {
                   event.preventDefault();
@@ -1171,8 +1507,11 @@ export default function ErrorAnswer() {
                     : ""
                 }`}
                 onClick={
-                  handleAnswerKeyBrowse
+                  answerKeyFile
+                    ? undefined
+                    : handleAnswerKeyBrowse
                 }
+
                 onDragOver={(event) => {
                   event.preventDefault();
 
@@ -1279,7 +1618,7 @@ export default function ErrorAnswer() {
               EXACT SAME STRUCTURE AS ERROR DASHBOARD
               ================================================= */}
 
-          {history.length > 0 && (
+          {analysedHistory.length > 0 && (
             <>
               <div className="history-header">
                 <div>
@@ -1300,8 +1639,8 @@ export default function ErrorAnswer() {
                 </div>
 
                 <span className="history-count">
-                  {history.length}{" "}
-                  {history.length === 1
+                  {analysedHistory.length}{" "}
+                  {analysedHistory.length === 1
                     ? "record"
                     : "records"}
                 </span>
@@ -1326,6 +1665,43 @@ export default function ErrorAnswer() {
                 </div>
 
                 <select
+                  value={historyCategory}
+                  onChange={(event) =>
+                    setHistoryCategory(
+                      event.target.value
+                    )
+                  }
+                >
+                  <option value="all">
+                    Homework: All
+                  </option>
+
+                  <option value="reference">
+                    Reference-Based
+                  </option>
+
+                  <option value="free-form">
+                    Free-Form
+                  </option>
+
+                  <option value="edit-diagram">
+                    Edit & Diagram
+                  </option>
+
+                  <option value="narrative">
+                    Narrative Writing
+                  </option>
+
+                  <option value="expository">
+                    Expository Writing
+                  </option>
+
+                  <option value="persuasive">
+                    Persuasive Writing
+                  </option>
+                </select>
+                
+                <select
                   value={sortOrder}
                   onChange={(event) =>
                     setSortOrder(
@@ -1347,7 +1723,6 @@ export default function ErrorAnswer() {
                   </option>
                 </select>
               </div>
-
 
               <div className="history-grid">
 
@@ -1545,7 +1920,8 @@ export default function ErrorAnswer() {
           )}
 
         </section>
-      </main>
-    </div>
+      </section>
+    </main>
+  </div>
   );
 }
