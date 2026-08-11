@@ -21,7 +21,7 @@ const errorColors = {
 	phonological: "#a855f7",
 	grammar: "#22c55e",
 	tense: "#d94f70",
-	capitalisation: "#2f80ed",
+	capitalisation: "#b32b42",
 };
 
 /*const donutData = [
@@ -286,7 +286,10 @@ export default function StudentErrorAnalysis() {
 							<p>{report.student.studentId}</p>
 						</div>
 						<div className="sea-student-actions">
-							<button className="sea-btn-primary">
+							<button
+								className="sea-btn-primary"
+								onClick={() => navigate(`/error-report/${reportId}`)}
+							>
 								<FileBarChart2 size={16} /> Generate Report
 							</button>
 						</div>

@@ -106,7 +106,7 @@ const writingType = (assessment) => {
     return "Edit and diagram";
   }
 
-  return "Writing homework";
+  return "Writing assignment";
 };
 
 
@@ -1291,7 +1291,7 @@ const visibleHistory = analysedHistory
 
               <div>
                 <span className="eo-meta-label">
-                  Last Assessment
+                  Last Assignment Upload
                 </span>
 
                 <span className="eo-meta-value">
@@ -1356,7 +1356,7 @@ const visibleHistory = analysedHistory
             </span>
 
             <h1 className="page-title">
-              Upload Assessment
+              Upload Assignment
             </h1>
 
             <p className="page-subtitle">
@@ -1605,7 +1605,7 @@ const visibleHistory = analysedHistory
                     size={18}
                   />
 
-                  Analyze Assessment
+                  Analyze Assignment
                 </>
               )}
             </button>
@@ -1627,11 +1627,11 @@ const visibleHistory = analysedHistory
                   </p>
 
                   <h2>
-                    Homework History
+                    Assignment History
                   </h2>
 
                   <p className="history-intro">
-                    Review homework
+                    Review assignment
                     details, error
                     patterns and analysis
                     status.
@@ -1653,7 +1653,7 @@ const visibleHistory = analysedHistory
                   <Search size={18} />
 
                   <input
-                    placeholder="Search uploaded homework..."
+                    placeholder="Search uploaded assignment..."
                     value={search}
                     onChange={(event) =>
                       setSearch(
@@ -1673,7 +1673,7 @@ const visibleHistory = analysedHistory
                   }
                 >
                   <option value="all">
-                    Homework: All
+                    Assignment: All
                   </option>
 
                   <option value="reference">

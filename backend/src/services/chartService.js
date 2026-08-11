@@ -1,11 +1,11 @@
 const CHART_CATEGORIES = [
-  { key: "letterReversal", label: "Letter Reversals", color: "#0B4F9C" },
+  { key: "letterReversal", label: "Letter Reversals", color: "#AD1E35" },
   { key: "spelling", label: "Spelling", color: "#7E3CC8" },
   { key: "phonetic", label: "Phonetic", color: "#B965F5" },
   { key: "insertion", label: "Insertions", color: "#E39000" },
   { key: "deletion", label: "Deletions", color: "#00695C" },
   { key: "tense", label: "Tense", color: "#D94F70" },
-  { key: "capitalisation", label: "Capitalisation", color: "#2F80ED" },
+  { key: "capitalisation", label: "Capitalisation", color: "#B32B42" },
   { key: "grammar", label: "Grammar", color: "#22A06B" },
 ];
 
