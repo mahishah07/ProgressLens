@@ -18,14 +18,6 @@ const aiRoutes = require("./src/pms/routes/aiRoutes");
 
 let sheetsRoutes = null;
 let sheetsSync = null;
-// Temporarily disabled — sheetsSync.js hangs on module load, needs Google auth moved inside function
-// try {
-//   sheetsRoutes = require("./src/pms/routes/sheetsRoutes");
-//   sheetsSync = require("./src/pms/services/sheetsSync");
-// } catch (error) {
-//   if (error.code !== "MODULE_NOT_FOUND" || !error.message.includes("googleapis")) throw error;
-//   console.warn("Google Sheets integration is disabled because googleapis is not installed.");
-// }
 
 function createApp(options = {}) {
 	const app = express();
@@ -53,8 +45,7 @@ let server = null;
 
 async function startServer() {
 	await connectDB();
-	if (process.env.NODE_ENV === "production" && sheetsSync)
-		sheetsSync.startPolling(30);
+	// if (sheetsSync) sheetsSync.startPolling(1);
 	const port = Number(process.env.PMS_PORT || 5001);
 	if (server) return server;
 	server = app.listen(port, "0.0.0.0", () =>
