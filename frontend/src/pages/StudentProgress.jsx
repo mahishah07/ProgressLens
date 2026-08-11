@@ -12,6 +12,7 @@ import "./../css/StudentProgress.css";
 import {
 	FileText,
 	ArrowLeft,
+	Save,
 	TrendingUp as TrendIcon,
 	FileBarChart,
 	Sheet,
@@ -80,34 +81,24 @@ const SKILL_LABELS = {
 };
 
 function TeacherSidebar({ studentId }) {
-	const encodedId = studentId
-		? encodeURIComponent(studentId)
-		: "";
+	const encodedId = studentId ? encodeURIComponent(studentId) : "";
 
 	return (
 		<aside className="sidebar">
-
 			<div className="logo-section">
-
-				<div className="logo-circle">
-					DAS
-				</div>
+				<div className="logo-circle">DAS</div>
 
 				<div>
 					<h2>DAS Teacher</h2>
 					<p>Educational Professional</p>
 				</div>
-
 			</div>
 
-
 			<nav>
-
 				<Link to="/">
 					<LayoutDashboard size={20} />
 					<span>Dashboard</span>
 				</Link>
-
 
 				{studentId && (
 					<Link
@@ -119,28 +110,19 @@ function TeacherSidebar({ studentId }) {
 					</Link>
 				)}
 
-
 				<div className="eo-nav-section">
-
-					<span className="eo-nav-heading">
-						ERROR ANALYSIS
-					</span>
-
+					<span className="eo-nav-heading">ERROR ANALYSIS</span>
 
 					{studentId && (
 						<>
-
 							<Link
 								to={`/error-answer/${encodedId}`}
 								className="eo-nav-subitem"
 							>
 								<FileCheck2 size={18} />
 
-								<span>
-									Reference-Based Analysis
-								</span>
+								<span>Reference-Based Analysis</span>
 							</Link>
-
 
 							<Link
 								to={`/error-dashboard/${encodedId}`}
@@ -148,30 +130,22 @@ function TeacherSidebar({ studentId }) {
 							>
 								<BarChart3 size={19} />
 
-								<span>
-									Free-Form Analysis
-								</span>
+								<span>Free-Form Analysis</span>
 							</Link>
-
 						</>
 					)}
-
 				</div>
-
 
 				<a href="#">
 					<Bell size={20} />
 					<span>Notifications</span>
 				</a>
 
-
 				<a href="#">
 					<Settings size={20} />
 					<span>Settings</span>
 				</a>
-
 			</nav>
-
 		</aside>
 	);
 }
@@ -184,33 +158,18 @@ function TeacherTopbar({
 }) {
 	return (
 		<header className="topbar eo-main-topbar">
-
 			<div className="topbar-brand">
-
 				<div>
+					<h2>DAS Assessment Portal</h2>
 
-					<h2>
-						DAS Assessment Portal
-					</h2>
-
-					<span className="topbar-context">
-						Progress Monitoring
-					</span>
-
+					<span className="topbar-context">Progress Monitoring</span>
 				</div>
-
 			</div>
 
-
 			<div className="eo-topbar-right">
-
 				{/* STUDENT SEARCH */}
 
-				<form
-					className="eo-navbar-search"
-					onSubmit={onStudentSearch}
-				>
-
+				<form className="eo-navbar-search" onSubmit={onStudentSearch}>
 					<button
 						type="submit"
 						aria-label="Search student"
@@ -219,15 +178,10 @@ function TeacherTopbar({
 						<Search size={18} />
 					</button>
 
-
 					<input
 						type="text"
 						value={studentSearch}
-						onChange={(event) =>
-							setStudentSearch(
-								event.target.value
-							)
-						}
+						onChange={(event) => setStudentSearch(event.target.value)}
 						placeholder={
 							studentSearching
 								? "Searching..."
@@ -235,35 +189,22 @@ function TeacherTopbar({
 						}
 						disabled={studentSearching}
 					/>
-
 				</form>
-
 
 				{/* EDUCATOR */}
 
 				<div className="eo-teacher-profile">
-
 					<div className="eo-teacher-icon">
 						<BriefcaseBusiness size={20} />
 					</div>
 
-
 					<div className="eo-teacher-copy">
+						<strong>Educational Professional</strong>
 
-						<strong>
-							Educational Professional
-						</strong>
-
-						<span>
-							DAS Teacher Portal
-						</span>
-
+						<span>DAS Teacher Portal</span>
 					</div>
-
 				</div>
-
 			</div>
-
 		</header>
 	);
 }
@@ -284,7 +225,9 @@ export default function StudentProgress() {
 
 	const isPending =
 		dashboard?.status === "assessment_pending" ||
-		(dashboard && Array.isArray(dashboard.assessmentHistory) && dashboard.assessmentHistory.length === 0);
+		(dashboard &&
+			Array.isArray(dashboard.assessmentHistory) &&
+			dashboard.assessmentHistory.length === 0);
 
 	useEffect(() => {
 		if (!id) return;
@@ -316,125 +259,84 @@ export default function StudentProgress() {
 	}, [id]);
 
 	const openStudentDashboard = async (event) => {
-	event.preventDefault();
+		event.preventDefault();
 
-	const query = studentSearch.trim();
+		const query = studentSearch.trim();
 
-	if (!query) return;
+		if (!query) return;
 
-	setStudentSearching(true);
+		setStudentSearching(true);
 
-	try {
-		let profiles = [];
+		try {
+			let profiles = [];
 
-
-		/* =========================================
+			/* =========================================
 		   ERROR ANALYSER DIRECTORY
 		   ========================================= */
 
-		if (ERROR_API) {
-			const response = await fetch(
-				`${ERROR_API}/api/students?q=${encodeURIComponent(
-					query
-				)}`
-			);
+			if (ERROR_API) {
+				const response = await fetch(
+					`${ERROR_API}/api/students?q=${encodeURIComponent(query)}`,
+				);
 
-			const data = await response.json();
+				const data = await response.json();
 
-			if (response.ok) {
-				profiles =
-					data?.students ||
-					data?.data ||
-					[];
+				if (response.ok) {
+					profiles = data?.students || data?.data || [];
+				}
 			}
-		}
 
-
-		/* =========================================
+			/* =========================================
 		   PMS FALLBACK
 		   ========================================= */
 
-		if (profiles.length === 0) {
-
-			const response = await fetch(
-				`${API}/api/progress/search?studentId=${encodeURIComponent(
-					query
-				)}`
-			);
-
-			const data = await response.json();
-
-			if (!response.ok) {
-				throw new Error(
-					data.message ||
-						"Unable to search the student directory."
+			if (profiles.length === 0) {
+				const response = await fetch(
+					`${API}/api/progress/search?studentId=${encodeURIComponent(query)}`,
 				);
+
+				const data = await response.json();
+
+				if (!response.ok) {
+					throw new Error(
+						data.message || "Unable to search the student directory.",
+					);
+				}
+
+				profiles = Array.isArray(data) ? data : [];
 			}
 
-			profiles =
-				Array.isArray(data)
-					? data
-					: [];
+			const normalised = query.toLowerCase();
+
+			const profile =
+				profiles.find((student) => {
+					const fullName = [student.firstName, student.lastName]
+						.filter(Boolean)
+						.join(" ")
+						.toLowerCase();
+
+					return (
+						student.studentId?.toLowerCase() === normalised ||
+						student.name?.toLowerCase() === normalised ||
+						fullName === normalised
+					);
+				}) || profiles[0];
+
+			if (!profile?.studentId) {
+				alert(`No student found for “${query}”.`);
+
+				return;
+			}
+
+			setStudentSearch("");
+
+			navigate(`/student/${encodeURIComponent(profile.studentId)}`);
+		} catch (error) {
+			alert(error.message);
+		} finally {
+			setStudentSearching(false);
 		}
-
-
-		const normalised =
-			query.toLowerCase();
-
-
-		const profile =
-			profiles.find((student) => {
-
-				const fullName = [
-					student.firstName,
-					student.lastName,
-				]
-					.filter(Boolean)
-					.join(" ")
-					.toLowerCase();
-
-
-				return (
-					student.studentId?.toLowerCase() ===
-						normalised ||
-
-					student.name?.toLowerCase() ===
-						normalised ||
-
-					fullName === normalised
-				);
-
-			}) || profiles[0];
-
-
-		if (!profile?.studentId) {
-			alert(
-				`No student found for “${query}”.`
-			);
-
-			return;
-		}
-
-
-		setStudentSearch("");
-
-
-		navigate(
-			`/student/${encodeURIComponent(
-				profile.studentId
-			)}`
-		);
-
-	} catch (error) {
-
-		alert(error.message);
-
-	} finally {
-
-		setStudentSearching(false);
-
-	}
-};
+	};
 
 	const loadDashboard = useCallback(() => {
 		if (dashboard) {
@@ -549,7 +451,9 @@ export default function StudentProgress() {
 		}, []);
 
 		return {
-			labels: snapshotData.labels.filter((label) => visibleLabels.includes(label)),
+			labels: snapshotData.labels.filter((label) =>
+				visibleLabels.includes(label),
+			),
 			datasets: snapshotData.datasets.map((dataset) => ({
 				...dataset,
 				data: dataset.data.filter((_, index) => visibleIndexes.includes(index)),
@@ -631,14 +535,13 @@ export default function StudentProgress() {
 										<span className="eo-meta-label">Last Assessment</span>
 										<span className="eo-meta-value">
 											{overview?.lastAssessmentDate
-												? new Date(overview.lastAssessmentDate).toLocaleDateString(
-														"en-GB",
-														{
-															day: "2-digit",
-															month: "short",
-															year: "numeric",
-														},
-													)
+												? new Date(
+														overview.lastAssessmentDate,
+													).toLocaleDateString("en-GB", {
+														day: "2-digit",
+														month: "short",
+														year: "numeric",
+													})
 												: "No assessment yet"}
 										</span>
 									</div>
@@ -706,13 +609,9 @@ export default function StudentProgress() {
 								</div>
 
 								<div className="sp-option-features">
-									<span>
-										Assessment and skill trends
-									</span>
+									<span>Assessment and skill trends</span>
 
-									<span>
-										Band progression tracking
-									</span>
+									<span>Band progression tracking</span>
 								</div>
 
 								<button type="button" className="sp-option-btn">
@@ -732,8 +631,8 @@ export default function StudentProgress() {
 								onClick={() =>
 									navigate(
 										`/error-options/${encodeURIComponent(
-											overview?.student?.studentId || id
-										)}`
+											overview?.student?.studentId || id,
+										)}`,
 									)
 								}
 							>
@@ -753,13 +652,9 @@ export default function StudentProgress() {
 								</div>
 
 								<div className="sp-option-features">
-									<span>
-										Writing error detection
-									</span>
+									<span>Writing error detection</span>
 
-									<span>
-										Educator-focused insights
-									</span>
+									<span>Educator-focused insights</span>
 								</div>
 
 								<button
@@ -769,8 +664,8 @@ export default function StudentProgress() {
 										event.stopPropagation();
 										navigate(
 											`/error-options/${encodeURIComponent(
-												overview?.student?.studentId || id
-											)}`
+												overview?.student?.studentId || id,
+											)}`,
 										);
 									}}
 								>
@@ -787,39 +682,31 @@ export default function StudentProgress() {
 						</section>
 
 						<div className="sp-back-bar">
-
-									<Link
-										to="/"
-										className="sp-back-btn"
-									>
-										<ArrowLeft size={16} />
-
-										Back to Class List
-									</Link>
-
-								</div>
-							</div>
-						</main>
+							<Link to="/" className="sp-back-btn">
+								<ArrowLeft size={16} />
+								Back to Class List
+							</Link>
+						</div>
 					</div>
-				);
-			}
+				</main>
+			</div>
+		);
+	}
 
 	return (
 		<div className="sp-page">
 			<TeacherSidebar
-	studentId={
-		dashboard?.student?.studentId ||
-		overview?.student?.studentId ||
-		id
-	}
-/>
+				studentId={
+					dashboard?.student?.studentId || overview?.student?.studentId || id
+				}
+			/>
 			<main className="sp-main">
 				<TeacherTopbar
-	studentSearch={studentSearch}
-	setStudentSearch={setStudentSearch}
-	studentSearching={studentSearching}
-	onStudentSearch={openStudentDashboard}
-/>
+					studentSearch={studentSearch}
+					setStudentSearch={setStudentSearch}
+					studentSearching={studentSearching}
+					onStudentSearch={openStudentDashboard}
+				/>
 
 				<div className="sp-profile-strip">
 					<div className="sp-student-icon sp-student-icon-small">
@@ -854,16 +741,14 @@ export default function StudentProgress() {
 							</span>
 
 							<span>
-	<BriefcaseBusiness size={14} />
-
-	Centre:{" "}
-
-	{dashboard?.student?.centreId ||
-		dashboard?.student?.centre ||
-		overview?.student?.centreId ||
-		overview?.student?.centre ||
-		"—"}
-</span>
+								<BriefcaseBusiness size={14} />
+								Centre:{" "}
+								{dashboard?.student?.centreId ||
+									dashboard?.student?.centre ||
+									overview?.student?.centreId ||
+									overview?.student?.centre ||
+									"—"}
+							</span>
 						</div>
 					</div>
 
@@ -883,6 +768,14 @@ export default function StudentProgress() {
 						>
 							<FileText size={16} />
 							Generate Report
+						</button>
+
+						<button
+							className="sp-qa-secondary"
+							onClick={() => navigate(`/student/${id}/add-assessment`)}
+						>
+							<Save size={16} />
+							Add Assessment
 						</button>
 
 						<a

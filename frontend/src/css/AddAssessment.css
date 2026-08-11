@@ -1,0 +1,109 @@
+.aa-content {
+	padding: 1.5rem 2rem;
+	max-width: 900px;
+}
+
+.aa-header {
+	margin-bottom: 1.5rem;
+}
+.aa-header h1 {
+	font-size: 1.4rem;
+	font-weight: 700;
+	margin: 0 0 0.3rem;
+}
+.aa-subtitle {
+	font-size: 0.9rem;
+	color: #888;
+	margin: 0;
+}
+
+.aa-card {
+	background: white;
+	border: 1px solid #eee;
+	border-radius: 12px;
+	padding: 1.5rem;
+	margin-bottom: 1.25rem;
+}
+
+.aa-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
+	margin-bottom: 1rem;
+}
+
+.aa-field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+}
+.aa-field label {
+	font-size: 0.78rem;
+	font-weight: 600;
+	color: #555;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+.aa-field input,
+.aa-field select {
+	padding: 0.55rem 0.75rem;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	font-size: 0.88rem;
+	color: #1a1a1a;
+	background: white;
+	outline: none;
+}
+.aa-field input:focus,
+.aa-field select:focus {
+	border-color: #1a3c6e;
+}
+
+.aa-divider {
+	border-top: 1px solid #f0f0f0;
+	margin: 1.25rem 0;
+}
+
+.aa-section-title {
+	font-size: 0.95rem;
+	font-weight: 700;
+	margin: 0 0 1rem;
+	color: #1a1a1a;
+}
+
+.aa-scores-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	gap: 1rem;
+}
+
+.aa-error {
+	font-size: 0.82rem;
+	color: #dc2626;
+	margin-top: 1rem;
+}
+
+.aa-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.75rem;
+}
+
+.aa-success-box {
+	width: 400px;
+}
+.aa-success-body {
+	text-align: center;
+	padding: 1rem 0.5rem;
+}
+.aa-success-body h2 {
+	font-size: 1.2rem;
+	font-weight: 700;
+	margin: 0 0 0.5rem;
+	color: #166534;
+}
+.aa-success-body p {
+	font-size: 0.9rem;
+	color: #555;
+	margin: 0 0 1.25rem;
+}
