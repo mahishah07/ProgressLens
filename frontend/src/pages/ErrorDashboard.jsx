@@ -59,7 +59,7 @@ const writingType = (assessment) => {
   if (name.includes("exposition") || name.includes("expository")) return "Expository writing";
   if (name.includes("persuasive")) return "Persuasive writing";
   if (name.includes("diagram")) return "Edit and diagram";
-  return "Writing homework";
+  return "Writing Assignment";
 };
 
 const analysisStatus = (assessment) => {
@@ -471,7 +471,7 @@ const analyzeAssessment = async () => {
     ) : (
       <>
         <Image size={18} />
-        Analyze Assessment
+        Analyze Assignment
       </>
     )}
   </button>
@@ -482,8 +482,8 @@ const analyzeAssessment = async () => {
               <div className="history-header">
                 <div>
                   <p className="history-eyebrow">RECENT SUBMISSIONS</p>
-                  <h2>Homework History</h2>
-                  <p className="history-intro">Review homework details, error patterns and analysis status.</p>
+                  <h2>Assignment History</h2>
+                  <p className="history-intro">Review assignments, error patterns and analysis status.</p>
                 </div>
                 <span className="history-count">{history.length} {history.length === 1 ? "record" : "records"}</span>
               </div>
@@ -492,7 +492,7 @@ const analyzeAssessment = async () => {
                 <div className="assessment-search">
                   <Search size={18} />
                   <input
-                    placeholder="Search uploaded homework..."
+                    placeholder="Search uploaded assignment..."
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
                   />
