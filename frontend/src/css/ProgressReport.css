@@ -433,3 +433,14 @@
 	color: #991b1b;
 	font-weight: 600;
 }
+
+@media print {
+	.sidebar,
+	.pr-topbar,
+	.pr-bottom-bar {
+		display: none !important;
+	}
+	.pr-doc-wrapper {
+		padding: 0 !important;
+	}
+}

@@ -217,6 +217,20 @@ export default function ProgressReport() {
 		}
 	};
 
+	const handleExportPDF = () => {
+		if (!studentId) return;
+		const printUrl = `${window.location.origin}/progress-report?studentId=${studentId}&print=true`;
+		window.open(printUrl, "_blank");
+	};
+
+	useEffect(() => {
+		const shouldPrint = searchParams.get("print") === "true";
+		if (shouldPrint && report && !loading) {
+			const timer = setTimeout(() => window.print(), 500);
+			return () => clearTimeout(timer);
+		}
+	}, [report, loading, searchParams]);
+
 	const buildLineData = () => {
 		if (!dashboard?.progressOverTime) return null;
 		return {
@@ -536,7 +550,7 @@ export default function ProgressReport() {
 					<button className="pr-edit-btn" onClick={() => setEditing(!editing)}>
 						<Edit size={16} /> Edit Report
 					</button>
-					<button className="pr-download-btn">
+					<button className="pr-download-btn" onClick={() => window.print()}>
 						<Download size={16} /> Download PDF
 					</button>
 					<button className="pr-mail-btn">

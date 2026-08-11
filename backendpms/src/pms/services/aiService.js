@@ -80,16 +80,15 @@ Respond in the following JSON format only, no extra text, and in parent-friendly
 };
 
 // UC3: generate parent-friendly report using AI
-exports.generateParentReport = async (comparisonData, currentBand) => {
-	const sanitised = sanitiseForAI(comparisonData);
-
+// Note: dashboardData is already sanitised by reportService before being passed here
+exports.generateParentReport = async (dashboardData, currentBand) => {
 	const prompt = `You are a caring and empathetic special education teacher writing a progress report for a parent.
 
 The report must be warm, encouraging, easy to understand, and completely free of technical jargon. 
 The student is currently at band level ${currentBand || "unknown"} in their literacy development.
 
 Assessment Data:
-${JSON.stringify(sanitised, null, 2)}
+${JSON.stringify(dashboardData, null, 2)}
 
 Respond in the following JSON format only, no extra text:
 {
