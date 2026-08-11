@@ -3,7 +3,13 @@ const AnalysisReport = require("../models/analysisReport");
 function create(data) { return AnalysisReport.create(data); }
 function findById(id) { return AnalysisReport.findById(id).populate("student").populate("writingSample").populate("answerKey", "title originalName expectedText answers").lean(); }
 function findByStudent(studentId) { return AnalysisReport.find({ student: studentId }).sort({ createdAt: -1 }).populate("writingSample").populate("answerKey", "title originalName expectedText answers").lean(); }
-function updateReview(id, updates) { return AnalysisReport.findByIdAndUpdate(id, updates, { new: true, runValidators: true }).lean(); }
+function updateReview(id, updates) { return AnalysisReport.findByIdAndUpdate(id, updates, { returnDocument: "after", runValidators: true }).lean(); }
+function findReviewStateById(id, session = null) {
+  return AnalysisReport.findById(id)
+    .select("errors._id errors.reviewStatus errors.educatorNotes")
+    .session(session)
+    .lean();
+}
 function saveOpenAiAnalysis(id, writingSampleId, errors, expectedText, recommendation, session = null, metrics = {}) {
   return AnalysisReport.findOneAndUpdate(
     { _id: id, writingSample: writingSampleId },
@@ -20,4 +26,4 @@ function saveOpenAiAnalysis(id, writingSampleId, errors, expectedText, recommend
   ).populate("student").populate("writingSample").lean();
 }
 
-module.exports = { create, findById, findByStudent, updateReview, saveOpenAiAnalysis };
+module.exports = { create, findById, findByStudent, updateReview, findReviewStateById, saveOpenAiAnalysis };

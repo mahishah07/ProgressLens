@@ -83,6 +83,19 @@ async function analyseReport(req, res, next) {
     const summary = { ...report.summary, errorCount: errors.length };
     let updated;
     await mongoose.connection.transaction(async (session) => {
+      const latestReviewState = await reportRepository.findReviewStateById(report._id, session);
+      const reviewedErrors = new Map(
+        (latestReviewState?.errors || []).map((error) => [String(error._id), error])
+      );
+      errors = errors.map((error) => {
+        const reviewed = reviewedErrors.get(String(error._id));
+        if (!reviewed) return error;
+        return {
+          ...error,
+          reviewStatus: reviewed.reviewStatus,
+          educatorNotes: reviewed.educatorNotes,
+        };
+      });
       updated = await reportRepository.saveOpenAiAnalysis(
         report._id,
         report.writingSample._id,
