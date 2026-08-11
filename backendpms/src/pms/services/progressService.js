@@ -177,11 +177,13 @@ exports.getStudentOverview = async (studentId) => {
 		assessmentDate: -1,
 	});
 
-	const bandScore = calculateBandScore(
-		latest,
-		latest.summaryBand || student.summaryBand,
-		student.schLevel,
-	);
+	const bandScore = latest
+		? calculateBandScore(
+				latest,
+				latest.summaryBand || student.summaryBand,
+				student.schLevel,
+			)
+		: null;
 
 	return {
 		student,

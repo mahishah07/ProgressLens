@@ -68,9 +68,11 @@ describe("PMS-009 / PMS-010 — GET /api/progress/:id/dashboard route", () => {
 describe("PMS-014 — GET /api/progress/search route", () => {
 	test("applies AND semantics across multiple filters", async () => {
 		const Student = require("../models/Student");
-		Student.find.mockResolvedValue([
-			{ studentId: "Student 0001", centreId: "Centre A", summaryBand: "B4" },
-		]);
+		Student.find.mockReturnValue({
+			sort: jest.fn().mockResolvedValue([
+				{ studentId: "Student 0001", centreId: "Centre A", summaryBand: "B4" },
+			]),
+		});
 
 		const res = await request(app).get(
 			"/api/progress/search?centreId=Centre%20A&summaryBand=B4",
@@ -84,7 +86,7 @@ describe("PMS-014 — GET /api/progress/search route", () => {
 
 	test("does not crash on special regex characters in studentId filter", async () => {
 		const Student = require("../models/Student");
-		Student.find.mockResolvedValue([]);
+		Student.find.mockReturnValue({ sort: jest.fn().mockResolvedValue([]) });
 
 		const res = await request(app).get(
 			"/api/progress/search?studentId=" + encodeURIComponent("Student(.*)"),

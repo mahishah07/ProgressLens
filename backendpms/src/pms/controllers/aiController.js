@@ -36,7 +36,7 @@ exports.generateRecommendations = async (req, res) => {
 
 		res.json({ status: "ok", recommendations });
 	} catch (err) {
-		console.error("AI recommendations error:", err.message);
-		res.status(500).json({ message: err.message });
+		console.error("AI recommendations provider request failed");
+		res.status(500).json({ message: "Unable to generate recommendations" });
 	}
 };
