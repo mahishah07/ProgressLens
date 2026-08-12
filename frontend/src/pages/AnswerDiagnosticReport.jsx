@@ -1040,7 +1040,7 @@ export default function AnswerDiagnosticReport() {
 									size={16}
 								/>
 
-								Back to Analysis
+								Back
 
 							</button>
 

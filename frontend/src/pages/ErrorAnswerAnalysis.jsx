@@ -12,20 +12,19 @@ import "../css/StudentError.css";
 import "../css/ErrorAnswerAnalysis.css";
 
 import {
-	LayoutDashboard,
-	TrendingUp,
-	BarChart3,
-	Bell,
-	Settings,
-	Search,
-	FileBarChart2,
-	FileCheck2,
-	BriefcaseBusiness,
-	UserRound,
-	CalendarDays,
-	GraduationCap,
-	Sheet,
-	ArrowLeft,
+    LayoutDashboard,
+    TrendingUp,
+    BarChart3,
+    Bell,
+    Settings,
+    Search,
+    FileBarChart2,
+    FileCheck2,
+    BriefcaseBusiness,
+    UserRound,
+    CalendarDays,
+    GraduationCap,
+    ArrowLeft,
 } from "lucide-react";
 
 
@@ -34,9 +33,6 @@ const API =
 
 const PMS_API =
 	import.meta.env.VITE_PMS_API;
-
-const SHEET_URL =
-	import.meta.env.VITE_GOOGLE_SHEET_URL;
 
 
 /* =========================================================
@@ -944,9 +940,10 @@ export default function ErrorAnswerAnalysis() {
 		"—";
 
 
-	const assignedTeacher =
-		overview?.student
-			?.teacherId ||
+	const studentCentre =
+		overview?.student?.centreId ||
+		overview?.student?.centre ||
+		overview?.centre ||
 		"—";
 
 
@@ -1019,19 +1016,6 @@ export default function ErrorAnswerAnalysis() {
               <h1>
                 {studentId}
               </h1>
-
-              {SHEET_URL && (
-                <a
-                  href={SHEET_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="eo-sheets-btn"
-                >
-                  <Sheet size={16} />
-                  Open Google Sheets
-                </a>
-              )}
-
             </div>
 
 
@@ -1107,12 +1091,12 @@ export default function ErrorAnswerAnalysis() {
 								<div>
 
 									<span className="eo-meta-label">
-										Assigned Teacher
+										Centre
 									</span>
 
 									<span className="eo-meta-value">
 										{
-											assignedTeacher
+											studentCentre
 										}
 									</span>
 
@@ -1163,7 +1147,7 @@ export default function ErrorAnswerAnalysis() {
 									size={16}
 								/>
 
-								Back to Upload
+								Back
 							</button>
 
 

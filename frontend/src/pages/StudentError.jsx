@@ -1,20 +1,23 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
+import "../css/Landing.css";
 import "../css/StudentError.css";
 import {
 	LayoutDashboard,
 	TrendingUp,
 	BarChart3,
-	FileText,
 	Bell,
 	Settings,
 	Search,
 	FileBarChart2,
 	BriefcaseBusiness,
 	FileCheck2,
-} 
-from "lucide-react";
+	UserRound,
+	CalendarDays,
+	GraduationCap,
+	ArrowLeft,
+} from "lucide-react";
 
 console.log(import.meta.env);
 
@@ -134,6 +137,7 @@ export default function StudentErrorAnalysis() {
     console.log("API =", API);
 
     const [report, setReport] = useState(null);
+	const [overview, setOverview] = useState(null);
     const [loading, setLoading] = useState(true);
     const [studentSearch, setStudentSearch] = useState("");
     const [studentSearching, setStudentSearching] = useState(false);
@@ -215,6 +219,62 @@ export default function StudentErrorAnalysis() {
     loadReport();
 }, [API, reportId]);
 
+	useEffect(() => {
+	const studentId =
+		report?.student?.studentId;
+
+	if (!studentId || !PMS_API) {
+		return;
+	}
+
+	const controller =
+		new AbortController();
+
+	const loadOverview = async () => {
+		try {
+			const response =
+				await fetch(
+					`${PMS_API}/api/progress/${encodeURIComponent(
+						studentId,
+					)}/overview`,
+					{
+						signal:
+							controller.signal,
+					},
+				);
+
+			const data =
+				await response.json();
+
+			if (
+				response.ok &&
+				!data.message
+			) {
+				setOverview(data);
+			}
+
+		} catch (error) {
+
+			if (
+				error.name !==
+				"AbortError"
+			) {
+				console.warn(
+					"Unable to load student overview:",
+					error,
+				);
+			}
+
+		}
+	};
+
+	loadOverview();
+
+	return () =>
+		controller.abort();
+
+}, [report, PMS_API]);
+
 	if (loading) {
     return <h2>Loading...</h2>;
 	}
@@ -222,6 +282,38 @@ export default function StudentErrorAnalysis() {
 		return <h2>Report not found.</h2>;
 	}
 	const donutData = report.chartData ?? [];
+
+	const studentId =
+	report?.student?.studentId ||
+	"Student";
+
+
+const currentBand =
+	overview?.latestNewBand ||
+	overview?.currentBandLevel ||
+	"—";
+
+
+const studentCentre =
+	overview?.student?.centreId ||
+	overview?.student?.centre ||
+	overview?.centre ||
+	"—";
+
+
+const lastAssessmentDate =
+	overview?.lastAssessmentDate
+		? new Date(
+				overview.lastAssessmentDate,
+			).toLocaleDateString(
+				"en-SG",
+				{
+					day: "numeric",
+					month: "short",
+					year: "numeric",
+				},
+			)
+		: "No assessment yet";
 
 	return (
 		<div className="sea-page">
@@ -269,7 +361,7 @@ export default function StudentErrorAnalysis() {
 					<div className="sea-topbar-brand">
 						<div>
 							<h2>DAS Assessment Portal</h2>
-							<span>Reference-Based Analysis</span>
+							<span>Free-Form Analysis</span>
 						</div>
 					</div>
 					<div className="sea-topbar-right">
@@ -298,22 +390,178 @@ export default function StudentErrorAnalysis() {
 				</header>
 
 				<div className="sea-content">
-					{/* Student header */}
-					<div className="sea-student-header">
-						<div className="sea-student-avatar">ST</div>
-						<div className="sea-student-info">
-							<h1>{report.student.firstName} {report.student.lastName}</h1>
-							<p>{report.student.studentId}</p>
-						</div>
-						<div className="sea-student-actions">
-							<button
-								className="sea-btn-primary"
-								onClick={() => navigate(`/error-report/${reportId}`)}
-							>
-								<FileBarChart2 size={16} /> Generate Report
-							</button>
-						</div>
-					</div>
+					{/* =================================================
+    STUDENT PROFILE
+    ================================================= */}
+
+<section className="sea-student-profile-v2">
+
+	{/* STUDENT */}
+
+	<div className="sea-profile-v2-identity">
+
+		<div className="sea-profile-v2-avatar">
+			<UserRound size={30} />
+		</div>
+
+
+		<div className="sea-profile-v2-name">
+
+			<h1>
+				{studentId}
+			</h1>
+
+		</div>
+
+	</div>
+
+
+	{/* METADATA */}
+
+	<div className="sea-profile-v2-meta">
+
+		{/* LAST ASSESSMENT */}
+
+		<div className="sea-profile-v2-meta-card">
+
+			<div className="sea-profile-v2-meta-icon">
+				<CalendarDays size={18} />
+			</div>
+
+
+			<div className="sea-profile-v2-meta-copy">
+
+				<span className="sea-profile-v2-label">
+					Last Assessment
+				</span>
+
+
+				<span className="sea-profile-v2-value">
+					{lastAssessmentDate}
+				</span>
+
+			</div>
+
+		</div>
+
+
+		{/* BAND */}
+
+		<div className="sea-profile-v2-meta-card">
+
+			<div className="sea-profile-v2-meta-icon">
+				<GraduationCap size={18} />
+			</div>
+
+
+			<div className="sea-profile-v2-meta-copy">
+
+				<span className="sea-profile-v2-label">
+					Assigned Band
+				</span>
+
+
+				<span className="sea-profile-v2-value sea-profile-v2-band">
+					{currentBand}
+				</span>
+
+			</div>
+
+		</div>
+
+
+		{/* CENTRE */}
+
+		<div className="sea-profile-v2-meta-card">
+
+			<div className="sea-profile-v2-meta-icon">
+				<BriefcaseBusiness size={18} />
+			</div>
+
+
+			<div className="sea-profile-v2-meta-copy">
+
+				<span className="sea-profile-v2-label">
+					Centre
+				</span>
+
+
+				<span className="sea-profile-v2-value">
+					{studentCentre}
+				</span>
+
+			</div>
+
+		</div>
+
+	</div>
+
+</section>
+
+
+{/* =================================================
+    ANALYSIS HEADING
+    ================================================= */}
+
+<div className="sea-analysis-header-v2">
+
+	<div className="sea-analysis-header-v2-copy">
+
+		<span className="sea-analysis-header-v2-eyebrow">
+			FREE-FORM ANALYSIS
+		</span>
+
+
+		<h1>
+			Assessment Analysis
+		</h1>
+
+
+		<p>
+			Review the analysed writing sample,
+			detected error patterns and recommended
+			interventions.
+		</p>
+
+	</div>
+
+
+	<div className="sea-analysis-header-v2-actions">
+
+		<button
+			type="button"
+			className="sea-analysis-back-v2"
+			onClick={() =>
+				navigate(
+					`/error-dashboard/${encodeURIComponent(
+						studentId,
+					)}`,
+				)
+			}
+		>
+			<ArrowLeft size={16} />
+
+			Back
+		</button>
+
+
+		<button
+			type="button"
+			className="sea-analysis-report-v2"
+			onClick={() =>
+				navigate(
+					`/error-report/${reportId}`,
+				)
+			}
+		>
+			<FileBarChart2 size={17} />
+
+			Generate Report
+		</button>
+
+	</div>
+
+</div>
 
 					<div className="sea-grid">
 						{/* Writing sample */}
