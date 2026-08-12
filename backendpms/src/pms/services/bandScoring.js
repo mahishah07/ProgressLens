@@ -696,6 +696,23 @@ const calculateBandScore = (assessment, bandLevel, schLevel) => {
 			};
 		}
 
+		// Reading Comprehension: mandatory from A3 onward, but data has a known
+		// collection gap (missing/blank scores despite always being administered).
+		// Per team decision: default to passed when unscored, until data is cleaned.
+		if (comp.name === "readingComp" && !hasScore) {
+			return {
+				name: comp.name,
+				group: comp.group || null,
+				score: score ?? null,
+				passMark: null,
+				weight: comp.weight,
+				passed: true,
+				weightedScore: 0, // set below via non-group weightedScore assignment
+				skipped: false,
+				note: "No score recorded — defaulted to passed (known data gap)",
+			};
+		}
+
 		// Skip optional components with no real score
 		// Skip any component with no real score (required or optional)
 		if (!hasScore) {

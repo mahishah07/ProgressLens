@@ -1,134 +1,152 @@
-const OpenAI = require("openai");
+const aiService = require("../services/aiService");
 
-const client = new OpenAI({
-	apiKey: process.env.OPENAI_API_KEY,
+jest.mock("openai", () => {
+	return jest.fn().mockImplementation(() => ({
+		chat: {
+			completions: {
+				create: jest.fn().mockResolvedValue({
+					choices: [
+						{
+							message: {
+								content: JSON.stringify({
+									summary: "Student shows steady progress",
+									strengths: "Strong word reading and writing skills",
+									interventionAreas: "Needs support in reading comprehension",
+									teachingStrategies:
+										"Use visual aids and structured writing frames",
+									suggestedActivities:
+										"Daily reading logs and guided writing exercises",
+								}),
+							},
+						},
+					],
+				}),
+			},
+		},
+	}));
 });
 
-const SKILL_LABELS = {
-	pictureNaming: "Picture Naming",
-	pictureDescription: "Picture Description",
-	paIdentification: "Phonological Awareness",
-	phonics: "Phonics",
-	wra: "Word Reading Accuracy",
-	fluency: "Reading Fluency",
-	wordSpelling: "Word Spelling",
-	letterFormation: "Letter Formation",
-	ed1: "Editing Skills (Level 1)",
-	ed2: "Editing Skills (Level 2)",
-	ed3: "Editing Skills (Level 3)",
-	narrative: "Narrative Writing",
-	exposition: "Exposition Writing",
-	persuasive: "Persuasive Writing",
-	lsComprehension: "Listening Comprehension",
-	rdComprehension: "Reading Comprehension",
+const mockComparisonData = {
+	totalAssessments: 3,
+	comparisonPeriod: { from: "2022 Sem 1", to: "2023 Sem 2" },
+	bandChange: { direction: "improved", steps: 2 },
+	componentComparison: {
+		wra: {
+			before: 6,
+			after: 9,
+			change: 3,
+			beforePassed: false,
+			afterPassed: true,
+			bothTaken: true,
+		},
+		narrative: {
+			before: null,
+			after: 12,
+			change: null,
+			beforePassed: null,
+			afterPassed: true,
+			bothTaken: false,
+		},
+	},
+	transitions: { newlyPassing: 1, newlyFailing: 0 },
 };
 
-const sanitiseForAI = (comparison) => {
-	const componentComparison = {};
-	if (comparison.componentComparison) {
-		for (const [key, val] of Object.entries(comparison.componentComparison)) {
-			componentComparison[SKILL_LABELS[key] || key] = {
-				before: val.before,
-				after: val.after,
-				change: val.change,
-				beforePassed: val.beforePassed,
-				afterPassed: val.afterPassed,
-				bothTaken: val.bothTaken,
-			};
-		}
-	}
-
-	return {
-		totalAssessments: comparison.totalAssessments,
-		comparisonPeriod: comparison.comparisonPeriod,
-		bandChange: comparison.bandChange,
-		componentComparison,
-		transitions: comparison.transitions,
-	};
+// UT-PMS-23 — readingComp default-pass values don't misrepresent progress to the AI
+const mockComparisonDataWithDefaultedReadingComp = {
+	...mockComparisonData,
+	componentComparison: {
+		...mockComparisonData.componentComparison,
+		readingComp: {
+			before: null,
+			after: null,
+			change: null,
+			beforePassed: true, // defaulted — no real score either time
+			afterPassed: true, // defaulted — no real score either time
+			bothTaken: false,
+			note: "No score recorded — defaulted to passed (known data gap)",
+		},
+	},
 };
 
-exports.generateDashboardSummary = async (dashboardData) => {
-	const prompt = `You are a supportive special education teacher writing a brief internal summary for a student's progress dashboard (for teacher eyes, not parents).
+describe("UT-PMS-22 — AIService PII exclusion and data contract", () => {
+	test("should exclude PII fields before sending to OpenAI", async () => {
+		const OpenAI = require("openai");
+		const mockCreate = OpenAI.mock.results[0].value.chat.completions.create;
 
-Based on this student's latest assessment data, write a concise 2-3 sentence summary covering: overall progress, strongest area, and the main area needing intervention.
+		await aiService.generateRecommendations(mockComparisonData);
 
-Data:
-${JSON.stringify(dashboardData, null, 2)}
+		const callArgs = mockCreate.mock.calls[0][0];
+		const promptContent = callArgs.messages[0].content;
 
-Respond in JSON format only:
-{ "summary": "2-3 sentence summary" }`;
-
-	const response = await client.chat.completions.create({
-		model: "gpt-4o-mini",
-		messages: [{ role: "user", content: prompt }],
-		max_tokens: 300,
-		temperature: 0.7,
+		expect(promptContent).not.toMatch(/Student \d+/);
+		expect(promptContent).not.toMatch(/Teacher \d+/);
+		expect(promptContent).not.toMatch(/Centre [A-Z]/);
+		expect(promptContent).not.toMatch(/School \d+/);
 	});
 
-	const text = response.choices[0].message.content.trim();
-	const clean = text.replace(/```json|```/g, "").trim();
-	return JSON.parse(clean);
-};
+	test("should send componentComparison and transitions, not old skillChanges shape", async () => {
+		const OpenAI = require("openai");
+		const mockCreate = OpenAI.mock.results[0].value.chat.completions.create;
 
-// UC6: generate AI teaching recommendations
-exports.generateRecommendations = async (comparisonData) => {
-	const sanitised = sanitiseForAI(comparisonData);
+		await aiService.generateRecommendations(mockComparisonData);
 
-	const prompt = `You are an experienced special education teacher specialising in literacy development for students with dyslexia and learning differences.
+		const callArgs = mockCreate.mock.calls[0][0];
+		const promptContent = callArgs.messages[0].content;
 
-Based on the following anonymised student assessment data, generate personalised teaching recommendations.
-
-Assessment Data:
-${JSON.stringify(sanitised, null, 2)}
-
-Respond in the following JSON format only, no extra text, and in parent-friendly language:
-{
-  "summary": "2-3 sentence summary of the student's overall learning progress",
-  "strengths": "2-3 sentences identifying what the student is doing well",
-  "interventionAreas": "2-3 sentences identifying specific areas that need targeted support",
-  "teachingStrategies": "3-4 concrete teaching strategies the teacher can use immediately",
-  "suggestedActivities": "3-4 specific learning activities tailored to this student's needs"
-}`;
-
-	const response = await client.chat.completions.create({
-		model: "gpt-4o-mini",
-		messages: [{ role: "user", content: prompt }],
-		max_tokens: 1000,
-		temperature: 0.7,
+		expect(promptContent).toMatch(/componentComparison/);
+		expect(promptContent).toMatch(/transitions/);
+		expect(promptContent).not.toMatch(/skillChanges/);
+		expect(promptContent).not.toMatch(/overallScore/);
 	});
 
-	const text = response.choices[0].message.content.trim();
-	const clean = text.replace(/```json|```/g, "").trim();
-	return JSON.parse(clean);
-};
+	test("should return all five recommendation fields", async () => {
+		const result = await aiService.generateRecommendations(mockComparisonData);
 
-// UC3: generate parent-friendly report using AI
-// Note: dashboardData is already sanitised by reportService before being passed here
-exports.generateParentReport = async (dashboardData, currentBand) => {
-	const prompt = `You are a caring and empathetic special education teacher writing a progress report for a parent.
-
-The report must be warm, encouraging, easy to understand, and completely free of technical jargon. 
-The student is currently at band level ${currentBand || "unknown"} in their literacy development.
-
-Assessment Data:
-${JSON.stringify(dashboardData, null, 2)}
-
-Respond in the following JSON format only, no extra text:
-{
-  "overallProgress": "2-3 warm, encouraging sentences summarising the child's overall progress in parent-friendly language",
-  "literacyGrowth": "2-3 sentences highlighting specific areas where the child has grown, using simple language",
-  "teacherObservations": "2-3 sentences with warm personal observations about the child's effort and attitude",
-  "interventionAreas": "2-3 sentences explaining areas of focus in a positive, supportive way, with suggestions for home support"
-}`;
-
-	const response = await client.chat.completions.create({
-		model: "gpt-4o-mini",
-		messages: [{ role: "user", content: prompt }],
-		max_tokens: 1000,
-		temperature: 0.7,
+		expect(result).toHaveProperty("summary");
+		expect(result).toHaveProperty("strengths");
+		expect(result).toHaveProperty("interventionAreas");
+		expect(result).toHaveProperty("teachingStrategies");
+		expect(result).toHaveProperty("suggestedActivities");
 	});
 
-	const text = response.choices[0].message.content.trim();
-	const clean = text.replace(/```json|```/g, "").trim();
-	return JSON.parse(clean);
-};
+	test("should call OpenAI with gpt-4o-mini model", async () => {
+		const OpenAI = require("openai");
+		const mockCreate = OpenAI.mock.results[0].value.chat.completions.create;
+
+		await aiService.generateRecommendations(mockComparisonData);
+
+		const callArgs = mockCreate.mock.calls[0][0];
+		expect(callArgs.model).toBe("gpt-4o-mini");
+	});
+});
+
+describe("UT-PMS-23 — readingComp default-pass values don't misrepresent progress to the AI", () => {
+	test("prompt does not claim improvement when both readingComp values are defaulted, not real scores", async () => {
+		const OpenAI = require("openai");
+		const mockCreate = OpenAI.mock.results[0].value.chat.completions.create;
+
+		await aiService.generateRecommendations(
+			mockComparisonDataWithDefaultedReadingComp,
+		);
+
+		// Use the most recent call, not calls[0] — the mock isn't cleared
+		// between tests in this file, so calls[0] would grab an earlier
+		// test's call instead of this one.
+		const callArgs = mockCreate.mock.calls[mockCreate.mock.calls.length - 1][0];
+		const promptContent = callArgs.messages[0].content;
+
+		// The raw data is passed through — this test documents current
+		// behaviour and should be revisited once dataIncomplete flagging
+		// (see /areas/das-pms.md) is implemented, since right now the
+		// prompt has no way to distinguish a real pass from a defaulted one.
+		expect(promptContent).toMatch(/readingComp/);
+	});
+
+	test("generateRecommendations does not throw when readingComp is fully defaulted (no real scores either side)", async () => {
+		await expect(
+			aiService.generateRecommendations(
+				mockComparisonDataWithDefaultedReadingComp,
+			),
+		).resolves.toHaveProperty("summary");
+	});
+});

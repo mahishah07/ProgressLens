@@ -885,7 +885,11 @@ export default function StudentProgress() {
 													{SKILL_LABELS[comp.name] || comp.name}
 												</span>
 												<span className="sp-comp-score">
-													{comp.name === "writtenVocab"
+													{comp.name === "writtenVocab" ||
+													(comp.name === "readingComp" &&
+														(comp.score === null ||
+															comp.score === undefined ||
+															comp.score === 0))
 														? comp.skipped
 															? "Not taken"
 															: comp.passed
