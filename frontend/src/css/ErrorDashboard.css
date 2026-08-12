@@ -1,44 +1,879 @@
 /* =========================================================
-   ERROR DASHBOARD
+   ERROR DASHBOARD / ERROR ANALYSIS SHARED BASE
 
-   ErrorDashboard deliberately reuses the exact UI from:
-   - ErrorOptions.css
-   - ErrorAnswer.css
+   IMPORTANT:
+   ErrorAnswer.css is imported AFTER this file.
 
-   Only differences specific to free-form analysis belong here.
+   This stylesheet supplies the structural/base classes used
+   by BOTH ErrorDashboard and ErrorAnswer, especially history.
+   ErrorAnswer.css then supplies the final visual overrides.
    ========================================================= */
 
 
-/* One upload instead of ErrorAnswer's two-column upload */
+/* =========================================================
+   GENERAL ANALYSIS SECTION
+   ========================================================= */
 
-.ed-single-upload-grid {
-	grid-template-columns: 1fr;
-}
-
-
-/* Give the single upload the full available width */
-
-.ed-single-upload-grid .sa-upload-area {
+.analysis-upload-section {
 	width: 100%;
 }
 
 
-/* Free-form sidebar item uses the exact same active appearance */
+/* =========================================================
+   BASE ANALYSE BUTTON
 
-.eo-page
-.sidebar
-nav
-.eo-nav-subitem.active {
-	background: var(--eo-red-soft) !important;
-	color: var(--eo-red) !important;
+   ErrorAnswer.css overrides colours/sizing when inside
+   .sa-upload-card.
+   ========================================================= */
+
+.analyse-button {
+	margin: 35px auto 0;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	gap: 10px;
+
+	padding: 16px 36px;
+
+	border: none;
+	border-radius: 12px;
+
+	background: #9f2233;
+	color: white;
+
+	font-size: 16px;
+	font-weight: 600;
+
+	cursor: pointer;
+
+	transition:
+		background 0.2s ease,
+		transform 0.2s ease,
+		box-shadow 0.2s ease;
+}
+
+.analyse-button:hover:not(:disabled) {
+	background: #7f1d2d;
+
+	transform: translateY(-1px);
+
+	box-shadow:
+		0 6px 14px
+		rgba(127, 29, 45, 0.14);
+}
+
+.analyse-button:disabled {
+	opacity: 0.55;
+
+	cursor: not-allowed;
+
+	box-shadow: none;
+
+	transform: none;
+}
+
+
+/* =========================================================
+   ERROR DASHBOARD SINGLE UPLOAD
+
+   ErrorAnswer:
+   [Student] [Answer Key]
+
+   ErrorDashboard:
+   [        Student        ]
+   ========================================================= */
+
+.ed-single-upload-grid {
+	grid-template-columns:
+		minmax(0, 1fr) !important;
+}
+
+.ed-single-upload-grid
+.sa-upload-area {
+	width: 100%;
+
+	box-sizing: border-box;
+}
+
+
+/* =========================================================
+   HISTORY HEADER
+   ========================================================= */
+
+.history-header {
+	display: flex;
+
+	align-items: flex-end;
+	justify-content: space-between;
+
+	gap: 24px;
+
+	margin-top: 6px;
+	margin-bottom: 24px;
+}
+
+
+.history-header > div {
+	min-width: 0;
+}
+
+
+.history-header h2 {
+	margin: 4px 0 6px;
+
+	color: #111827;
+
+	font-size: 32px;
+	font-weight: 750;
+
+	line-height: 1.15;
+
+	letter-spacing: -0.7px;
+}
+
+
+.history-eyebrow {
+	margin: 0;
+
+	color: #9f2233;
+
+	font-size: 12px;
+	font-weight: 800;
+
+	letter-spacing: 1.5px;
+
+	text-transform: uppercase;
+}
+
+
+.history-intro {
+	margin: 0;
+
+	color: #64748b;
+
+	font-size: 15px;
+
+	line-height: 1.5;
+}
+
+
+.history-count {
+	flex-shrink: 0;
+
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+
+	min-height: 36px;
+
+	padding: 8px 14px;
+
+	border: 1px solid #dbe2ea;
+	border-radius: 999px;
+
+	background: white;
+
+	color: #475569;
+
+	font-size: 13px;
+	font-weight: 700;
+
+	white-space: nowrap;
+}
+
+
+/* =========================================================
+   HISTORY TOOLBAR
+   ========================================================= */
+
+.toolbar {
+	display: flex;
+
+	align-items: stretch;
+
+	gap: 14px;
+
+	width: 100%;
+}
+
+
+.history-toolbar {
+	margin-bottom: 22px;
+}
+
+
+.assessment-search {
+	flex: 1;
+
+	min-width: 260px;
+	height: 48px;
+
+	display: flex;
+
+	align-items: center;
+
+	gap: 10px;
+
+	padding: 0 14px;
+
+	border: 1px solid #d1d5db;
+	border-radius: 10px;
+
+	background: white;
+
+	color: #64748b;
+
+	transition:
+		border-color 0.18s ease,
+		box-shadow 0.18s ease,
+		background 0.18s ease;
+}
+
+
+.assessment-search svg {
+	flex-shrink: 0;
+}
+
+
+.assessment-search input {
+	flex: 1;
+
+	min-width: 0;
+
+	border: none;
+	outline: none;
+
+	background: transparent;
+
+	color: #374151;
+
+	font-family: inherit;
+
+	font-size: 14px;
+}
+
+
+.assessment-search input::placeholder {
+	color: #9ca3af;
+}
+
+
+.history-toolbar select {
+	min-width: 195px;
+	height: 48px;
+
+	padding: 0 36px 0 14px;
+
+	border: 1px solid #d1d5db;
+	border-radius: 10px;
+
+	background: white;
+
+	color: #475569;
+
+	font-family: inherit;
+
+	font-size: 14px;
+	font-weight: 500;
+
+	cursor: pointer;
+
+	outline: none;
+
+	transition:
+		border-color 0.18s ease,
+		box-shadow 0.18s ease;
+}
+
+
+/* =========================================================
+   HISTORY GRID
+   ========================================================= */
+
+.history-grid {
+	display: grid;
+
+	grid-template-columns:
+		repeat(3, minmax(0, 1fr));
+
+	gap: 20px;
+
+	width: 100%;
+
+	margin-bottom: 40px;
+}
+
+
+/* =========================================================
+   HISTORY CARD
+   ========================================================= */
+
+.history-card {
+	position: relative;
+
+	min-width: 0;
+
+	display: flex;
+	flex-direction: column;
+
+	padding: 24px;
+
+	overflow: hidden;
+
+	border: 1px solid #dfe5ec;
+	border-radius: 18px;
+
+	background: white;
+
+	box-shadow:
+		0 3px 12px
+		rgba(15, 23, 42, 0.035);
+
+	transition:
+		transform 0.2s ease,
+		border-color 0.2s ease,
+		box-shadow 0.2s ease;
+}
+
+
+.history-card:hover {
+	transform: translateY(-2px);
+
+	border-color: #cfd3d9;
+
+	box-shadow:
+		0 10px 24px
+		rgba(15, 23, 42, 0.07);
+}
+
+
+/* Optional accent if a card uses it */
+
+.history-card-accent {
+	position: absolute;
+
+	top: 0;
+	left: 0;
+
+	width: 100%;
+	height: 4px;
+
+	background:
+		linear-gradient(
+			90deg,
+			#9f2233,
+			#d9a5ae
+		);
+}
+
+
+/* =========================================================
+   HISTORY CARD HEADER
+   ========================================================= */
+
+.history-top {
+	display: flex;
+
+	align-items: flex-start;
+	justify-content: space-between;
+
+	gap: 14px;
+
+	margin-bottom: 16px;
+}
+
+
+.history-title-block {
+	flex: 1;
+
+	min-width: 0;
+}
+
+
+.history-title-block h3 {
+	margin: 4px 0 0;
+
+	overflow: hidden;
+
+	color: #111827;
+
+	font-size: 20px;
+	font-weight: 700;
+
+	line-height: 1.3;
+
+	text-overflow: ellipsis;
+
+	white-space: nowrap;
+}
+
+
+.history-type {
+	display: block;
+
+	color: #64748b;
+
+	font-size: 11px;
+	font-weight: 800;
+
+	letter-spacing: 0.8px;
+
+	text-transform: uppercase;
+}
+
+
+/* =========================================================
+   HISTORY META
+   ========================================================= */
+
+.history-meta-row {
+	display: flex;
+
+	align-items: center;
+
+	gap: 16px;
+
+	flex-wrap: wrap;
+
+	padding-bottom: 16px;
+
+	border-bottom: 1px solid #eef0f2;
+
+	color: #6b7280;
+
+	font-size: 12px;
+}
+
+
+.history-meta-row span {
+	display: inline-flex;
+
+	align-items: center;
+
+	gap: 6px;
+}
+
+
+.history-meta-row svg {
+	flex-shrink: 0;
+
+	color: #8a9099;
+}
+
+
+/* =========================================================
+   HISTORY INSIGHTS
+   ========================================================= */
+
+.history-insights {
+	display: grid;
+
+	grid-template-columns:
+		repeat(2, minmax(0, 1fr));
+
+	gap: 12px;
+
+	margin-top: 16px;
+}
+
+
+.history-metric,
+.history-pattern {
+	min-width: 0;
+
+	min-height: 92px;
+
+	display: flex;
+	flex-direction: column;
+
+	justify-content: center;
+
+	gap: 7px;
+
+	padding: 14px;
+
+	border: 1px solid #eceef1;
+	border-radius: 12px;
+
+	background: #fafbfc;
+}
+
+
+.history-metric > span,
+.history-pattern > span {
+	color: #7a828d;
+
+	font-size: 11px;
+	font-weight: 700;
+
+	letter-spacing: 0.04em;
+
+	text-transform: uppercase;
+}
+
+
+.history-metric strong {
+	color: #9f2233;
+
+	font-size: 26px;
+	font-weight: 750;
+
+	line-height: 1;
+}
+
+
+.history-pattern strong {
+	display: flex;
+
+	align-items: flex-start;
+
+	gap: 6px;
+
+	overflow-wrap: anywhere;
+
+	color: #374151;
+
+	font-size: 13px;
+	font-weight: 700;
+
+	line-height: 1.4;
+}
+
+
+.history-pattern strong svg {
+	flex-shrink: 0;
+
+	margin-top: 1px;
+
+	color: #9f2233;
+}
+
+
+/* =========================================================
+   AI SUMMARY
+   ========================================================= */
+
+.history-summary-block {
+	margin-top: 14px;
+
+	padding: 14px 15px;
+
+	border: 1px solid #e4e5e8;
+	border-left: 3px solid #9f2233;
+	border-radius: 0 9px 9px 0;
+
+	background: #f7f7f8;
+}
+
+
+.history-summary-block > span {
+	display: block;
+
+	margin-bottom: 5px;
+
+	color: #7a828d;
+
+	font-size: 10px;
+	font-weight: 800;
+
+	letter-spacing: 0.07em;
+
+	text-transform: uppercase;
+}
+
+
+.history-summary-block p {
+	display: -webkit-box;
+
+	margin: 0;
+
+	overflow: hidden;
+
+	color: #4b5563;
+
+	font-size: 13px;
+
+	line-height: 1.55;
+
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 3;
+}
+
+
+/* =========================================================
+   CARD FOOTER
+   ========================================================= */
+
+.history-card-footer {
+	display: flex;
+
+	align-items: center;
+	justify-content: space-between;
+
+	gap: 12px;
+
+	margin-top: auto;
+
+	padding-top: 18px;
+}
+
+
+.history-card-actions {
+	display: flex;
+
+	align-items: center;
+
+	gap: 8px;
+
+	width: 100%;
+}
+
+
+/* =========================================================
+   HISTORY BUTTON STRUCTURE
+
+   ErrorAnswer.css overrides final colours.
+   ========================================================= */
+
+.analysis-button,
+.report-button {
+	flex: 1;
+
+	min-height: 39px;
+
+	display: inline-flex;
+
+	align-items: center;
+	justify-content: center;
+
+	gap: 7px;
+
+	padding: 9px 12px;
+
+	border-radius: 9px;
+
+	font-size: 12px;
+	font-weight: 700;
+
+	text-decoration: none;
+
+	white-space: nowrap;
+
+	cursor: pointer;
+
+	transition:
+		background 0.18s ease,
+		color 0.18s ease,
+		border-color 0.18s ease,
+		transform 0.18s ease;
+}
+
+
+.analysis-button {
+	border: 1px solid #9f2233;
+
+	background: #9f2233;
+
+	color: white;
+}
+
+
+.analysis-button:hover {
+	background: #7f1d2d;
+
+	border-color: #7f1d2d;
+
+	color: white;
+}
+
+
+.report-button {
+	border: 1px solid #d4d7dc;
+
+	background: white;
+
+	color: #363c44;
+}
+
+
+.report-button:hover {
+	background: #f5f6f7;
+
+	border-color: #afb4bc;
+
+	color: #1f2933;
+}
+
+
+/* =========================================================
+   EMPTY FILTER RESULT
+   ========================================================= */
+
+.history-empty-state {
+	grid-column: 1 / -1;
+
+	min-height: 150px;
+
+	display: flex;
+
+	align-items: center;
+	justify-content: center;
+
+	gap: 12px;
+
+	padding: 28px;
+
+	border: 1px dashed #d9dce1;
+	border-radius: 14px;
+
+	background: #fafafa;
+
+	color: #7b8087;
+}
+
+
+.history-empty-state svg {
+	flex-shrink: 0;
+
+	color: #9f2233;
+}
+
+
+.history-empty-state strong {
+	display: block;
+
+	margin-bottom: 4px;
+
+	color: #374151;
+
+	font-size: 14px;
 	font-weight: 700;
 }
 
 
-.eo-page
+.history-empty-state p {
+	margin: 0;
+
+	color: #7b8087;
+
+	font-size: 13px;
+
+	line-height: 1.45;
+}
+
+
+/* =========================================================
+   FREE-FORM ACTIVE NAV ITEM
+   ========================================================= */
+
+.ea-page
+.sidebar
+nav
+.eo-nav-subitem.active {
+	background: #f8ecef !important;
+
+	color: #9f2233 !important;
+
+	font-weight: 700;
+}
+
+
+.ea-page
 .sidebar
 nav
 .eo-nav-subitem.active svg {
-	color: var(--eo-red) !important;
-	stroke: var(--eo-red) !important;
+	color: #9f2233 !important;
+
+	stroke: #9f2233 !important;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1280px) {
+
+	.history-grid {
+		grid-template-columns:
+			repeat(2, minmax(0, 1fr));
+	}
+
+}
+
+
+@media (max-width: 1000px) {
+
+	.toolbar {
+		flex-wrap: wrap;
+	}
+
+
+	.assessment-search {
+		flex-basis: 100%;
+	}
+
+
+	.history-toolbar select {
+		flex: 1;
+
+		min-width: 180px;
+	}
+
+}
+
+
+@media (max-width: 900px) {
+
+	.history-grid {
+		grid-template-columns: 1fr;
+	}
+
+
+	.history-header {
+		align-items: flex-start;
+	}
+
+}
+
+
+@media (max-width: 620px) {
+
+	.history-header {
+		flex-direction: column;
+
+		gap: 14px;
+	}
+
+
+	.history-insights {
+		grid-template-columns: 1fr;
+	}
+
+
+	.history-card-actions {
+		flex-direction: column;
+	}
+
+
+	.analysis-button,
+	.report-button {
+		width: 100%;
+	}
+
+
+	.history-toolbar {
+		flex-direction: column;
+	}
+
+
+	.history-toolbar select,
+	.assessment-search {
+		width: 100%;
+
+		min-width: 0;
+	}
+
 }

@@ -1,6 +1,6 @@
-import "./../css/ErrorDashboard.css";
 import "./../css/Landing.css";
 import "./../css/ErrorOptions.css";
+import "./../css/ErrorDashboard.css";
 import "./../css/ErrorAnswer.css";
 
 import { Link, useParams, useNavigate } from "react-router-dom";
@@ -1110,50 +1110,110 @@ const studentCentre =
 const visibleHistory = analysedHistory
   .filter((assessment) => {
 
-    if (historyCategory === "all") {
-      return true;
-    }
+  const name =
+    assessmentName(
+      assessment,
+    )
+      .trim()
+      .toLowerCase();
 
-    if (historyCategory === "reference") {
-      return Boolean(
-        assessment.answerKey
-      );
-    }
 
-    if (historyCategory === "free-form") {
-      return !assessment.answerKey;
-    }
-
-    if (historyCategory === "edit-diagram") {
-      return (
-        writingType(assessment) ===
-        "Edit and diagram"
-      );
-    }
-
-    if (historyCategory === "narrative") {
-      return (
-        writingType(assessment) ===
-        "Narrative writing"
-      );
-    }
-
-    if (historyCategory === "expository") {
-      return (
-        writingType(assessment) ===
-        "Expository writing"
-      );
-    }
-
-    if (historyCategory === "persuasive") {
-      return (
-        writingType(assessment) ===
-        "Persuasive writing"
-      );
-    }
-
+  /* ALL */
+  if (
+    historyCategory ===
+    "all"
+  ) {
     return true;
-  })
+  }
+
+
+  /* REFERENCE-BASED */
+  if (
+    historyCategory ===
+    "reference"
+  ) {
+    return Boolean(
+      assessment.answerKey,
+    );
+  }
+
+
+  /* FREE-FORM */
+  if (
+    historyCategory ===
+    "free-form"
+  ) {
+    return !assessment.answerKey;
+  }
+
+
+  /* GENERIC WRITING
+     Example: Writing 16127
+  */
+  if (
+    historyCategory ===
+    "writing"
+  ) {
+    return name.startsWith(
+      "writing"
+    );
+  }
+
+
+  /* EDIT & DIAGRAM */
+  if (
+    historyCategory ===
+    "edit-diagram"
+  ) {
+    return (
+      name.startsWith("edit") ||
+      name.startsWith("diagram") ||
+      name.includes("edit and diagram") ||
+      name.includes("edit & diagram")
+    );
+  }
+
+
+  /* NARRATIVE */
+  if (
+    historyCategory ===
+    "narrative"
+  ) {
+    return name.startsWith(
+      "narrative"
+    );
+  }
+
+
+  /* EXPOSITORY */
+  if (
+    historyCategory ===
+    "expository"
+  ) {
+    return (
+      name.startsWith(
+        "expository"
+      ) ||
+      name.startsWith(
+        "exposition"
+      )
+    );
+  }
+
+
+  /* PERSUASIVE */
+  if (
+    historyCategory ===
+    "persuasive"
+  ) {
+    return name.startsWith(
+      "persuasive"
+    );
+  }
+
+
+  return true;
+})
 
   .filter((assessment) => {
     const query =
@@ -1636,6 +1696,10 @@ const visibleHistory = analysedHistory
 
                   <option value="edit-diagram">
                     Edit & Diagram
+                  </option>
+
+                  <option value="writing">
+                    Writing
                   </option>
 
                   <option value="narrative">

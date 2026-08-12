@@ -1066,12 +1066,6 @@ nav
 	color: var(--ea-red);
 }
 
-
-.history-pattern strong {
-	color: #343a43;
-}
-
-
 .history-summary-block {
 	background: #f7f7f8;
 
@@ -1149,6 +1143,23 @@ select,
 	color: var(--ea-black);
 }
 
+
+/* =========================================================
+   STATUS — NO BLUE
+   ========================================================= */
+
+.history-status.analysed,
+.history-status.finalised {
+	background: var(--ea-red-soft);
+
+	color: var(--ea-red);
+
+	border:
+	1px solid
+	var(--ea-red-border);
+}
+
+
 /* =========================================================
    RESPONSIVE
    ========================================================= */
@@ -1198,46 +1209,209 @@ select,
 	font-weight: 700;
 }
 
-.history-empty-state {
-	grid-column: 1 / -1;
+/* =========================================================
+   COMPACT HISTORY CARD INSIGHTS
+   Shared by ErrorAnswer + ErrorDashboard
+   ========================================================= */
 
-	min-height: 130px;
 
-	display: flex;
-	align-items: center;
-	justify-content: center;
+/* Don't force both insight boxes to equal height */
+.history-insights {
+    display: grid;
 
-	gap: 12px;
+    grid-template-columns: 105px minmax(0, 1fr);
 
-	padding: 24px;
+    gap: 10px;
 
-	border: 1px dashed #d9dce1;
-	border-radius: 12px;
+    margin-top: 16px;
 
-	background: #fafafa;
-
-	color: #7b8087;
+    align-items: stretch;
 }
 
-.history-empty-state svg {
-	color: #9f2233;
+
+/* Shared compact box styling */
+.history-metric,
+.history-pattern {
+    min-width: 0;
+    min-height: 0;
+
+    padding: 14px 15px;
+
+    border: 1px solid #e7e9ed;
+    border-radius: 11px;
+
+    background: #fafafa;
+
+    display: flex;
+    flex-direction: column;
 }
 
-.history-empty-state strong {
-	display: block;
 
-	margin-bottom: 3px;
+/* =========================================================
+   DETECTED ERRORS
+   ========================================================= */
 
-	color: #374151;
+.history-metric {
+    justify-content: center;
+    align-items: flex-start;
 
-	font-size: 14px;
-	font-weight: 700;
+    gap: 6px;
 }
 
-.history-empty-state p {
-	margin: 0;
 
-	color: #7b8087;
+/* Small uppercase heading */
+.history-metric > span,
+.history-pattern > span {
+    color: #747c89;
 
-	font-size: 13px;
+    font-size: 11px;
+    font-weight: 800;
+
+    line-height: 1.2;
+
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+
+/* Error number */
+.history-metric strong {
+    color: #9f2233;
+
+    font-size: 27px;
+    font-weight: 750;
+
+    line-height: 1;
+}
+
+
+/* =========================================================
+   DOMINANT PATTERN
+   ========================================================= */
+
+.history-pattern {
+    justify-content: flex-start;
+
+    gap: 7px;
+}
+
+
+/* Pattern itself */
+.history-pattern strong {
+    display: block;
+
+    margin: 0;
+
+    color: #303640;
+
+    font-size: 13px;
+    font-weight: 650;
+
+    line-height: 1.45;
+
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
+
+/* Warning icon */
+.history-pattern strong svg {
+    display: inline;
+
+    width: 15px;
+    height: 15px;
+
+    margin-right: 5px;
+
+    vertical-align: -2px;
+
+    color: #b42335;
+}
+
+
+/* =========================================================
+   AI EDUCATOR SUMMARY
+   ========================================================= */
+
+.history-summary-block {
+    margin-top: 10px;
+
+    padding: 12px 14px;
+
+    border: 1px solid #e5e7eb;
+    border-left: 3px solid #c7cbd1;
+    border-radius: 0 9px 9px 0;
+
+    background: #f8f8f9;
+}
+
+
+.history-summary-block > span {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: #747c89;
+
+    font-size: 10.5px;
+    font-weight: 800;
+
+    line-height: 1.2;
+
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+
+/* Keep every card summary compact */
+.history-summary-block p {
+    margin: 0;
+
+    color: #505866;
+
+    font-size: 13px;
+    font-weight: 400;
+
+    line-height: 1.5;
+
+    overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   CARD HEIGHT / FOOTER
+   ========================================================= */
+
+/*
+   Cards in the same grid row can still be the same height,
+   but this prevents their content blocks from unnecessarily
+   stretching internally.
+*/
+.history-card {
+    height: auto;
+}
+
+
+/* Footer remains aligned at bottom */
+.history-card-footer {
+    margin-top: auto;
+    padding-top: 18px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .history-insights {
+        grid-template-columns: 1fr;
+    }
+
+    .history-metric {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
 }

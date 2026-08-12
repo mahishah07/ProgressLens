@@ -1,7 +1,7 @@
 import "./../css/Landing.css";
 import "./../css/ErrorOptions.css";
-import "./../css/ErrorAnswer.css";
 import "./../css/ErrorDashboard.css";
+import "./../css/ErrorAnswer.css";
 
 import {
   Link,
@@ -18,10 +18,13 @@ import {
 
 import {
   LayoutDashboard,
+  TrendingUp,
   BarChart3,
+  FileCheck2,
   Bell,
   Settings,
   Search,
+  BriefcaseBusiness,
   Upload,
   Image,
   Eye,
@@ -30,12 +33,9 @@ import {
   AlertTriangle,
   CheckCircle2,
   ArrowRight,
-  FileCheck2,
-  ArrowLeft,
-  TrendingUp,
-  BriefcaseBusiness,
   UserRound,
   GraduationCap,
+  ArrowLeft,
   Trash2,
 } from "lucide-react";
 
@@ -49,7 +49,6 @@ const PMS_API =
 
 /* =========================================================
    HELPERS
-   SAME AS ERROR ANSWER
    ========================================================= */
 
 const studentResults = (payload) =>
@@ -63,9 +62,7 @@ const formatAssessmentDate = (value) => {
     return "Date unavailable";
   }
 
-  return new Date(
-    value,
-  ).toLocaleDateString(
+  return new Date(value).toLocaleDateString(
     "en-SG",
     {
       day: "numeric",
@@ -81,35 +78,28 @@ const formatFileSize = (bytes) => {
     return "File stored";
   }
 
-  return bytes >=
-    1024 * 1024
-    ? `${(
-        bytes /
-        1024 /
-        1024
-      ).toFixed(1)} MB`
-    : `${Math.max(
-        1,
-        Math.round(
-          bytes / 1024,
-        ),
-      )} KB`;
+  if (bytes >= 1024 * 1024) {
+    return `${(
+      bytes /
+      1024 /
+      1024
+    ).toFixed(1)} MB`;
+  }
+
+  return `${Math.max(
+    1,
+    Math.round(bytes / 1024),
+  )} KB`;
 };
 
 
-const assessmentName = (
-  assessment,
-) => {
-  if (
-    assessment.answerKey?.title
-  ) {
-    return assessment.answerKey
-      .title;
+const assessmentName = (assessment) => {
+  if (assessment.answerKey?.title) {
+    return assessment.answerKey.title;
   }
 
   const originalName =
-    assessment.writingSample
-      ?.originalName ||
+    assessment.writingSample?.originalName ||
     "Writing sample";
 
   return originalName
@@ -124,40 +114,28 @@ const assessmentName = (
 };
 
 
-const writingType = (
-  assessment,
-) => {
+const writingType = (assessment) => {
   const name =
     assessmentName(
       assessment,
     ).toLowerCase();
 
-  if (
-    name.includes("narrative")
-  ) {
+  if (name.includes("narrative")) {
     return "Narrative writing";
   }
 
   if (
-    name.includes(
-      "exposition",
-    ) ||
-    name.includes(
-      "expository",
-    )
+    name.includes("exposition") ||
+    name.includes("expository")
   ) {
     return "Expository writing";
   }
 
-  if (
-    name.includes("persuasive")
-  ) {
+  if (name.includes("persuasive")) {
     return "Persuasive writing";
   }
 
-  if (
-    name.includes("diagram")
-  ) {
+  if (name.includes("diagram")) {
     return "Edit and diagram";
   }
 
@@ -167,41 +145,35 @@ const writingType = (
 
 const isAnalysedAssessment = (
   assessment,
-) => {
-  return Boolean(
+) =>
+  Boolean(
     assessment.reviewStatus ===
       "finalised" ||
       assessment
         .interventionRecommendation
-        ?.status ===
-        "completed" ||
+        ?.status === "completed" ||
       assessment.openAiAnalysedAt ||
-      assessment.writingSample
-        ?.status ===
+      assessment.writingSample?.status ===
         "analysed",
   );
-};
 
 
 /* =========================================================
    UPLOADED FILE PREVIEW
-   EXACT SAME AS ERROR ANSWER
+   SAME AS ERROR ANSWER
    ========================================================= */
 
-const UploadedFileCard = ({
+function UploadedFileCard({
   file,
   previewURL,
   onPreview,
   onRemove,
-}) => {
+}) {
   const isImage =
-    file.type.startsWith(
-      "image/",
-    );
+    file.type.startsWith("image/");
 
   const isPdf =
-    file.type ===
-    "application/pdf";
+    file.type === "application/pdf";
 
   return (
     <div
@@ -210,9 +182,9 @@ const UploadedFileCard = ({
         event.stopPropagation()
       }
     >
-      {/* PREVIEW */}
 
       <div className="sa-preview-frame">
+
         {isImage && (
           <img
             src={previewURL}
@@ -221,6 +193,7 @@ const UploadedFileCard = ({
           />
         )}
 
+
         {isPdf && (
           <iframe
             src={`${previewURL}#toolbar=0&navpanes=0`}
@@ -228,12 +201,12 @@ const UploadedFileCard = ({
             title={`${file.name} preview`}
           />
         )}
+
       </div>
 
 
-      {/* FILE DETAILS */}
-
       <div className="sa-file-details">
+
         <CheckCircle2
           size={17}
           className="sa-upload-success-icon"
@@ -253,12 +226,12 @@ const UploadedFileCard = ({
             MB
           </p>
         </div>
+
       </div>
 
 
-      {/* ACTIONS */}
-
       <div className="sa-upload-actions">
+
         <button
           type="button"
           className="sa-preview-file"
@@ -268,6 +241,7 @@ const UploadedFileCard = ({
           Open preview
         </button>
 
+
         <button
           type="button"
           className="sa-remove-file"
@@ -276,54 +250,46 @@ const UploadedFileCard = ({
           <Trash2 size={15} />
           Remove
         </button>
+
       </div>
+
     </div>
   );
-};
+}
 
 
 /* =========================================================
    SIDEBAR
-   SAME AS ERROR ANSWER
-   ONLY FREE-FORM ITEM IS ACTIVE
    ========================================================= */
 
-function TeacherSidebar({
-  studentId,
-}) {
+function TeacherSidebar({ studentId }) {
   const encodedId =
     studentId
-      ? encodeURIComponent(
-          studentId,
-        )
+      ? encodeURIComponent(studentId)
       : "";
 
   return (
     <aside className="sidebar">
+
       <div className="logo-section">
+
         <div className="logo-circle">
           DAS
         </div>
 
         <div>
           <h2>DAS Teacher</h2>
-
-          <p>
-            Educational Professional
-          </p>
+          <p>Educational Professional</p>
         </div>
+
       </div>
 
 
       <nav>
-        <Link to="/">
-          <LayoutDashboard
-            size={20}
-          />
 
-          <span>
-            Dashboard
-          </span>
+        <Link to="/">
+          <LayoutDashboard size={20} />
+          <span>Dashboard</span>
         </Link>
 
 
@@ -331,18 +297,14 @@ function TeacherSidebar({
           <Link
             to={`/student/${encodedId}?view=dashboard`}
           >
-            <TrendingUp
-              size={20}
-            />
-
-            <span>
-              Progress Monitoring
-            </span>
+            <TrendingUp size={20} />
+            <span>Progress Monitoring</span>
           </Link>
         )}
 
 
         <div className="eo-nav-section">
+
           <span className="eo-nav-heading">
             ERROR ANALYSIS
           </span>
@@ -350,17 +312,15 @@ function TeacherSidebar({
 
           {studentId && (
             <>
+
               <Link
                 to={`/error-answer/${encodedId}`}
                 className="eo-nav-subitem"
               >
-                <FileCheck2
-                  size={18}
-                />
+                <FileCheck2 size={18} />
 
                 <span>
-                  Reference-Based
-                  Analysis
+                  Reference-Based Analysis
                 </span>
               </Link>
 
@@ -369,38 +329,32 @@ function TeacherSidebar({
                 to={`/error-dashboard/${encodedId}`}
                 className="eo-nav-subitem active"
               >
-                <BarChart3
-                  size={19}
-                />
+                <BarChart3 size={19} />
 
                 <span>
                   Free-Form Analysis
                 </span>
               </Link>
+
             </>
           )}
+
         </div>
 
 
         <a href="#">
           <Bell size={20} />
-
-          <span>
-            Notifications
-          </span>
+          <span>Notifications</span>
         </a>
 
 
         <a href="#">
-          <Settings
-            size={20}
-          />
-
-          <span>
-            Settings
-          </span>
+          <Settings size={20} />
+          <span>Settings</span>
         </a>
+
       </nav>
+
     </aside>
   );
 }
@@ -408,7 +362,6 @@ function TeacherSidebar({
 
 /* =========================================================
    TOPBAR
-   SAME AS ERROR ANSWER
    ========================================================= */
 
 function TeacherTopbar({
@@ -419,7 +372,9 @@ function TeacherTopbar({
 }) {
   return (
     <header className="topbar eo-main-topbar">
+
       <div className="topbar-brand">
+
         <div>
           <h2>
             DAS Assessment Portal
@@ -429,24 +384,21 @@ function TeacherTopbar({
             Free-Form Analysis
           </span>
         </div>
+
       </div>
 
 
       <div className="eo-topbar-right">
-        {/* STUDENT SEARCH */}
 
         <form
           className="eo-navbar-search"
-          onSubmit={
-            onStudentSearch
-          }
+          onSubmit={onStudentSearch}
         >
+
           <button
             type="submit"
             aria-label="Search student"
-            disabled={
-              studentSearching
-            }
+            disabled={studentSearching}
           >
             <Search size={18} />
           </button>
@@ -454,15 +406,10 @@ function TeacherTopbar({
 
           <input
             type="text"
-            value={
-              studentSearch
-            }
-            onChange={(
-              event,
-            ) =>
+            value={studentSearch}
+            onChange={(event) =>
               setStudentSearch(
-                event.target
-                  .value,
+                event.target.value,
               )
             }
             placeholder={
@@ -470,23 +417,23 @@ function TeacherTopbar({
                 ? "Searching..."
                 : "Search student by name or ID..."
             }
-            disabled={
-              studentSearching
-            }
+            disabled={studentSearching}
           />
+
         </form>
 
 
-        {/* TEACHER */}
-
         <div className="eo-teacher-profile">
+
           <div className="eo-teacher-icon">
             <BriefcaseBusiness
               size={20}
             />
           </div>
 
+
           <div className="eo-teacher-copy">
+
             <strong>
               Educational Professional
             </strong>
@@ -494,9 +441,13 @@ function TeacherTopbar({
             <span>
               DAS Teacher Portal
             </span>
+
           </div>
+
         </div>
+
       </div>
+
     </header>
   );
 }
@@ -514,97 +465,11 @@ export default function ErrorDashboard() {
     useParams();
 
 
-  /* =====================================================
-     STUDENT OVERVIEW
-     SAME AS ERROR ANSWER
-     ===================================================== */
-
   const [
     overview,
     setOverview,
   ] = useState(null);
 
-
-  useEffect(() => {
-    if (
-      !id ||
-      !PMS_API
-    ) {
-      return;
-    }
-
-    const controller =
-      new AbortController();
-
-
-    const loadOverview =
-      async () => {
-        try {
-          const response =
-            await fetch(
-              `${PMS_API}/api/progress/${encodeURIComponent(
-                id,
-              )}/overview`,
-              {
-                signal:
-                  controller
-                    .signal,
-              },
-            );
-
-
-          const data =
-            await response.json();
-
-
-          if (
-            response.ok &&
-            !data.message
-          ) {
-            setOverview(
-              data,
-            );
-          }
-        } catch (error) {
-          if (
-            error.name !==
-            "AbortError"
-          ) {
-            console.warn(
-              "Unable to load student overview:",
-              error,
-            );
-          }
-        }
-      };
-
-
-    loadOverview();
-
-
-    return () =>
-      controller.abort();
-  }, [id]);
-
-
-  const currentBand =
-    overview?.latestNewBand ||
-    overview
-      ?.currentBandLevel ||
-    "—";
-
-
-  const studentCentre =
-    overview?.student
-      ?.centreId ||
-    overview?.student
-      ?.centre ||
-    "—";
-
-
-  /* =====================================================
-     HISTORY
-     ===================================================== */
 
   const [
     history,
@@ -634,14 +499,8 @@ export default function ErrorDashboard() {
   const [
     sortOrder,
     setSortOrder,
-  ] = useState(
-    "latest",
-  );
+  ] = useState("latest");
 
-
-  /* =====================================================
-     NAVBAR SEARCH
-     ===================================================== */
 
   const [
     studentSearch,
@@ -656,8 +515,7 @@ export default function ErrorDashboard() {
 
 
   /* =====================================================
-     STUDENT FILE
-     ONLY UPLOAD ON THIS PAGE
+     FILE STATE
      ===================================================== */
 
   const studentFileInputRef =
@@ -689,66 +547,83 @@ export default function ErrorDashboard() {
 
 
   /* =====================================================
-     VALIDATION
-     SAME AS ERROR ANSWER
+     STUDENT OVERVIEW
      ===================================================== */
 
-  const validateFile = (
-    file,
-  ) => {
-    if (!file) {
-      return false;
+  useEffect(() => {
+    if (!id || !PMS_API) {
+      return;
     }
 
-
-    const allowedTypes = [
-      "application/pdf",
-      "image/png",
-      "image/jpeg",
-      "image/jpg",
-      "image/tiff",
-      "image/bmp",
-    ];
+    const controller =
+      new AbortController();
 
 
-    if (
-      !allowedTypes.includes(
-        file.type,
-      )
-    ) {
-      alert(
-        "Please upload a PDF, PNG, JPG, JPEG, TIFF or BMP.",
-      );
+    const loadOverview = async () => {
+      try {
 
-      return false;
-    }
-
-
-    const MAX_SIZE =
-      10 *
-      1024 *
-      1024;
+        const response =
+          await fetch(
+            `${PMS_API}/api/progress/${encodeURIComponent(
+              id,
+            )}/overview`,
+            {
+              signal:
+                controller.signal,
+            },
+          );
 
 
-    if (
-      file.size >
-      MAX_SIZE
-    ) {
-      alert(
-        "Maximum file size is 10 MB.",
-      );
-
-      return false;
-    }
+        const data =
+          await response.json();
 
 
-    return true;
-  };
+        if (
+          response.ok &&
+          !data.message
+        ) {
+          setOverview(data);
+        }
+
+      } catch (error) {
+
+        if (
+          error.name !==
+          "AbortError"
+        ) {
+          console.warn(
+            "Unable to load student overview:",
+            error,
+          );
+        }
+
+      }
+    };
+
+
+    loadOverview();
+
+
+    return () =>
+      controller.abort();
+
+  }, [id]);
+
+
+  const currentBand =
+    overview?.latestNewBand ||
+    overview?.currentBandLevel ||
+    "—";
+
+
+  const studentCentre =
+    overview?.student?.centreId ||
+    overview?.student?.centre ||
+    "—";
 
 
   /* =====================================================
-     STUDENT SUBMISSION HANDLERS
-     EXACT SAME AS ERROR ANSWER
+     FILE HANDLERS
      ===================================================== */
 
   const handleStudentBrowse =
@@ -762,98 +637,119 @@ export default function ErrorDashboard() {
   const processStudentFile =
     useCallback(
       (file) => {
+
+        if (!file) {
+          return;
+        }
+
+
+        const allowedTypes = [
+          "application/pdf",
+          "image/png",
+          "image/jpeg",
+          "image/jpg",
+          "image/tiff",
+          "image/bmp",
+        ];
+
+
         if (
-          !validateFile(file)
+          !allowedTypes.includes(
+            file.type,
+          )
         ) {
+          alert(
+            "Please upload a PDF, PNG, JPG, JPEG, TIFF or BMP.",
+          );
+
           return;
         }
 
 
         if (
-          studentPreviewURL
+          file.size >
+          10 * 1024 * 1024
         ) {
+          alert(
+            "Maximum file size is 10 MB.",
+          );
+
+          return;
+        }
+
+
+        if (studentPreviewURL) {
           URL.revokeObjectURL(
             studentPreviewURL,
           );
         }
 
 
-        setStudentFile(
-          file,
-        );
+        setStudentFile(file);
 
 
         setStudentPreviewURL(
-          URL.createObjectURL(
-            file,
-          ),
+          URL.createObjectURL(file),
         );
+
       },
-      [
-        studentPreviewURL,
-      ],
+      [studentPreviewURL],
     );
 
 
   const handleStudentFileChange =
     (event) => {
+
       processStudentFile(
-        event.target
-          .files?.[0],
+        event.target.files?.[0],
       );
     };
 
 
   const handleStudentDrop =
     (event) => {
+
       event.preventDefault();
 
-      setStudentDragging(
-        false,
-      );
+      setStudentDragging(false);
 
 
       processStudentFile(
-        event
-          .dataTransfer
-          .files?.[0],
+        event.dataTransfer.files?.[0],
       );
     };
 
 
   const clearStudentFileInput =
     useCallback(() => {
+
       if (
-        studentFileInputRef
-          .current
+        studentFileInputRef.current
       ) {
-        studentFileInputRef
-          .current
-          .value = "";
+        studentFileInputRef.current.value =
+          "";
       }
+
     }, []);
 
 
   const removeStudentFile =
     useCallback(() => {
+
       setStudentFile(null);
 
 
-      if (
-        studentPreviewURL
-      ) {
+      if (studentPreviewURL) {
         URL.revokeObjectURL(
           studentPreviewURL,
         );
       }
 
 
-      setStudentPreviewURL(
-        null,
-      );
-
+      setStudentPreviewURL(null);
 
       clearStudentFileInput();
+
     }, [
       studentPreviewURL,
       clearStudentFileInput,
@@ -862,28 +758,27 @@ export default function ErrorDashboard() {
 
   const previewStudentFile =
     useCallback(() => {
-      if (
-        !studentPreviewURL
-      ) {
+
+      if (!studentPreviewURL) {
         return;
       }
+
 
       window.open(
         studentPreviewURL,
         "_blank",
       );
-    }, [
-      studentPreviewURL,
-    ]);
+
+    }, [studentPreviewURL]);
 
 
   /* =====================================================
-     SEARCH STUDENT
-     SAME AS ERROR ANSWER
+     STUDENT SEARCH
      ===================================================== */
 
   const openStudentDashboard =
     async (event) => {
+
       event.preventDefault();
 
 
@@ -896,12 +791,11 @@ export default function ErrorDashboard() {
       }
 
 
-      setStudentSearching(
-        true,
-      );
+      setStudentSearching(true);
 
 
       try {
+
         const response =
           await fetch(
             `${API}/api/students?q=${encodeURIComponent(
@@ -923,15 +817,13 @@ export default function ErrorDashboard() {
 
 
         let profiles =
-          studentResults(
-            data,
-          );
+          studentResults(data);
 
 
         if (
-          profiles.length ===
-          0
+          profiles.length === 0
         ) {
+
           const pmsResponse =
             await fetch(
               `${PMS_API}/api/progress/search?studentId=${encodeURIComponent(
@@ -944,9 +836,7 @@ export default function ErrorDashboard() {
             await pmsResponse.json();
 
 
-          if (
-            !pmsResponse.ok
-          ) {
+          if (!pmsResponse.ok) {
             throw new Error(
               pmsData.message ||
                 "Unable to search the student directory.",
@@ -955,9 +845,7 @@ export default function ErrorDashboard() {
 
 
           profiles =
-            Array.isArray(
-              pmsData,
-            )
+            Array.isArray(pmsData)
               ? pmsData
               : [];
         }
@@ -978,9 +866,8 @@ export default function ErrorDashboard() {
           profiles[0];
 
 
-        if (
-          !profile?.studentId
-        ) {
+        if (!profile?.studentId) {
+
           alert(
             `No student found for “${query}”.`,
           );
@@ -989,9 +876,7 @@ export default function ErrorDashboard() {
         }
 
 
-        setStudentSearch(
-          "",
-        );
+        setStudentSearch("");
 
 
         navigate(
@@ -999,28 +884,139 @@ export default function ErrorDashboard() {
             profile.studentId,
           )}`,
         );
+
       } catch (error) {
-        alert(
-          error.message,
-        );
+
+        alert(error.message);
+
       } finally {
-        setStudentSearching(
-          false,
-        );
+
+        setStudentSearching(false);
+
       }
     };
 
 
   /* =====================================================
-     ANALYSE ASSESSMENT
+     LOAD HISTORY
+     ===================================================== */
 
-     DIFFERENCE FROM ERROR ANSWER:
-     NO ANSWER KEY IS UPLOADED OR LINKED.
+  const loadDashboard =
+    useCallback(async () => {
+
+      if (!id) {
+        return;
+      }
+
+
+      try {
+
+        const [
+          studentResponse,
+          reportsResponse,
+        ] =
+          await Promise.all([
+            fetch(
+              `${API}/api/students?q=${encodeURIComponent(
+                id,
+              )}`,
+            ),
+
+            fetch(
+              `${API}/api/students/${encodeURIComponent(
+                id,
+              )}/reports`,
+            ),
+          ]);
+
+
+        const studentData =
+          await studentResponse.json();
+
+
+        const reportsData =
+          await reportsResponse.json();
+
+
+        setStudent(
+          studentResults(
+            studentData,
+          ).find(
+            (profile) =>
+              profile.studentId === id,
+          ) || {
+            studentId: id,
+            name: id,
+          },
+        );
+
+
+        const reports =
+          reportsResponse.ok
+            ? reportsData.data || []
+            : [];
+
+
+        setHistory(
+          reports.map(
+            (report) => ({
+              ...report,
+
+              errorType:
+                report
+                  .interventionRecommendation
+                  ?.dominantPattern ||
+                "Writing analysis",
+
+              aiSummary:
+                report
+                  .interventionRecommendation
+                  ?.overview ||
+                `${
+                  report.summary
+                    ?.errorCount ||
+                  0
+                } errors detected`,
+
+              diagnosisRequired:
+                false,
+            }),
+          ),
+        );
+
+      } catch (error) {
+
+        console.error(
+          "Unable to load Error Analyser history:",
+          error,
+        );
+
+      }
+
+    }, [id]);
+
+
+  useEffect(() => {
+
+    // Defer calling loadDashboard to avoid synchronous setState inside effect
+    const timer = setTimeout(() => {
+      void loadDashboard();
+    }, 0);
+
+    return () => clearTimeout(timer);
+
+  }, [loadDashboard]);
+
+
+  /* =====================================================
+     ANALYSE
      ===================================================== */
 
   const analyzeAssessment =
     async () => {
+
       if (!studentFile) {
+
         alert(
           "Please upload the student submission first.",
         );
@@ -1030,6 +1026,7 @@ export default function ErrorDashboard() {
 
 
       if (!id) {
+
         alert(
           "Please open the Error Analyser from a student dashboard.",
         );
@@ -1042,9 +1039,6 @@ export default function ErrorDashboard() {
 
 
       try {
-        /* =============================================
-           1. MAKE SURE STUDENT EXISTS
-           ============================================= */
 
         const searchResponse =
           await fetch(
@@ -1063,36 +1057,27 @@ export default function ErrorDashboard() {
             searchData,
           ).find(
             (profile) =>
-              profile.studentId ===
-              id,
+              profile.studentId === id,
           );
 
 
-        if (
-          !existingProfile
-        ) {
+        if (!existingProfile) {
+
           const createResponse =
             await fetch(
               `${API}/api/students`,
               {
-                method:
-                  "POST",
+                method: "POST",
 
                 headers: {
                   "Content-Type":
                     "application/json",
                 },
 
-                body:
-                  JSON.stringify(
-                    {
-                      studentId:
-                        id,
-
-                      name:
-                        id,
-                    },
-                  ),
+                body: JSON.stringify({
+                  studentId: id,
+                  name: id,
+                }),
               },
             );
 
@@ -1102,33 +1087,30 @@ export default function ErrorDashboard() {
             createResponse.status !==
               409
           ) {
+
             const createData =
               await createResponse.json();
 
 
             throw new Error(
               createData.error ||
-                "Unable to create student profile.",
+                "Unable to create the Error Analyser student profile.",
             );
           }
         }
 
 
-        /* =============================================
-           2. UPLOAD STUDENT SUBMISSION
-           ============================================= */
-
-        const submissionForm =
+        const formData =
           new FormData();
 
 
-        submissionForm.append(
+        formData.append(
           "assignment",
           studentFile,
         );
 
 
-        submissionForm.append(
+        formData.append(
           "studentId",
           id,
         );
@@ -1138,11 +1120,8 @@ export default function ErrorDashboard() {
           await fetch(
             `${API}/api/uploads/writing-sample`,
             {
-              method:
-                "POST",
-
-              body:
-                submissionForm,
+              method: "POST",
+              body: formData,
             },
           );
 
@@ -1151,44 +1130,32 @@ export default function ErrorDashboard() {
           await uploadResponse.json();
 
 
-        console.log(
-          "Submission upload response:",
-          uploadData,
-        );
+        if (!uploadResponse.ok) {
 
-
-        if (
-          !uploadResponse.ok
-        ) {
           throw new Error(
             uploadData.error ||
-              "Student submission upload failed.",
+              "Upload failed.",
           );
         }
 
 
         const reportId =
-          uploadData.data
-            ?.report?._id;
+          uploadData.data?.report?._id;
 
 
         if (!reportId) {
+
           throw new Error(
-            "Upload did not return a report ID.",
+            "The upload response did not include a report ID.",
           );
         }
 
-
-        /* =============================================
-           3. ANALYSE REPORT
-           ============================================= */
 
         const analyseResponse =
           await fetch(
             `${API}/api/reports/${reportId}/analyze`,
             {
-              method:
-                "POST",
+              method: "POST",
             },
           );
 
@@ -1197,220 +1164,60 @@ export default function ErrorDashboard() {
           await analyseResponse.json();
 
 
-        console.log(
-          "Analysis response:",
-          analyseData,
-        );
+        if (!analyseResponse.ok) {
 
-
-        if (
-          !analyseResponse.ok
-        ) {
           throw new Error(
             analyseData.error ||
-              "Assessment analysis failed.",
+              "Analysis failed.",
           );
         }
 
 
-        /* =============================================
-           4. CLEAR FILE
-           ============================================= */
-
         removeStudentFile();
 
 
-        /* =============================================
-           5. REFRESH HISTORY
-           ============================================= */
-
         await loadDashboard();
 
-
-        /* =============================================
-           6. OPEN FREE-FORM ANALYSIS
-           ============================================= */
 
         navigate(
           `/student-errors/${reportId}`,
         );
 
       } catch (error) {
-        console.error(
-          "Free-form analysis failed:",
-          error,
-        );
 
-        alert(
-          error.message,
-        );
+        console.error(error);
+
+        alert(error.message);
+
       } finally {
-        setUploading(
-          false,
-        );
+
+        setUploading(false);
+
       }
     };
 
 
   /* =====================================================
-     LOAD HISTORY
-     SAME AS ERROR ANSWER
-     ===================================================== */
-
-  const loadDashboard =
-    useCallback(
-      async () => {
-        if (!id) {
-          return;
-        }
-
-
-        try {
-          const [
-            studentResponse,
-            reportsResponse,
-          ] =
-            await Promise.all(
-              [
-                fetch(
-                  `${API}/api/students?q=${encodeURIComponent(
-                    id,
-                  )}`,
-                ),
-
-                fetch(
-                  `${API}/api/students/${encodeURIComponent(
-                    id,
-                  )}/reports`,
-                ),
-              ],
-            );
-
-
-          const studentData =
-            await studentResponse.json();
-
-
-          const reportsData =
-            await reportsResponse.json();
-
-
-          setStudent(
-            studentResults(
-              studentData,
-            ).find(
-              (profile) =>
-                profile.studentId ===
-                id,
-            ) || {
-              studentId:
-                id,
-
-              name:
-                id,
-            },
-          );
-
-
-          const reports =
-            reportsResponse.ok
-              ? reportsData.data ||
-                []
-              : [];
-
-
-          setHistory(
-            reports.map(
-              (report) => ({
-                ...report,
-
-                errorType:
-                  report
-                    .interventionRecommendation
-                    ?.dominantPattern ||
-                  "Writing analysis",
-
-                aiSummary:
-                  report
-                    .interventionRecommendation
-                    ?.overview ||
-                  `${
-                    report
-                      .summary
-                      ?.errorCount ||
-                    0
-                  } errors detected`,
-
-                diagnosisRequired:
-                  false,
-              }),
-            ),
-          );
-
-        } catch (error) {
-          console.error(
-            "Unable to load Error Analyser history:",
-            error,
-          );
-        }
-      },
-      [id],
-    );
-
-
-  /* =====================================================
-     LOAD / CLEANUP
+     PREVIEW CLEANUP
      ===================================================== */
 
   useEffect(() => {
-    let cancelled =
-      false;
-
-
-    const timer =
-      window.setTimeout(
-        () => {
-          if (
-            cancelled
-          ) {
-            return;
-          }
-
-          void loadDashboard();
-        },
-        0,
-      );
-
 
     return () => {
-      cancelled =
-        true;
 
-
-      window.clearTimeout(
-        timer,
-      );
-
-
-      if (
-        studentPreviewURL
-      ) {
+      if (studentPreviewURL) {
         URL.revokeObjectURL(
           studentPreviewURL,
         );
       }
+
     };
-  }, [
-    loadDashboard,
-    studentPreviewURL,
-  ]);
+
+  }, [studentPreviewURL]);
 
 
   /* =====================================================
-     HISTORY FILTERING
-
-     FREE-FORM PAGE ONLY STORES/DISPLAYS
-     REPORTS WITHOUT ANSWER KEYS.
+     HISTORY FILTERS
      ===================================================== */
 
   const analysedHistory =
@@ -1418,185 +1225,194 @@ export default function ErrorDashboard() {
       .filter(
         isAnalysedAssessment,
       )
-      .filter(
-        (assessment) =>
-          !assessment.answerKey,
-      );
 
 
   const visibleHistory =
     analysedHistory
 
-      .filter(
-        (assessment) => {
-          if (
-            historyCategory ===
-            "all"
-          ) {
-            return true;
-          }
+      .filter((assessment) => {
+
+        const name =
+          assessmentName(
+            assessment,
+          )
+            .trim()
+            .toLowerCase();
 
 
-          if (
-            historyCategory ===
-            "reference"
-          ) {
-            return Boolean(
-              assessment.answerKey,
-            );
-          }
-
-
-          if (
-            historyCategory ===
-            "free-form"
-          ) {
-            return !assessment.answerKey;
-          }
-
-
-          if (
-            historyCategory ===
-            "edit-diagram"
-          ) {
-            return (
-              writingType(
-                assessment,
-              ) ===
-              "Edit and diagram"
-            );
-          }
-
-
-          if (
-            historyCategory ===
-            "narrative"
-          ) {
-            return (
-              writingType(
-                assessment,
-              ) ===
-              "Narrative writing"
-            );
-          }
-
-
-          if (
-            historyCategory ===
-            "expository"
-          ) {
-            return (
-              writingType(
-                assessment,
-              ) ===
-              "Expository writing"
-            );
-          }
-
-
-          if (
-            historyCategory ===
-            "persuasive"
-          ) {
-            return (
-              writingType(
-                assessment,
-              ) ===
-              "Persuasive writing"
-            );
-          }
-
-
+        /* ALL */
+        if (
+          historyCategory ===
+          "all"
+        ) {
           return true;
-        },
-      )
+        }
 
 
-      .filter(
-        (assessment) => {
-          const query =
-            search
-              .trim()
-              .toLowerCase();
-
-
-          if (!query) {
-            return true;
-          }
-
-
-          return [
-            assessmentName(
-              assessment,
-            ),
-
-            writingType(
-              assessment,
-            ),
-
-            assessment.errorType,
-          ].some((value) =>
-            String(
-              value || "",
-            )
-              .toLowerCase()
-              .includes(
-                query,
-              ),
+        /* REFERENCE-BASED */
+        if (
+          historyCategory ===
+          "reference"
+        ) {
+          return Boolean(
+            assessment.answerKey,
           );
-        },
-      )
+        }
 
 
-      .sort(
-        (
-          left,
-          right,
-        ) => {
-          if (
-            sortOrder ===
-            "highest-risk"
-          ) {
-            return (
-              (right.summary
-                ?.errorCount ||
-                0) -
-              (left.summary
-                ?.errorCount ||
-                0)
-            );
-          }
+        /* FREE-FORM */
+        if (
+          historyCategory ===
+          "free-form"
+        ) {
+          return !assessment.answerKey;
+        }
 
 
-          const leftDate =
-            new Date(
-              left.createdAt ||
-                left.analysedAt ||
-                0,
-            ).getTime();
+        /* GENERIC WRITING
+          Example: Writing 16127
+        */
+        if (
+          historyCategory ===
+          "writing"
+        ) {
+          return name.startsWith(
+            "writing"
+          );
+        }
 
 
-          const rightDate =
-            new Date(
-              right.createdAt ||
-                right.analysedAt ||
-                0,
-            ).getTime();
+        /* EDIT & DIAGRAM */
+        if (
+          historyCategory ===
+          "edit-diagram"
+        ) {
+          return (
+            name.startsWith("edit") ||
+            name.startsWith("diagram") ||
+            name.includes("edit and diagram") ||
+            name.includes("edit & diagram")
+          );
+        }
 
 
-          return sortOrder ===
-            "oldest"
-            ? leftDate -
-                rightDate
-            : rightDate -
-                leftDate;
-        },
-      );
+        /* NARRATIVE */
+        if (
+          historyCategory ===
+          "narrative"
+        ) {
+          return name.startsWith(
+            "narrative"
+          );
+        }
+
+
+        /* EXPOSITORY */
+        if (
+          historyCategory ===
+          "expository"
+        ) {
+          return (
+            name.startsWith(
+              "expository"
+            ) ||
+            name.startsWith(
+              "exposition"
+            )
+          );
+        }
+
+
+        /* PERSUASIVE */
+        if (
+          historyCategory ===
+          "persuasive"
+        ) {
+          return name.startsWith(
+            "persuasive"
+          );
+        }
+
+
+        return true;
+      })
+
+
+      .filter((assessment) => {
+
+        const query =
+          search
+            .trim()
+            .toLowerCase();
+
+
+        if (!query) {
+          return true;
+        }
+
+
+        return [
+          assessmentName(
+            assessment,
+          ),
+
+          writingType(
+            assessment,
+          ),
+
+          assessment.errorType,
+        ].some((value) =>
+          String(value || "")
+            .toLowerCase()
+            .includes(query),
+        );
+      })
+
+
+      .sort((left, right) => {
+
+        if (
+          sortOrder ===
+          "highest-risk"
+        ) {
+          return (
+            (right.summary
+              ?.errorCount ||
+              0) -
+            (left.summary
+              ?.errorCount ||
+              0)
+          );
+        }
+
+
+        const leftDate =
+          new Date(
+            left.createdAt ||
+              left.analysedAt ||
+              0,
+          ).getTime();
+
+
+        const rightDate =
+          new Date(
+            right.createdAt ||
+              right.analysedAt ||
+              0,
+          ).getTime();
+
+
+        return sortOrder ===
+          "oldest"
+          ? leftDate -
+              rightDate
+          : rightDate -
+              leftDate;
+      });
 
 
   /* =====================================================
      RENDER
-     EXACT SAME STRUCTURE AS ERROR ANSWER
      ===================================================== */
 
   return (
@@ -1627,9 +1443,8 @@ export default function ErrorDashboard() {
 
         <section className="page-content ea-content">
 
-          {/* ==========================================
-              STUDENT PROFILE
-              ========================================== */}
+
+          {/* STUDENT PROFILE */}
 
           <section className="eo-profile-card ea-profile-card">
 
@@ -1639,17 +1454,17 @@ export default function ErrorDashboard() {
 
 
             <div className="eo-profile-info">
+
               <h1>
                 {overview?.student
                   ?.studentId ||
                   id}
               </h1>
+
             </div>
 
 
             <div className="eo-profile-meta">
-
-              {/* LAST ASSESSMENT */}
 
               <div className="eo-meta-item">
 
@@ -1661,23 +1476,26 @@ export default function ErrorDashboard() {
 
 
                 <div>
+
                   <span className="eo-meta-label">
                     Last Assignment
                   </span>
 
+
                   <span className="eo-meta-value">
+
                     {overview?.lastAssessmentDate
                       ? formatAssessmentDate(
                           overview.lastAssessmentDate,
                         )
                       : "No assessment yet"}
+
                   </span>
+
                 </div>
 
               </div>
 
-
-              {/* BAND */}
 
               <div className="eo-meta-item">
 
@@ -1689,19 +1507,20 @@ export default function ErrorDashboard() {
 
 
                 <div>
+
                   <span className="eo-meta-label">
                     Assigned Band
                   </span>
 
+
                   <span className="eo-meta-value eo-band">
                     {currentBand}
                   </span>
+
                 </div>
 
               </div>
 
-
-              {/* CENTRE */}
 
               <div className="eo-meta-item">
 
@@ -1713,13 +1532,16 @@ export default function ErrorDashboard() {
 
 
                 <div>
+
                   <span className="eo-meta-label">
                     Centre
                   </span>
 
+
                   <span className="eo-meta-value">
                     {studentCentre}
                   </span>
+
                 </div>
 
               </div>
@@ -1729,9 +1551,7 @@ export default function ErrorDashboard() {
           </section>
 
 
-          {/* ==========================================
-              PAGE HEADING
-              ========================================== */}
+          {/* PAGE HEADING */}
 
           <div className="ea-page-heading analysis-page-heading">
 
@@ -1765,26 +1585,19 @@ export default function ErrorDashboard() {
                 )
               }
             >
-              <ArrowLeft
-                size={16}
-              />
-
+              <ArrowLeft size={16} />
               Back
             </button>
 
           </div>
 
 
-          {/* ==========================================
-              UPLOAD SECTION
-              ========================================== */}
-
           <section className="analysis-upload-section">
 
-            <div className="sa-upload-card">
 
-              {/* SAME GRID AS ERROR ANSWER,
-                  BUT ONLY ONE UPLOAD AREA */}
+            {/* UPLOAD CARD */}
+
+            <div className="sa-upload-card">
 
               <div className="sa-upload-grid ed-single-upload-grid">
 
@@ -1798,25 +1611,27 @@ export default function ErrorDashboard() {
                       ? "uploaded"
                       : ""
                   }`}
+
                   onClick={
                     studentFile
                       ? undefined
                       : handleStudentBrowse
                   }
-                  onDragOver={(
-                    event,
-                  ) => {
+
+                  onDragOver={(event) => {
                     event.preventDefault();
 
                     setStudentDragging(
                       true,
                     );
                   }}
+
                   onDragLeave={() =>
                     setStudentDragging(
                       false,
                     )
                   }
+
                   onDrop={
                     handleStudentDrop
                   }
@@ -1825,9 +1640,7 @@ export default function ErrorDashboard() {
                   {studentFile ? (
 
                     <UploadedFileCard
-                      file={
-                        studentFile
-                      }
+                      file={studentFile}
                       previewURL={
                         studentPreviewURL
                       }
@@ -1849,24 +1662,19 @@ export default function ErrorDashboard() {
 
 
                       <h3>
-                        Import Student
-                        Submission
+                        Import Student Submission
                       </h3>
 
 
                       <p>
-                        Drag & Drop or
-                        click to browse
+                        Drag & Drop or click to browse
                       </p>
 
 
                       <small>
-                        PDF, PNG, JPG,
-                        JPEG, TIFF, BMP
+                        PDF, PNG, JPG, JPEG, TIFF, BMP
                         <br />
-
-                        Maximum size:
-                        10 MB
+                        Maximum size: 10 MB
                       </small>
                     </>
 
@@ -1902,12 +1710,10 @@ export default function ErrorDashboard() {
                   analyzeAssessment
                 }
               >
+
                 {uploading ? (
                   <>
-                    <Image
-                      size={18}
-                    />
-
+                    <Image size={18} />
                     Processing...
                   </>
                 ) : (
@@ -1919,19 +1725,19 @@ export default function ErrorDashboard() {
                     Analyze Assignment
                   </>
                 )}
+
               </button>
 
             </div>
 
 
-            {/* ==========================================
-                HISTORY
-                SAME UI AS ERROR ANSWER
-                ========================================== */}
+            {/* HISTORY */}
 
             {analysedHistory.length >
               0 && (
+
               <>
+
                 <div className="history-header">
 
                   <div>
@@ -1947,50 +1753,42 @@ export default function ErrorDashboard() {
 
 
                     <p className="history-intro">
-                      Review assignment
-                      details, error
-                      patterns and analysis
-                      status.
+                      Review assignment details,
+                      error patterns and analysis status.
                     </p>
 
                   </div>
 
 
                   <span className="history-count">
+
                     {visibleHistory.length}{" "}
 
                     {visibleHistory.length ===
                     1
                       ? "record"
                       : "records"}
+
                   </span>
 
                 </div>
 
 
-                {/* FILTER TOOLBAR */}
+                {/* FILTERS */}
 
                 <div className="toolbar history-toolbar">
 
                   <div className="assessment-search">
 
-                    <Search
-                      size={18}
-                    />
+                    <Search size={18} />
 
 
                     <input
                       placeholder="Search uploaded assignment..."
-                      value={
-                        search
-                      }
-                      onChange={(
-                        event,
-                      ) =>
+                      value={search}
+                      onChange={(event) =>
                         setSearch(
-                          event
-                            .target
-                            .value,
+                          event.target.value,
                         )
                       }
                     />
@@ -1999,16 +1797,10 @@ export default function ErrorDashboard() {
 
 
                   <select
-                    value={
-                      historyCategory
-                    }
-                    onChange={(
-                      event,
-                    ) =>
+                    value={historyCategory}
+                    onChange={(event) =>
                       setHistoryCategory(
-                        event
-                          .target
-                          .value,
+                        event.target.value,
                       )
                     }
                   >
@@ -2028,6 +1820,10 @@ export default function ErrorDashboard() {
                       Edit & Diagram
                     </option>
 
+                    <option value="writing">
+                      Writing
+                    </option>
+
                     <option value="narrative">
                       Narrative Writing
                     </option>
@@ -2043,39 +1839,32 @@ export default function ErrorDashboard() {
 
 
                   <select
-                    value={
-                      sortOrder
-                    }
-                    onChange={(
-                      event,
-                    ) =>
+                    value={sortOrder}
+                    onChange={(event) =>
                       setSortOrder(
-                        event
-                          .target
-                          .value,
+                        event.target.value,
                       )
                     }
                   >
+
                     <option value="latest">
-                      Sort by:
-                      Latest date
+                      Sort by: Latest date
                     </option>
 
                     <option value="oldest">
-                      Sort by:
-                      Oldest
+                      Sort by: Oldest
                     </option>
 
                     <option value="highest-risk">
-                      Sort by:
-                      Most errors
+                      Sort by: Most errors
                     </option>
+
                   </select>
 
                 </div>
 
 
-                {/* HISTORY GRID */}
+                {/* CARDS */}
 
                 <div className="history-grid">
 
@@ -2097,7 +1886,8 @@ export default function ErrorDashboard() {
 
 
                         <p>
-                          There are no analysed records for the selected assignment type.
+                          There are no analysed records
+                          for the selected assignment type.
                         </p>
 
                       </div>
@@ -2107,9 +1897,7 @@ export default function ErrorDashboard() {
                   ) : (
 
                     visibleHistory.map(
-                      (
-                        assessment,
-                      ) => {
+                      (assessment) => {
 
                         const errorCount =
                           assessment
@@ -2132,14 +1920,13 @@ export default function ErrorDashboard() {
 
 
                         return (
+
                           <article
                             className="history-card"
                             key={
                               assessment._id
                             }
                           >
-
-                            {/* TITLE */}
 
                             <div className="history-top">
 
@@ -2163,60 +1950,56 @@ export default function ErrorDashboard() {
                             </div>
 
 
-                            {/* META */}
-
                             <div className="history-meta-row">
 
                               <span>
+
                                 <CalendarDays
-                                  size={
-                                    15
-                                  }
+                                  size={15}
                                 />
+
 
                                 {formatAssessmentDate(
                                   assessment.createdAt ||
                                     assessment.analysedAt,
                                 )}
+
                               </span>
 
 
                               <span>
+
                                 <FileType2
-                                  size={
-                                    15
-                                  }
+                                  size={15}
                                 />
+
 
                                 {file.mimeType ===
                                 "application/pdf"
                                   ? "PDF"
                                   : "Image"}{" "}
                                 ·{" "}
+
                                 {formatFileSize(
                                   file.fileSize,
                                 )}
+
                               </span>
 
                             </div>
 
-
-                            {/* INSIGHTS */}
 
                             <div className="history-insights">
 
                               <div className="history-metric">
 
                                 <span>
-                                  Detected
-                                  errors
+                                  Detected errors
                                 </span>
 
 
                                 <strong>
-                                  {
-                                    errorCount
-                                  }
+                                  {errorCount}
                                 </strong>
 
                               </div>
@@ -2225,21 +2008,19 @@ export default function ErrorDashboard() {
                               <div className="history-pattern">
 
                                 <span>
-                                  Dominant
-                                  pattern
+                                  Dominant pattern
                                 </span>
 
 
                                 <strong>
+
                                   <AlertTriangle
-                                    size={
-                                      15
-                                    }
+                                    size={15}
                                   />
 
-                                  {
-                                    dominantPattern
-                                  }
+
+                                  {dominantPattern}
+
                                 </strong>
 
                               </div>
@@ -2247,26 +2028,19 @@ export default function ErrorDashboard() {
                             </div>
 
 
-                            {/* AI SUMMARY */}
-
                             <div className="history-summary-block">
 
                               <span>
-                                AI educator
-                                summary
+                                AI educator summary
                               </span>
 
 
                               <p>
-                                {
-                                  assessment.aiSummary
-                                }
+                                {assessment.aiSummary}
                               </p>
 
                             </div>
 
-
-                            {/* ACTIONS */}
 
                             <div className="history-card-footer">
 
@@ -2277,9 +2051,7 @@ export default function ErrorDashboard() {
                                   className="analysis-button"
                                 >
                                   <BarChart3
-                                    size={
-                                      17
-                                    }
+                                    size={17}
                                   />
 
                                   View analysis
@@ -2291,17 +2063,13 @@ export default function ErrorDashboard() {
                                   className="report-button"
                                 >
                                   <Eye
-                                    size={
-                                      17
-                                    }
+                                    size={17}
                                   />
 
                                   View report
 
                                   <ArrowRight
-                                    size={
-                                      16
-                                    }
+                                    size={16}
                                   />
                                 </Link>
 
@@ -2317,7 +2085,9 @@ export default function ErrorDashboard() {
                   )}
 
                 </div>
+
               </>
+
             )}
 
           </section>
