@@ -1793,3 +1793,8 @@
 .sp-dashboard-action:not(.sp-dashboard-action-primary):hover {
 	background: #f3f4f6;
 }
+.sp-legend-note {
+	font-size: 0.75rem;
+	color: #888;
+	margin: -0.4rem 0 0.9rem;
+}

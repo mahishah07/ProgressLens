@@ -860,6 +860,7 @@ export default function StudentProgress() {
 											</span>
 										</div>
 									</div>
+									<p className="sp-legend-note">Format: score / passing mark</p>
 
 									<div className="sp-band-score-total">
 										<span className="sp-score-num">

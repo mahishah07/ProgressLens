@@ -697,7 +697,8 @@ const calculateBandScore = (assessment, bandLevel, schLevel) => {
 		}
 
 		// Skip optional components with no real score
-		if (!hasScore && comp.optional) {
+		// Skip any component with no real score (required or optional)
+		if (!hasScore) {
 			return {
 				name: comp.name,
 				group: comp.group || null,
