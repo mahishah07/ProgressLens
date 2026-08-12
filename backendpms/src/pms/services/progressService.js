@@ -41,7 +41,8 @@ const getSkillBreakdownFromBandScore = (bandScore) => {
 			!c.skipped &&
 			c.score !== null &&
 			c.score !== undefined &&
-			c.name !== "writtenVocab",
+			c.name !== "writtenVocab" &&
+			!(c.name === "readingComp" && c.score === 0),
 	);
 
 	if (tested.length === 0)

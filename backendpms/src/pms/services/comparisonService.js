@@ -156,10 +156,64 @@ exports.compareAssessments = async (
 	}
 
 	if (earliest._id.toString() === latest._id.toString()) {
+		const results = getComponentResults(
+			earliest,
+			earliest.summaryBand || student.summaryBand,
+			student.schLevel,
+		);
+
+		const componentComparison = {};
+
+		for (const [name, result] of Object.entries(results)) {
+			if (result.skipped) continue;
+
+			componentComparison[name] = {
+				before: null,
+				after: result.score,
+				change: null,
+				beforePassed: null,
+				afterPassed: result.passed,
+				bothTaken: false,
+			};
+		}
+
 		return {
-			status: "insufficient_data",
-			message: "Select two different assessments",
-			student,
+			status: "ok",
+			singleAssessment: true,
+			student: {
+				_id: student._id,
+				studentId: student.studentId,
+				summaryBand: student.summaryBand,
+			},
+			totalAssessments: 1,
+			comparisonPeriod: {
+				from: earliest.semester,
+				to: latest.semester,
+			},
+			bandChange: null,
+			componentComparison,
+			transitions: {
+				newlyPassing: 0,
+				newlyFailing: 0,
+			},
+			assessmentHistory: assessments.map((a) => ({
+				_id: a._id,
+				semester: a.semester,
+				assessmentDate: a.assessmentDate,
+				newBand: a.newBand,
+				summaryBand: a.summaryBand || student.summaryBand,
+				teacherComments: a.teacherComments,
+			})),
+			selectedA: {
+				_id: earliest._id,
+				semester: earliest.semester,
+				teacherComments: earliest.teacherComments,
+			},
+			selectedB: {
+				_id: latest._id,
+				semester: latest.semester,
+				teacherComments: latest.teacherComments,
+			},
 		};
 	}
 
