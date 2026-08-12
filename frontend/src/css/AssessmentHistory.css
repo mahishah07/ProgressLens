@@ -36,52 +36,94 @@
 }
 
 .ah-content {
-	padding: 1.5rem 2rem;
+	padding: 28px 3rem 2rem;
+}
+
+.ah-profile-card {
+	margin-bottom: 28px;
 }
 
 .ah-header {
 	display: flex;
 	justify-content: space-between;
-	align-items: center;
+	align-items: flex-end;
+
+	gap: 2rem;
+
 	margin-bottom: 1.5rem;
 }
+
+.ah-eyebrow {
+	margin: 0 0 5px;
+
+	color: #7f1d2d;
+
+	font-size: 0.74rem;
+	font-weight: 800;
+
+	letter-spacing: 0.09em;
+}
+
 .ah-header h1 {
-	font-size: 1.4rem;
-	font-weight: 700;
+	font-size: 1.75rem;
+	font-weight: 750;
+
+	color: #1f2933;
+
+	margin: 0 0 0.35rem;
+
+	letter-spacing: -0.015em;
+}
+
+.ah-header-sub {
 	margin: 0;
+
+	color: #6b7280;
+
+	font-size: 0.95rem;
+
+	line-height: 1.5;
 }
+
 .ah-back-btn {
-	display: flex;
+	display: inline-flex;
 	align-items: center;
-	gap: 0.4rem;
-	padding: 0.5rem 1rem;
-	border: 1px solid #ddd;
+	justify-content: center;
+
+	gap: 7px;
+
+	padding: 9px 14px;
+
+	border: 1px solid #d8dade;
 	border-radius: 8px;
+
 	background: white;
+
+	color: #4b5563;
+
 	font-size: 0.85rem;
+	font-weight: 600;
+
 	cursor: pointer;
-	color: #333;
+
+	transition:
+		background 0.18s ease,
+		color 0.18s ease,
+		border-color 0.18s ease,
+		transform 0.18s ease;
 }
+
 .ah-back-btn:hover {
-	background: #f5f6fa;
+	background: #f8ecef;
+
+	border-color: #e7c3ca;
+
+	color: #7f1d2d;
+
+	transform: translateX(-2px);
 }
 
-.ah-card {
-	background: white;
-	border: 1px solid #eee;
-	border-radius: 12px;
-	margin-bottom: 0.75rem;
-	overflow: hidden;
-}
 
-.ah-card-header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 1rem 1.25rem;
-	cursor: pointer;
-	user-select: none;
-}
 .ah-card-header:hover {
 	background: #f9fafb;
 }
@@ -92,31 +134,10 @@
 	gap: 0.75rem;
 	flex-wrap: wrap;
 }
-.ah-date {
-	font-size: 0.9rem;
-	font-weight: 600;
-	color: #1a1a1a;
-}
-.ah-sem {
-	font-size: 0.8rem;
-	color: #888;
-}
+
 .ah-arrow {
 	color: #ccc;
 	font-size: 0.85rem;
-}
-
-.ah-band-pill {
-	font-size: 0.75rem;
-	font-weight: 600;
-	padding: 0.2rem 0.6rem;
-	border-radius: 99px;
-	background: #eff6ff;
-	color: #7f1d2d;
-}
-.ah-band-moved {
-	background: #dcfce7;
-	color: #166534;
 }
 
 .ah-right {
@@ -124,10 +145,7 @@
 	align-items: center;
 	gap: 0.75rem;
 }
-.ah-score {
-	font-size: 1rem;
-	font-weight: 700;
-}
+
 .ah-pass {
 	color: #166534;
 }
@@ -143,26 +161,6 @@
 	transform: rotate(180deg);
 }
 
-.ah-card-body {
-	border-top: 1px solid #f0f0f0;
-	padding: 1.25rem;
-}
-
-.ah-band-row {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	margin-bottom: 1rem;
-	font-size: 0.85rem;
-}
-.ah-band-tag {
-	font-size: 0.75rem;
-	font-weight: 600;
-	padding: 0.25rem 0.75rem;
-	border-radius: 99px;
-	background: #eff6ff;
-	color: #7f1d2d;
-}
 .ah-band-tag-new {
 	background: #dcfce7;
 	color: #166534;
@@ -171,34 +169,16 @@
 	color: #ccc;
 }
 .ah-moved-label {
-	font-size: 0.8rem;
+	font-size: 0.85rem;
 	color: #166534;
 	font-weight: 600;
 }
 .ah-same-label {
-	font-size: 0.8rem;
-	color: #888;
-}
-
-.ah-table {
-	width: 100%;
-	border-collapse: collapse;
-	font-size: 0.83rem;
-}
-.ah-table th {
-	text-align: left;
-	padding: 0.5rem 0.75rem;
-	font-size: 0.72rem;
+	font-size: 0.85rem;
 	color: #888;
 	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.05em;
-	border-bottom: 1px solid #f0f0f0;
 }
-.ah-table td {
-	padding: 0.7rem 0.75rem;
-	border-bottom: 1px solid #f5f5f5;
-}
+
 .ah-table tr:last-child td {
 	border-bottom: none;
 }
@@ -206,33 +186,12 @@
 	opacity: 0.45;
 }
 
-.ah-comp-name {
-	font-weight: 600;
-	color: #1a1a1a;
-}
-.ah-comp-note {
-	font-weight: 400;
-	color: #888;
-	font-size: 0.75rem;
-}
-.ah-comp-cat {
-	font-size: 0.78rem;
-	color: #888;
-}
-.ah-comp-score {
-	color: #555;
-}
-
 .ah-weight-row {
 	display: flex;
 	align-items: center;
 	gap: 8px;
 }
-.ah-weight-pct {
-	font-size: 0.78rem;
-	color: #555;
-	min-width: 42px;
-}
+
 .ah-weight-bar-bg {
 	flex: 1;
 	height: 5px;
@@ -253,12 +212,82 @@
 	background: #ef4444;
 }
 
+.ah-table {
+	width: 100%;
+
+	border-collapse: collapse;
+
+	font-size: 0.9rem;
+}
+
+.ah-table th {
+	text-align: left;
+
+	padding: 0.65rem 0.8rem;
+
+	font-size: 0.76rem;
+
+	color: #7b8087;
+
+	font-weight: 700;
+
+	text-transform: uppercase;
+
+	letter-spacing: 0.055em;
+
+	border-bottom: 1px solid #eceef0;
+}
+
+.ah-table td {
+	padding: 0.85rem 0.8rem;
+
+	border-bottom: 1px solid #f1f2f3;
+}
+
+.ah-comp-name {
+	font-weight: 650;
+
+	color: #1f2933;
+}
+
+.ah-comp-note {
+	font-weight: 400;
+
+	color: #888;
+
+	font-size: 0.82rem;
+}
+
+.ah-comp-cat {
+	font-size: 0.85rem;
+
+	color: #6b7280;
+}
+
+.ah-comp-score {
+	color: #4b5563;
+
+	font-size: 0.9rem;
+}
+
+.ah-weight-pct {
+	font-size: 0.84rem;
+
+	color: #4b5563;
+
+	min-width: 48px;
+}
+
 .ah-badge {
-	font-size: 0.72rem;
-	font-weight: 600;
-	padding: 0.2rem 0.6rem;
+	font-size: 0.78rem;
+
+	font-weight: 700;
+
+	padding: 0.25rem 0.65rem;
+
 	border-radius: 99px;
 }
+
 .ah-badge-pass {
 	background: #dcfce7;
 	color: #166534;
@@ -280,45 +309,69 @@
 	padding-top: 1rem;
 	border-top: 1px solid #f0f0f0;
 }
+
 .ah-overall-label {
-	font-size: 0.85rem;
-	font-weight: 600;
-	color: #1a1a1a;
-}
-.ah-forgiveness {
-	font-size: 0.75rem;
-	color: #7c3aed;
-	margin-top: 3px;
-}
-.ah-failed-list {
-	font-size: 0.75rem;
-	color: #dc2626;
-	margin-top: 3px;
-}
-.ah-overall-pct {
-	font-size: 1.4rem;
+	font-size: 0.95rem;
+
 	font-weight: 700;
+
+	color: #1f2933;
+}
+
+.ah-forgiveness {
+	font-size: 0.82rem;
+
+	color: #7f1d2d;
+
+	margin-top: 4px;
+}
+
+.ah-failed-list {
+	font-size: 0.82rem;
+
+	color: #dc2626;
+
+	margin-top: 4px;
+}
+
+.ah-overall-pct {
+	font-size: 1.6rem;
+
+	font-weight: 750;
 }
 
 .ah-comments {
-	margin-top: 1rem;
-	padding: 0.75rem 1rem;
-	background: #f9fafb;
-	border-radius: 8px;
+	margin-top: 1.25rem;
+
+	padding: 1rem 1.1rem;
+
+	background: #fafafa;
+
+	border-radius: 9px;
+
 	border-left: 3px solid #7f1d2d;
 }
+
 .ah-comments-label {
-	font-size: 0.72rem;
-	font-weight: 600;
-	color: #888;
+	font-size: 0.76rem;
+
+	font-weight: 700;
+
+	color: #7b8087;
+
 	text-transform: uppercase;
-	letter-spacing: 0.05em;
-	margin-bottom: 0.3rem;
+
+	letter-spacing: 0.06em;
+
+	margin-bottom: 0.4rem;
 }
+
 .ah-comments-text {
-	font-size: 0.85rem;
+	font-size: 0.92rem;
+
 	color: #444;
-	line-height: 1.5;
+
+	line-height: 1.6;
 }
 
 .state-msg {
@@ -329,4 +382,103 @@
 }
 .state-msg.error {
 	color: #dc2626;
+}
+
+.ah-card {
+	background: white;
+
+	border: 1px solid #e7e8ea;
+
+	border-radius: 12px;
+
+	margin-bottom: 1rem;
+
+	overflow: hidden;
+
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.025);
+}
+
+.ah-card-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+
+	padding: 1.15rem 1.4rem;
+
+	cursor: pointer;
+
+	user-select: none;
+}
+
+.ah-date {
+	font-size: 1rem;
+
+	font-weight: 700;
+
+	color: #1f2933;
+}
+
+.ah-sem {
+	font-size: 0.9rem;
+
+	color: #6b7280;
+
+	font-weight: 500;
+}
+
+.ah-band-pill {
+	font-size: 0.82rem;
+
+	font-weight: 700;
+
+	padding: 0.3rem 0.75rem;
+
+	border-radius: 99px;
+
+	background: #f8ecef;
+
+	color: #7f1d2d;
+}
+
+.ah-band-moved {
+	background: #dcfce7;
+
+	color: #166534;
+}
+
+.ah-score {
+	font-size: 1.1rem;
+
+	font-weight: 750;
+}
+
+.ah-card-body {
+	border-top: 1px solid #f0f0f0;
+
+	padding: 1.4rem;
+}
+
+.ah-band-row {
+	display: flex;
+	align-items: center;
+
+	gap: 0.65rem;
+
+	margin-bottom: 1.25rem;
+
+	font-size: 0.95rem;
+}
+
+.ah-band-tag {
+	font-size: 0.82rem;
+
+	font-weight: 700;
+
+	padding: 0.3rem 0.75rem;
+
+	border-radius: 99px;
+
+	background: #f8ecef;
+
+	color: #7f1d2d;
 }

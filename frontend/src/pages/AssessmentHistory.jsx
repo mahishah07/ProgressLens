@@ -15,6 +15,9 @@ import {
 	ChevronDown,
 	Search,
 	BriefcaseBusiness,
+	UserRound,
+	CalendarDays,
+	GraduationCap,
 } from "lucide-react";
 
 const API = import.meta.env.VITE_PMS_API;
@@ -126,6 +129,7 @@ export default function AssessmentHistory() {
 	const { id } = useParams();
 	const navigate = useNavigate();
 	const [dashboard, setDashboard] = useState(null);
+	const [overview, setOverview] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 	const [expanded, setExpanded] = useState({});
@@ -134,14 +138,16 @@ export default function AssessmentHistory() {
 
 	useEffect(() => {
 		if (!id) return;
-		setLoading(true);
 		Promise.all([
 			fetch(`${API}/api/progress/${id}/dashboard`).then((r) => r.json()),
 			fetch(`${API}/api/progress/${id}/overview`).then((r) => r.json()),
 		])
-			.then(([dashData]) => {
+			.then(([dashData, overviewData]) => {
 				setDashboard(dashData);
+				setOverview(overviewData);
+
 				setLoading(false);
+
 				if (dashData?.assessmentHistory?.length > 0) {
 					setExpanded({ 0: true });
 				}
@@ -219,6 +225,21 @@ export default function AssessmentHistory() {
 
 	const assessments = dashboard?.assessmentHistory || [];
 
+	const profileStudentId =
+		overview?.student?.studentId ||
+		dashboard?.student?.studentId ||
+		id;
+
+	const currentBand =
+		overview?.latestNewBand ||
+		overview?.currentBandLevel ||
+		"—";
+
+	const centre =
+		overview?.student?.centreId ||
+		overview?.student?.centre ||
+		"—";
+
 	return (
 		<div className="ah-page eo-page sp-page">
 			<ProgressSidebar studentId={id} />
@@ -226,13 +247,92 @@ export default function AssessmentHistory() {
 				{topbar}
 
 				<div className="ah-content">
+					{/* STUDENT PROFILE */}
+					<section className="eo-profile-card ah-profile-card">
+						<div className="eo-student-icon">
+							<UserRound size={29} />
+						</div>
+
+						<div className="eo-profile-info">
+							<h1>{profileStudentId}</h1>
+						</div>
+
+						<div className="eo-profile-meta">
+							<div className="eo-meta-item">
+								<div className="eo-meta-icon">
+									<CalendarDays size={17} />
+								</div>
+
+								<div>
+									<span className="eo-meta-label">
+										Last Assessment
+									</span>
+
+									<span className="eo-meta-value">
+										{formatDate(overview?.lastAssessmentDate)}
+									</span>
+								</div>
+							</div>
+
+							<div className="eo-meta-item">
+								<div className="eo-meta-icon">
+									<GraduationCap size={17} />
+								</div>
+
+								<div>
+									<span className="eo-meta-label">
+										Assigned Band
+									</span>
+
+									<span className="eo-meta-value eo-band">
+										{currentBand}
+									</span>
+								</div>
+							</div>
+
+							<div className="eo-meta-item">
+								<div className="eo-meta-icon">
+									<BriefcaseBusiness size={17} />
+								</div>
+
+								<div>
+									<span className="eo-meta-label">
+										Centre
+									</span>
+
+									<span className="eo-meta-value">
+										{centre}
+									</span>
+								</div>
+							</div>
+						</div>
+					</section>
+
 					<div className="ah-header">
-						<h1>All Assessments</h1>
+						<div>
+							<p className="ah-eyebrow">
+								ASSESSMENT HISTORY
+							</p>
+
+							<h1>All Assessments</h1>
+
+							<p className="ah-header-sub">
+								Review assessment results, component scores and band progression.
+							</p>
+						</div>
+
 						<button
 							className="ah-back-btn"
-							onClick={() => navigate(`/student/${id}`)}
+							onClick={() =>
+								navigate(
+									`/student/${encodeURIComponent(
+										profileStudentId,
+									)}?view=dashboard`,
+								)
+							}
 						>
-							<ArrowLeft size={15} /> Back to dashboard
+							<ArrowLeft size={16} />
+							Back
 						</button>
 					</div>
 
