@@ -1149,23 +1149,6 @@ select,
 	color: var(--ea-black);
 }
 
-
-/* =========================================================
-   STATUS — NO BLUE
-   ========================================================= */
-
-.history-status.analysed,
-.history-status.finalised {
-	background: var(--ea-red-soft);
-
-	color: var(--ea-red);
-
-	border:
-	1px solid
-	var(--ea-red-border);
-}
-
-
 /* =========================================================
    RESPONSIVE
    ========================================================= */
@@ -1213,4 +1196,48 @@ select,
 .ea-page .sidebar nav .eo-nav-subitem.active,
 .ea-page .sidebar nav .eo-nav-subitem.active span {
 	font-weight: 700;
+}
+
+.history-empty-state {
+	grid-column: 1 / -1;
+
+	min-height: 130px;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	gap: 12px;
+
+	padding: 24px;
+
+	border: 1px dashed #d9dce1;
+	border-radius: 12px;
+
+	background: #fafafa;
+
+	color: #7b8087;
+}
+
+.history-empty-state svg {
+	color: #9f2233;
+}
+
+.history-empty-state strong {
+	display: block;
+
+	margin-bottom: 3px;
+
+	color: #374151;
+
+	font-size: 14px;
+	font-weight: 700;
+}
+
+.history-empty-state p {
+	margin: 0;
+
+	color: #7b8087;
+
+	font-size: 13px;
 }

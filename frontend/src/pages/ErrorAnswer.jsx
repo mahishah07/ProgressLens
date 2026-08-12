@@ -24,11 +24,9 @@ import {
   FileType2,
   AlertTriangle,
   CheckCircle2,
-  Clock3,
   ArrowRight,
   FileCheck2,
   ArrowLeft,
-  Sheet,
   TrendingUp,
   BriefcaseBusiness,
   UserRound,
@@ -38,14 +36,12 @@ import {
 
 const API = import.meta.env.VITE_ERROR_API;
 const PMS_API = import.meta.env.VITE_PMS_API;
-const SHEET_URL = import.meta.env.VITE_GOOGLE_SHEET_URL;
 
 const studentResults = (payload) =>
   payload?.students || payload?.data || [];
 
 
 /* HELPERS COPIED FROM ERROR DASHBOARD */
-
 const formatAssessmentDate = (value) => {
   if (!value) return "Date unavailable";
 
@@ -107,34 +103,6 @@ const writingType = (assessment) => {
   }
 
   return "Writing assignment";
-};
-
-
-const analysisStatus = (assessment) => {
-  if (assessment.reviewStatus === "finalised") {
-    return {
-      label: "Finalised",
-      className: "finalised",
-      icon: CheckCircle2,
-    };
-  }
-
-  if (
-    assessment.interventionRecommendation?.status ===
-    "completed"
-  ) {
-    return {
-      label: "Analysed",
-      className: "analysed",
-      icon: CheckCircle2,
-    };
-  }
-
-  return {
-    label: "Processing",
-    className: "processing",
-    icon: Clock3,
-  };
 };
 
 
@@ -460,8 +428,9 @@ export default function ErrorAnswer() {
     overview?.currentBandLevel ||
     "—";
 
-const assignedTeacher =
-  overview?.student?.teacherId ||
+const studentCentre =
+  overview?.student?.centreId ||
+  overview?.student?.centre ||
   "—";
 
   /* ================= HISTORY / STUDENT ================= */
@@ -1264,20 +1233,6 @@ const visibleHistory = analysedHistory
             <h1>
               {overview?.student?.studentId || id}
             </h1>
-
-
-            {SHEET_URL && (
-              <a
-                href={SHEET_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="eo-sheets-btn"
-              >
-                <Sheet size={16} />
-                Open Google Sheets
-              </a>
-            )}
-
           </div>
 
 
@@ -1291,7 +1246,7 @@ const visibleHistory = analysedHistory
 
               <div>
                 <span className="eo-meta-label">
-                  Last Assignment Upload
+                  Last Assignment
                 </span>
 
                 <span className="eo-meta-value">
@@ -1324,27 +1279,22 @@ const visibleHistory = analysedHistory
 
             </div>
 
-
             <div className="eo-meta-item">
-
               <div className="eo-meta-icon">
                 <BriefcaseBusiness size={17} />
               </div>
 
               <div>
                 <span className="eo-meta-label">
-                  Assigned Teacher
+                  Centre
                 </span>
 
                 <span className="eo-meta-value">
-                  {assignedTeacher}
+                  {studentCentre}
                 </span>
               </div>
-
             </div>
-
           </div>
-
         </section>
 
 
@@ -1376,7 +1326,7 @@ const visibleHistory = analysedHistory
             }
           >
             <ArrowLeft size={16} />
-            Back to Analysis Options
+            Back
           </button>
 
         </div>
@@ -1639,8 +1589,8 @@ const visibleHistory = analysedHistory
                 </div>
 
                 <span className="history-count">
-                  {analysedHistory.length}{" "}
-                  {analysedHistory.length === 1
+                  {visibleHistory.length}{" "}
+                  {visibleHistory.length === 1
                     ? "record"
                     : "records"}
                 </span>
@@ -1725,24 +1675,30 @@ const visibleHistory = analysedHistory
               </div>
 
               <div className="history-grid">
+                {visibleHistory.length === 0 ? (
 
-                {visibleHistory.map(
-                  (assessment) => {
-                    const status =
-                      analysisStatus(
-                        assessment,
-                      );
+                  <div className="history-empty-state">
+                    <FileCheck2 size={24} />
 
-                    const StatusIcon =
-                      status.icon;
+                    <div>
+                      <strong>
+                        No matching assignments
+                      </strong>
+
+                      <p>
+                        There are no analysed records for the selected
+                        assignment type.
+                      </p>
+                    </div>
+                  </div>
+
+                ) : (
+
+                  visibleHistory.map((assessment) => {
 
                     const errorCount =
-                      assessment
-                        .summary
-                        ?.errorCount ||
-                      assessment
-                        .errorCounts
-                        ?.total ||
+                      assessment.summary?.errorCount ||
+                      assessment.errorCounts?.total ||
                       0;
 
                     const dominantPattern =
@@ -1750,68 +1706,45 @@ const visibleHistory = analysedHistory
                       "Writing analysis";
 
                     const file =
-                      assessment.writingSample ||
-                      {};
-                    
-                    const hasAnswerKey = Boolean(assessment.answerKey);
+                      assessment.writingSample || {};
+
+                    const hasAnswerKey =
+                      Boolean(assessment.answerKey);
 
                     return (
                       <article
                         className="history-card"
-                        key={
-                          assessment._id
-                        }
+                        key={assessment._id}
                       >
-                        <div className="history-card-accent" />
-
                         <div className="history-top">
 
                           <div className="history-title-block">
                             <span className="history-type">
-                              {writingType(
-                                assessment,
-                              )}
+                              {writingType(assessment)}
                             </span>
 
                             <h3>
-                              {assessmentName(
-                                assessment,
-                              )}
+                              {assessmentName(assessment)}
                             </h3>
                           </div>
-
-                          <span
-                            className={`history-status ${status.className}`}
-                          >
-                            <StatusIcon
-                              size={14}
-                            />
-
-                            {status.label}
-                          </span>
-
                         </div>
 
 
                         <div className="history-meta-row">
+
                           <span>
-                            <CalendarDays
-                              size={15}
-                            />
+                            <CalendarDays size={15} />
 
                             {formatAssessmentDate(
                               assessment.createdAt ||
-                                assessment.analysedAt,
+                              assessment.analysedAt,
                             )}
                           </span>
 
                           <span>
-                            <FileType2
-                              size={15}
-                            />
+                            <FileType2 size={15} />
 
-                            {file.mimeType ===
-                            "application/pdf"
+                            {file.mimeType === "application/pdf"
                               ? "PDF"
                               : "Image"}{" "}
                             ·{" "}
@@ -1819,6 +1752,7 @@ const visibleHistory = analysedHistory
                               file.fileSize,
                             )}
                           </span>
+
                         </div>
 
 
@@ -1826,8 +1760,7 @@ const visibleHistory = analysedHistory
 
                           <div className="history-metric">
                             <span>
-                              Detected
-                              errors
+                              Detected errors
                             </span>
 
                             <strong>
@@ -1835,20 +1768,16 @@ const visibleHistory = analysedHistory
                             </strong>
                           </div>
 
+
                           <div className="history-pattern">
                             <span>
-                              Dominant
-                              pattern
+                              Dominant pattern
                             </span>
 
                             <strong>
-                              <AlertTriangle
-                                size={15}
-                              />
+                              <AlertTriangle size={15} />
 
-                              {
-                                dominantPattern
-                              }
+                              {dominantPattern}
                             </strong>
                           </div>
 
@@ -1857,14 +1786,11 @@ const visibleHistory = analysedHistory
 
                         <div className="history-summary-block">
                           <span>
-                            AI educator
-                            summary
+                            AI educator summary
                           </span>
 
                           <p>
-                            {
-                              assessment.aiSummary
-                            }
+                            {assessment.aiSummary}
                           </p>
                         </div>
 
@@ -1885,6 +1811,7 @@ const visibleHistory = analysedHistory
                               View analysis
                             </Link>
 
+
                             <Link
                               to={
                                 hasAnswerKey
@@ -1903,25 +1830,18 @@ const visibleHistory = analysedHistory
 
                       </article>
                     );
-                  },
+                  })
+
                 )}
 
               </div>
 
-
-              {visibleHistory.length ===
-                0 && (
-                <div className="history-empty-search">
-                  No assessments match
-                  “{search}”.
-                </div>
+              </>
               )}
-            </>
-          )}
 
-        </section>
-      </section>
-    </main>
-  </div>
-  );
-}
+              </section>
+              </section>
+              </main>
+              </div>
+              );
+              }
