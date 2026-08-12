@@ -1771,39 +1771,3 @@
 
 	color: rgba(255, 255, 255, 0.07);
 }
-
-.sp-danger-zone {
-	display: flex;
-	justify-content: center;
-	margin: 1rem 0;
-}
-.sp-delete-btn {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	padding: 0.6rem 1.25rem;
-	border: 1px solid #dc2626;
-	border-radius: 8px;
-	background: white;
-	color: #dc2626;
-	font-size: 0.85rem;
-	font-weight: 600;
-	cursor: pointer;
-}
-.sp-delete-btn:hover {
-	background: #fef2f2;
-}
-.sp-delete-btn-solid {
-	padding: 0.55rem 1.25rem;
-	border: none;
-	border-radius: 8px;
-	background: #dc2626;
-	color: white;
-	font-size: 0.88rem;
-	font-weight: 600;
-	cursor: pointer;
-}
-.sp-delete-btn-solid:disabled {
-	opacity: 0.6;
-	cursor: not-allowed;
-}

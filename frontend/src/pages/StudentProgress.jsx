@@ -15,7 +15,6 @@ import {
 	Save,
 	TrendingUp as TrendIcon,
 	FileBarChart,
-	Sheet,
 	LayoutDashboard,
 	Bell,
 	Settings,
@@ -54,6 +53,7 @@ ChartJS.register(
 
 const API = import.meta.env.VITE_PMS_API;
 const SHEET_URL = import.meta.env.VITE_GOOGLE_SHEET_URL;
+void SHEET_URL;
 const ERROR_API = import.meta.env.VITE_ERROR_API;
 
 const SKILL_LABELS = {
@@ -355,10 +355,14 @@ export default function StudentProgress() {
 	};
 
 	useEffect(() => {
-		setOverview(null);
-		setDashboard(null);
-		setSelectedSkills([]);
-		setView("overview");
+		const timer = window.setTimeout(() => {
+			setOverview(null);
+			setDashboard(null);
+			setSelectedSkills([]);
+			setView("overview");
+		}, 0);
+
+		return () => window.clearTimeout(timer);
 	}, [id]);
 
 	const loadDashboard = useCallback(() => {
@@ -535,18 +539,6 @@ export default function StudentProgress() {
 
 							<div className="eo-profile-info">
 								<h1>{overview?.student?.studentId}</h1>
-
-								{SHEET_URL && (
-									<a
-										href={SHEET_URL}
-										target="_blank"
-										rel="noopener noreferrer"
-										className="eo-sheets-btn"
-									>
-										<Sheet size={16} />
-										Open Google Sheets
-									</a>
-								)}
 							</div>
 
 							<div className="eo-profile-meta">
@@ -792,6 +784,7 @@ export default function StudentProgress() {
 
 					<div className="eo-profile-info">
 						<h1>{dashboard?.student?.studentId}</h1>
+<<<<<<< Updated upstream
 						{SHEET_URL && (
 							<a
 								href={SHEET_URL}
@@ -802,6 +795,8 @@ export default function StudentProgress() {
 								<Sheet size={16} /> Open Google Sheets
 							</a>
 						)}
+=======
+>>>>>>> Stashed changes
 					</div>
 
 					<div className="eo-profile-meta sp-dashboard-action-grid">
