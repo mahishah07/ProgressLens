@@ -15,18 +15,18 @@
     "dev:gateway": "nodemon gateway/server.js",
     "dev:pms": "nodemon backendpms/server.js",
     "dev:error-analyser": "nodemon backend/src/server.js",
-		"demo:answer-key": "node scripts/demo-answer-key.js",
-		"test": "cross-env NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --runInBand",
-		"test:e2e:pms": "playwright test --config=playwright.pms.config.js"
+    "demo:answer-key": "node scripts/demo-answer-key.js",
+    "test": "cross-env NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --runInBand",
+    "test:e2e:pms": "playwright test --config=playwright.pms.config.js"
   },
   "dependencies": {
     "@azure/ai-form-recognizer": "^5.1.0",
+    "@googleapis/sheets": "^14.0.0",
     "cors": "^2.8.6",
     "csv-parser": "^3.2.1",
     "dictionary-en": "^4.0.0",
     "dotenv": "16.4.5",
     "express": "^5.2.1",
-    "googleapis": "^173.0.0",
     "mongodb": "^7.5.0",
     "mongoose": "^9.8.1",
     "morgan": "^1.10.0",
@@ -38,16 +38,19 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-		"cross-env": "^7.0.3",
-		"@playwright/test": "^1.55.0",
+    "@playwright/test": "^1.55.0",
+    "cross-env": "^7.0.3",
     "jest": "^30.4.2",
     "mongodb-memory-server": "^11.2.0",
     "nodemon": "^3.1.14",
     "supertest": "^7.2.2"
   },
-	"jest": {
-		"testPathIgnorePatterns": ["/node_modules/", "/e2e/"],
-		"moduleNameMapper": {
+  "jest": {
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/e2e/"
+    ],
+    "moduleNameMapper": {
       "^mime-types$": "<rootDir>/node_modules/mime-types/index.js"
     }
   }

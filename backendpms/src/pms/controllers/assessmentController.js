@@ -1,6 +1,10 @@
 const Assessment = require("../models/Assessment");
 const mongoose = require("mongoose");
 const { resolveStudent } = require("../services/studentIdentityService");
+const Student = require("../models/Student");
+
+const { calculateBandScore } = require("../services/bandScoring");
+const BAND_ORDER = ["A1", "A2", "A3", "B4", "B5", "B6", "C7", "C8", "C9"];
 
 // GET /api/assessments  (optional ?student=<id>&subject=<subject> filters)
 exports.getAssessments = async (req, res) => {
@@ -8,17 +12,50 @@ exports.getAssessments = async (req, res) => {
 		const filter = {};
 		if (req.query.student) {
 			const student = await resolveStudent(req.query.student);
-			if (!student) return res.status(404).json({ message: "Student not found" });
+			if (!student)
+				return res.status(404).json({ message: "Student not found" });
 			filter.student = student._id;
 		}
 		if (req.query.subject) filter.subject = req.query.subject;
-
-		const assessments = await Assessment.find(filter)
-			.populate("student", "name studentId classGroup")
-			.sort({ assessmentDate: -1 });
+		const assessments = await Assessment.find(filter);
 		res.json(assessments);
 	} catch (err) {
 		res.status(500).json({ message: err.message });
+	}
+};
+
+exports.createAssessment = async (req, res) => {
+	try {
+		const student = await resolveStudent(req.body.student);
+		if (!student) return res.status(404).json({ message: "Student not found" });
+
+		const assessmentData = { ...req.body, student: student._id };
+
+		const scored = calculateBandScore(
+			assessmentData,
+			req.body.summaryBand,
+			student.schLevel,
+		);
+		if (scored) {
+			const currentIndex = BAND_ORDER.indexOf(req.body.summaryBand);
+			const nextBand = BAND_ORDER[currentIndex + 1];
+			assessmentData.newBand =
+				scored.passed && nextBand ? nextBand : req.body.summaryBand;
+		} else {
+			assessmentData.newBand = req.body.summaryBand;
+		}
+
+		const assessment = await Assessment.create(assessmentData);
+
+		if (assessmentData.newBand !== student.summaryBand) {
+			await Student.findByIdAndUpdate(student._id, {
+				summaryBand: assessmentData.newBand,
+			});
+		}
+
+		res.status(201).json(assessment);
+	} catch (err) {
+		res.status(400).json({ message: err.message });
 	}
 };
 
@@ -40,18 +77,6 @@ exports.getAssessmentById = async (req, res) => {
 	}
 };
 
-// POST /api/assessments
-exports.createAssessment = async (req, res) => {
-	try {
-		const student = await resolveStudent(req.body.student);
-		if (!student) return res.status(404).json({ message: "Student not found" });
-		const assessment = await Assessment.create({ ...req.body, student: student._id });
-		res.status(201).json(assessment);
-	} catch (err) {
-		res.status(400).json({ message: err.message });
-	}
-};
-
 // PUT /api/assessments/:id
 exports.updateAssessment = async (req, res) => {
 	try {
@@ -61,7 +86,8 @@ exports.updateAssessment = async (req, res) => {
 		const updates = { ...req.body };
 		if (updates.student) {
 			const student = await resolveStudent(updates.student);
-			if (!student) return res.status(404).json({ message: "Student not found" });
+			if (!student)
+				return res.status(404).json({ message: "Student not found" });
 			updates.student = student._id;
 		}
 		const assessment = await Assessment.findByIdAndUpdate(

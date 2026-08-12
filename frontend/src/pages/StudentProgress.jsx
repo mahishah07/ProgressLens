@@ -26,6 +26,7 @@ import {
 	BriefcaseBusiness,
 	BarChart3,
 	FileCheck2,
+	Trash2,
 } from "lucide-react";
 import { Line, Radar, Bar } from "react-chartjs-2";
 import {
@@ -209,6 +210,7 @@ function TeacherTopbar({
 		</header>
 	);
 }
+
 export default function StudentProgress() {
 	const { id } = useParams();
 	const navigate = useNavigate();
@@ -223,6 +225,28 @@ export default function StudentProgress() {
 	const [studentSearching, setStudentSearching] = useState(false);
 	const [selectedSkills, setSelectedSkills] = useState([]);
 	const [chartType, setChartType] = useState("radar");
+
+	// Delete-student state/handler — must live inside the component
+	// since it uses `id`, `navigate`, and hooks.
+	const [showDeleteModal, setShowDeleteModal] = useState(false);
+	const [deleting, setDeleting] = useState(false);
+	const [deleteError, setDeleteError] = useState(null);
+
+	const handleDeleteStudent = async () => {
+		setDeleting(true);
+		setDeleteError(null);
+		try {
+			const res = await fetch(`${API}/api/students/${id}`, {
+				method: "DELETE",
+			});
+			const data = await res.json();
+			if (!res.ok) throw new Error(data.message || "Failed to delete student");
+			navigate("/");
+		} catch (err) {
+			setDeleteError(err.message);
+			setDeleting(false);
+		}
+	};
 
 	const isPending =
 		dashboard?.status === "assessment_pending" ||
@@ -685,9 +709,63 @@ export default function StudentProgress() {
 								<ArrowLeft size={16} />
 								Back to Class List
 							</Link>
+
+							<button
+								className="sp-delete-btn"
+								onClick={() => setShowDeleteModal(true)}
+							>
+								<Trash2 size={16} />
+								Delete Student
+							</button>
 						</div>
 					</div>
 				</main>
+				{showDeleteModal && (
+					<div
+						className="modal-overlay"
+						onClick={() => !deleting && setShowDeleteModal(false)}
+					>
+						<div
+							className="modal-box aa-success-box"
+							onClick={(e) => e.stopPropagation()}
+						>
+							<div className="modal-header">
+								<h2>Delete Student</h2>
+								<button
+									className="modal-close"
+									onClick={() => setShowDeleteModal(false)}
+								>
+									✕
+								</button>
+							</div>
+							<div className="modal-body">
+								<p>
+									Are you sure you want to permanently delete{" "}
+									<strong>{overview?.student?.studentId}</strong>? This will
+									also delete all of their assessments and reports. This action
+									cannot be undone.
+								</p>
+								{deleteError && <p className="modal-error">{deleteError}</p>}
+							</div>
+							<div className="modal-footer">
+								<button
+									className="modal-cancel"
+									onClick={() => setShowDeleteModal(false)}
+									disabled={deleting}
+								>
+									Cancel
+								</button>
+								<button
+									className="sp-delete-btn-solid"
+									onClick={handleDeleteStudent}
+									disabled={deleting}
+								>
+									{deleting ? "Deleting..." : "Delete Permanently"}
+								</button>
+							</div>
+						</div>
+					</div>
+				)}
 			</div>
 		);
 	}
@@ -715,7 +793,12 @@ export default function StudentProgress() {
 					<div className="eo-profile-info">
 						<h1>{dashboard?.student?.studentId}</h1>
 						{SHEET_URL && (
-							<a href={SHEET_URL} target="_blank" rel="noopener noreferrer" className="eo-sheets-btn">
+							<a
+								href={SHEET_URL}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="eo-sheets-btn"
+							>
 								<Sheet size={16} /> Open Google Sheets
 							</a>
 						)}
@@ -727,7 +810,9 @@ export default function StudentProgress() {
 							onClick={() => navigate(`/assessment-comparison?studentId=${id}`)}
 							disabled={isPending}
 						>
-							<span className="eo-meta-icon"><BarChart3 size={18} /></span>
+							<span className="eo-meta-icon">
+								<BarChart3 size={18} />
+							</span>
 							<span>Compare Assessments</span>
 						</button>
 
@@ -736,7 +821,9 @@ export default function StudentProgress() {
 							onClick={() => navigate(`/progress-report?studentId=${id}`)}
 							disabled={isPending}
 						>
-							<span className="eo-meta-icon"><FileText size={18} /></span>
+							<span className="eo-meta-icon">
+								<FileText size={18} />
+							</span>
 							<span>Generate Report</span>
 						</button>
 
@@ -744,7 +831,9 @@ export default function StudentProgress() {
 							className="eo-meta-item sp-dashboard-action"
 							onClick={() => navigate(`/student/${id}/add-assessment`)}
 						>
-							<span className="eo-meta-icon"><Save size={18} /></span>
+							<span className="eo-meta-icon">
+								<Save size={18} />
+							</span>
 							<span>Add Assessment</span>
 						</button>
 					</div>

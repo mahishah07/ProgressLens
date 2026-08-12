@@ -76,6 +76,7 @@ const BAND_FIELDS = {
 	A1: [
 		{ key: "pictureNamingScore", label: "Picture Naming" },
 		{ key: "wraScore", label: "Word Reading Accuracy" },
+		{ key: "phonicsScore", label: "Phonics" },
 		{ key: "fluencyMark", label: "Fluency" },
 		{ key: "paIdentificationScore", label: "PA Identification" },
 		{ key: "letterFormationScore", label: "Letter Formation" },
@@ -85,6 +86,7 @@ const BAND_FIELDS = {
 	A2: [
 		{ key: "pictureDescriptionScore", label: "Picture Description" },
 		{ key: "wraScore", label: "Word Reading Accuracy" },
+		{ key: "phonicsScore", label: "Phonics" },
 		{ key: "fluencyMark", label: "Fluency" },
 		{ key: "wordSpellingScore", label: "Word Spelling" },
 		{ key: "ed2Score", label: "Edit and Diagram 2" },
@@ -93,6 +95,7 @@ const BAND_FIELDS = {
 	A3: [
 		{ key: "pictureDescriptionScore", label: "Picture Description" },
 		{ key: "wraScore", label: "Word Reading Accuracy" },
+		{ key: "phonicsScore", label: "Phonics" },
 		{ key: "fluencyMark", label: "Fluency" },
 		{ key: "wordSpellingScore", label: "Word Spelling" },
 		{ key: "ed3Score", label: "Edit and Diagram 3" },
@@ -100,6 +103,7 @@ const BAND_FIELDS = {
 	],
 	B4: [
 		{ key: "wraScore", label: "Word Reading Accuracy" },
+		{ key: "phonicsScore", label: "Phonics" },
 		{ key: "fluencyMark", label: "Fluency" },
 		{ key: "wordSpellingScore", label: "Word Spelling" },
 		{ key: "narrativeScore", label: "Narrative Writing" },
@@ -109,6 +113,7 @@ const BAND_FIELDS = {
 	],
 	B5: [
 		{ key: "wraScore", label: "Word Reading Accuracy" },
+		{ key: "phonicsScore", label: "Phonics" },
 		{ key: "fluencyMark", label: "Fluency" },
 		{ key: "wordSpellingScore", label: "Word Spelling" },
 		{ key: "narrativeScore", label: "Narrative Writing" },
@@ -118,6 +123,7 @@ const BAND_FIELDS = {
 	],
 	B6: [
 		{ key: "wraScore", label: "Word Reading Accuracy" },
+		{ key: "phonicsScore", label: "Phonics" },
 		{ key: "fluencyMark", label: "Fluency" },
 		{ key: "wordSpellingScore", label: "Word Spelling" },
 		{ key: "narrativeScore", label: "Narrative Writing" },
@@ -127,6 +133,7 @@ const BAND_FIELDS = {
 	],
 	C7: [
 		{ key: "wraScore", label: "Word Reading Accuracy" },
+		{ key: "phonicsScore", label: "Phonics" },
 		{ key: "fluencyMark", label: "Fluency" },
 		{ key: "wordSpellingScore", label: "Word Spelling" },
 		{ key: "narrativeScore", label: "Narrative Writing" },
@@ -136,6 +143,7 @@ const BAND_FIELDS = {
 	],
 	C8: [
 		{ key: "wraScore", label: "Word Reading Accuracy" },
+		{ key: "phonicsScore", label: "Phonics" },
 		{ key: "fluencyMark", label: "Fluency" },
 		{ key: "wordSpellingScore", label: "Word Spelling" },
 		{ key: "narrativeScore", label: "Narrative Writing" },
@@ -145,6 +153,7 @@ const BAND_FIELDS = {
 	],
 	C9: [
 		{ key: "wraScore", label: "Word Reading Accuracy" },
+		{ key: "phonicsScore", label: "Phonics" },
 		{ key: "fluencyMark", label: "Fluency" },
 		{ key: "wordSpellingScore", label: "Word Spelling" },
 		{ key: "narrativeScore", label: "Narrative Writing" },
@@ -171,7 +180,6 @@ export default function AddAssessment() {
 
 	const [semester, setSemester] = useState("");
 	const [summaryBand, setSummaryBand] = useState("");
-	const [newBand, setNewBand] = useState("");
 	const [assessmentDate, setAssessmentDate] = useState(
 		new Date().toISOString().split("T")[0],
 	);
@@ -186,7 +194,6 @@ export default function AddAssessment() {
 				setStudent(data.student);
 				const band = data.latestNewBand || data.currentBandLevel || "";
 				setSummaryBand(band);
-				setNewBand(band);
 				setLoading(false);
 			})
 			.catch((err) => {
@@ -213,7 +220,7 @@ export default function AddAssessment() {
 			student: student._id,
 			semester: semester.trim(),
 			summaryBand,
-			newBand: newBand || summaryBand,
+			newBand,
 			assessmentDate,
 			assessedBy: student.teacherId,
 		};
@@ -337,20 +344,6 @@ export default function AddAssessment() {
 										setSummaryBand(e.target.value);
 										setScores({});
 									}}
-								>
-									<option value="">Select band</option>
-									{BAND_OPTIONS.map((b) => (
-										<option key={b} value={b}>
-											{b}
-										</option>
-									))}
-								</select>
-							</div>
-							<div className="aa-field">
-								<label>New Band (after this assessment)</label>
-								<select
-									value={newBand}
-									onChange={(e) => setNewBand(e.target.value)}
 								>
 									<option value="">Select band</option>
 									{BAND_OPTIONS.map((b) => (

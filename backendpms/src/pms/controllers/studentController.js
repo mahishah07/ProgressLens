@@ -7,7 +7,8 @@ const { resolveStudent } = require("../services/studentIdentityService");
 exports.getStudents = async (req, res) => {
 	try {
 		const pageValue = req.query.page === undefined ? 1 : Number(req.query.page);
-		const limitValue = req.query.limit === undefined ? 50 : Number(req.query.limit);
+		const limitValue =
+			req.query.limit === undefined ? 50 : Number(req.query.limit);
 		if (
 			!Number.isInteger(pageValue) ||
 			pageValue < 1 ||
@@ -15,7 +16,12 @@ exports.getStudents = async (req, res) => {
 			limitValue < 1 ||
 			limitValue > 100
 		) {
-			return res.status(400).json({ message: "page must be a positive integer and limit must be an integer from 1 to 100" });
+			return res
+				.status(400)
+				.json({
+					message:
+						"page must be a positive integer and limit must be an integer from 1 to 100",
+				});
 		}
 		const page = pageValue;
 		const limit = limitValue;
@@ -64,7 +70,8 @@ exports.createStudent = async (req, res) => {
 exports.updateStudent = async (req, res) => {
 	try {
 		const existing = await resolveStudent(req.params.id);
-		if (!existing) return res.status(404).json({ message: "Student not found" });
+		if (!existing)
+			return res.status(404).json({ message: "Student not found" });
 		const allowed = [
 			"centreId",
 			"teacherId",
@@ -79,7 +86,9 @@ exports.updateStudent = async (req, res) => {
 			"parentContact",
 		];
 		const updates = Object.fromEntries(
-			allowed.filter((key) => req.body[key] !== undefined).map((key) => [key, req.body[key]]),
+			allowed
+				.filter((key) => req.body[key] !== undefined)
+				.map((key) => [key, req.body[key]]),
 		);
 		const student = await Student.findByIdAndUpdate(existing._id, updates, {
 			returnDocument: "after",
@@ -96,19 +105,18 @@ exports.updateStudent = async (req, res) => {
 exports.deleteStudent = async (req, res) => {
 	try {
 		const existing = await resolveStudent(req.params.id);
-		if (!existing) return res.status(404).json({ message: "Student not found" });
-		const [assessmentCount, reportCount] = await Promise.all([
-			Assessment.countDocuments({ student: existing._id }),
-			Report.countDocuments({ student: existing._id }),
+		if (!existing)
+			return res.status(404).json({ message: "Student not found" });
+
+		await Promise.all([
+			Assessment.deleteMany({ student: existing._id }),
+			Report.deleteMany({ student: existing._id }),
 		]);
-		if (assessmentCount > 0 || reportCount > 0) {
-			return res.status(409).json({
-				message: "Student cannot be deleted while assessments or reports exist",
-			});
-		}
+
 		const student = await Student.findByIdAndDelete(existing._id);
 		if (!student) return res.status(404).json({ message: "Student not found" });
-		res.json({ message: "Student deleted" });
+
+		res.json({ message: "Student and all related records deleted" });
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}
@@ -118,7 +126,9 @@ exports.deleteStudent = async (req, res) => {
 exports.bulkCreateStudents = async (req, res) => {
 	try {
 		if (!Array.isArray(req.body) || req.body.length === 0) {
-			return res.status(400).json({ message: "A non-empty student array is required" });
+			return res
+				.status(400)
+				.json({ message: "A non-empty student array is required" });
 		}
 		const students = await Student.insertMany(req.body, { ordered: false });
 		res.status(201).json(students);

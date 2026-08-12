@@ -717,7 +717,6 @@
    removing any teammate logic or existing layout classes.
    ========================================================= */
 
-
 :root {
 	--sp-red: #9f2233;
 	--sp-red-dark: #7f1d2d;
@@ -740,7 +739,6 @@
 	--sp-amber-soft: #fff8e6;
 }
 
-
 /* =========================================================
    PAGE SHELL
    ========================================================= */
@@ -755,7 +753,6 @@
 	background: var(--sp-background);
 }
 
-
 .sp-main {
 	flex: 1;
 
@@ -767,7 +764,6 @@
 	overflow-y: auto;
 }
 
-
 /* landing sidebar needs a minimum height when reused */
 
 .sp-page .sidebar {
@@ -775,7 +771,6 @@
 
 	flex-shrink: 0;
 }
-
 
 /* =========================================================
    LANDING NAV/SIDEBAR BRAND OVERRIDES
@@ -787,38 +782,30 @@
 
 	color: white !important;
 
-	box-shadow:
-		0 4px 10px
-		rgba(159, 34, 51, 0.12) !important;
+	box-shadow: 0 4px 10px rgba(159, 34, 51, 0.12) !important;
 }
-
 
 .sp-page .topbar h2 {
 	color: #1f2933 !important;
 }
 
-
 .sp-page .topbar-brand::before {
 	background: var(--sp-red) !important;
 }
-
 
 .sp-page .role-dot {
 	background: var(--sp-red) !important;
 }
 
-
 .sp-page .sidebar nav a {
 	color: #4b5563;
 }
-
 
 .sp-page .sidebar nav a:hover {
 	color: var(--sp-charcoal);
 
 	background: #f7f7f7;
 }
-
 
 /* =========================================================
    OVERVIEW CONTAINER
@@ -833,7 +820,6 @@
 	gap: 0;
 }
 
-
 /* =========================================================
    STUDENT PROFILE CARD
    ========================================================= */
@@ -843,7 +829,6 @@
 
 	border-radius: 13px;
 }
-
 
 .sp-profile-eyebrow {
 	display: block;
@@ -857,7 +842,6 @@
 
 	color: var(--sp-red);
 }
-
 
 .sp-sheets-btn {
 	display: inline-flex;
@@ -885,7 +869,6 @@
 		color 0.18s ease;
 }
 
-
 .sp-sheets-btn:hover {
 	background: var(--sp-red-soft);
 
@@ -893,7 +876,6 @@
 
 	color: var(--sp-red);
 }
-
 
 /* =========================================================
    PROFILE META
@@ -918,7 +900,6 @@
 	border: 1px solid #ececef;
 }
 
-
 .sp-meta-item > div:last-child {
 	display: flex;
 	flex-direction: column;
@@ -930,7 +911,6 @@
 	color: var(--sp-red);
 }
 
-
 /* =========================================================
    OVERVIEW HEADING
    ========================================================= */
@@ -938,7 +918,6 @@
 .sp-section-heading {
 	margin: 28px 0 14px;
 }
-
 
 .sp-section-eyebrow {
 	display: block;
@@ -953,7 +932,6 @@
 	color: var(--sp-red);
 }
 
-
 .sp-section-heading h2 {
 	margin: 0 0 4px;
 
@@ -965,7 +943,6 @@
 	letter-spacing: -0.01em;
 }
 
-
 .sp-section-heading p {
 	margin: 0;
 
@@ -974,7 +951,6 @@
 	color: var(--sp-muted);
 }
 
-
 /* =========================================================
    SYSTEM CARDS
    ========================================================= */
@@ -982,14 +958,12 @@
 .sp-options {
 	display: grid;
 
-	grid-template-columns:
-		repeat(2, minmax(0, 1fr));
+	grid-template-columns: repeat(2, minmax(0, 1fr));
 
 	gap: 20px;
 
 	margin: 0;
 }
-
 
 .sp-option-card {
 	position: relative;
@@ -1015,31 +989,21 @@
 		border-color 0.22s ease;
 }
 
-
 .sp-option-card:hover {
 	transform: translateY(-4px);
 
-	box-shadow:
-		0 14px 28px
-		rgba(31, 41, 51, 0.10);
+	box-shadow: 0 14px 28px rgba(31, 41, 51, 0.1);
 }
-
 
 /* primary card — muted institutional burgundy */
 
 .sp-option-progress {
-	background:
-		linear-gradient(
-			145deg,
-			#8f2435 0%,
-			#741c2a 100%
-		);
+	background: linear-gradient(145deg, #8f2435 0%, #741c2a 100%);
 
 	color: white;
 
 	border: 1px solid #7d1f2f;
 }
-
 
 /*
 	second card intentionally NOT bright red.
@@ -1048,18 +1012,12 @@
 */
 
 .sp-option-errors {
-	background:
-		linear-gradient(
-			145deg,
-			#343a43 0%,
-			#252a31 100%
-		);
+	background: linear-gradient(145deg, #343a43 0%, #252a31 100%);
 
 	color: white;
 
 	border: 1px solid #323840;
 }
-
 
 .sp-option-top {
 	display: flex;
@@ -1068,7 +1026,6 @@
 
 	margin-bottom: 30px;
 }
-
 
 .sp-option-icon {
 	width: 52px;
@@ -1087,7 +1044,6 @@
 	color: white;
 }
 
-
 .sp-option-label {
 	padding: 5px 9px;
 
@@ -1103,7 +1059,6 @@
 	letter-spacing: 0.09em;
 }
 
-
 .sp-option-copy {
 	position: relative;
 
@@ -1111,7 +1066,6 @@
 
 	max-width: 520px;
 }
-
 
 .sp-option-card h3 {
 	margin: 0 0 9px;
@@ -1121,7 +1075,6 @@
 
 	color: white;
 }
-
 
 .sp-option-card p {
 	margin: 0;
@@ -1136,7 +1089,6 @@
 
 	opacity: 1;
 }
-
 
 /* =========================================================
    MINI FEATURE LIST
@@ -1155,7 +1107,6 @@
 	margin-top: 18px;
 }
 
-
 .sp-option-features span {
 	position: relative;
 
@@ -1165,7 +1116,6 @@
 
 	color: rgba(255, 255, 255, 0.73);
 }
-
 
 .sp-option-features span::before {
 	content: "";
@@ -1182,7 +1132,6 @@
 
 	background: rgba(255, 255, 255, 0.7);
 }
-
 
 /* =========================================================
    OPTION CTA
@@ -1221,20 +1170,15 @@
 		box-shadow 0.18s ease;
 }
 
-
 .sp-option-errors .sp-option-btn {
 	color: #30353c;
 }
 
-
 .sp-option-card .sp-option-btn:hover {
 	transform: translateX(2px);
 
-	box-shadow:
-		0 4px 12px
-		rgba(0, 0, 0, 0.12);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
-
 
 /* =========================================================
    WATERMARK
@@ -1257,24 +1201,22 @@
 		color 0.25s ease;
 }
 
-
 .sp-option-card:hover .sp-option-watermark {
-	transform:
-		rotate(-4deg)
-		scale(1.05);
+	transform: rotate(-4deg) scale(1.05);
 
 	color: rgba(255, 255, 255, 0.07);
 }
-
 
 /* =========================================================
    BACK BUTTON
    ========================================================= */
 
 .sp-back-bar {
-	padding: 32px 0 4px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin: 1rem 0;
 }
-
 
 .sp-back-btn {
 	width: fit-content;
@@ -1306,7 +1248,6 @@
 		transform 0.18s ease;
 }
 
-
 .sp-back-btn:hover {
 	background: #f8f8f8;
 
@@ -1314,7 +1255,6 @@
 
 	transform: translateX(-2px);
 }
-
 
 /* =========================================================
    METRICS DASHBOARD PROFILE STRIP
@@ -1336,16 +1276,12 @@
 
 	border-radius: 14px;
 
-	box-shadow:
-		0 3px 12px
-		rgba(31, 41, 51, 0.04);
+	box-shadow: 0 3px 12px rgba(31, 41, 51, 0.04);
 }
-
 
 .sp-dashboard-student {
 	min-width: 220px;
 }
-
 
 .sp-dashboard-student h2 {
 	margin: 0 0 7px;
@@ -1354,7 +1290,6 @@
 
 	color: var(--sp-charcoal);
 }
-
 
 .sp-strip-meta {
 	display: flex;
@@ -1369,14 +1304,12 @@
 	color: var(--sp-muted);
 }
 
-
 .sp-strip-meta > span {
 	display: inline-flex;
 	align-items: center;
 
 	gap: 5px;
 }
-
 
 .sp-band-tag {
 	padding: 4px 8px;
@@ -1390,7 +1323,6 @@
 	font-weight: 700;
 }
 
-
 /* =========================================================
    QUICK ACTIONS
    ========================================================= */
@@ -1403,7 +1335,6 @@
 
 	gap: 8px;
 }
-
 
 .sp-compare-btn,
 .sp-qa-primary,
@@ -1431,7 +1362,6 @@
 		color 0.18s ease;
 }
 
-
 .sp-compare-btn {
 	border: 1px solid #d6d9dd;
 
@@ -1440,11 +1370,9 @@
 	color: var(--sp-charcoal);
 }
 
-
 .sp-compare-btn:hover {
 	background: #f7f7f7;
 }
-
 
 .sp-qa-primary {
 	border: 1px solid var(--sp-red);
@@ -1454,13 +1382,11 @@
 	color: white;
 }
 
-
 .sp-qa-primary:hover {
 	background: var(--sp-red-dark);
 
 	border-color: var(--sp-red-dark);
 }
-
 
 .sp-qa-secondary {
 	border: 1px solid var(--sp-red-border);
@@ -1472,11 +1398,9 @@
 	text-decoration: none;
 }
 
-
 .sp-qa-secondary:hover {
 	background: var(--sp-red-soft);
 }
-
 
 /* =========================================================
    EXISTING DASHBOARD — BRAND REFRESH ONLY
@@ -1486,11 +1410,9 @@
 	color: var(--sp-red);
 }
 
-
 .sp-view-all {
 	color: var(--sp-red);
 }
-
 
 .sp-band-badge {
 	background: var(--sp-red-soft);
@@ -1498,20 +1420,17 @@
 	color: var(--sp-red);
 }
 
-
 .sp-view-assessments-btn {
 	background: var(--sp-red);
 
 	color: white;
 }
 
-
 .sp-view-assessments-btn:hover {
 	background: var(--sp-red-dark);
 
 	opacity: 1;
 }
-
 
 .sp-toggle-active {
 	background: var(--sp-red);
@@ -1521,11 +1440,9 @@
 	color: white;
 }
 
-
 .sp-skill-checkbox input {
 	accent-color: var(--sp-red);
 }
-
 
 /* =========================================================
    AI PERFORMANCE SUMMARY
@@ -1533,12 +1450,7 @@
    ========================================================= */
 
 .sp-ai-card {
-	background:
-		linear-gradient(
-			145deg,
-			#f9f6f6,
-			#f6f1f2
-		);
+	background: linear-gradient(145deg, #f9f6f6, #f6f1f2);
 
 	border: 1px solid var(--sp-red-border);
 
@@ -1547,16 +1459,13 @@
 	border-radius: 12px;
 }
 
-
 .sp-ai-card h3 {
 	color: var(--sp-red-dark);
 }
 
-
 .sp-ai-card p {
 	color: #444b55;
 }
-
 
 .sp-tag {
 	background: var(--sp-red);
@@ -1564,13 +1473,11 @@
 	color: white;
 }
 
-
 .sp-tag-alt {
 	background: #525866;
 
 	color: white;
 }
-
 
 /* =========================================================
    CARDS
@@ -1583,11 +1490,8 @@
 .sp-goals-card {
 	border: 1px solid #e7e8eb;
 
-	box-shadow:
-		0 3px 10px
-		rgba(31, 41, 51, 0.035);
+	box-shadow: 0 3px 10px rgba(31, 41, 51, 0.035);
 }
-
 
 /* =========================================================
    BOTTOM BAR
@@ -1601,17 +1505,14 @@
 	padding: 0 32px 24px;
 }
 
-
 /* =========================================================
    RESPONSIVE
    ========================================================= */
 
 @media (max-width: 1150px) {
-
 	.sp-profile-card-new {
 		flex-wrap: wrap;
 	}
-
 
 	.sp-profile-meta {
 		width: 100%;
@@ -1619,49 +1520,39 @@
 		max-width: none;
 	}
 
-
 	.sp-profile-strip {
 		flex-wrap: wrap;
 	}
-
 
 	.sp-quick-actions {
 		width: 100%;
 
 		margin-left: 74px;
 	}
-
 }
 
-
 @media (max-width: 850px) {
-
 	.sp-options {
 		grid-template-columns: 1fr;
 	}
-
 
 	.sp-profile-meta {
 		grid-template-columns: 1fr;
 	}
 
-
 	.sp-page .sidebar {
 		width: 220px;
 	}
 
-
 	.sp-overview-content {
 		padding: 22px;
 	}
-
 
 	.sp-quick-actions {
 		margin-left: 0;
 
 		flex-wrap: wrap;
 	}
-
 }
 
 /* =========================================================
@@ -1674,7 +1565,6 @@
 
 	flex-shrink: 0;
 }
-
 
 /* =========================================================
    SIDEBAR FONT SIZE
@@ -1695,7 +1585,6 @@
 	line-height: 1.3;
 }
 
-
 .sp-page .sidebar nav .eo-nav-subitem span {
 	font-size: 15px;
 	font-weight: 500;
@@ -1714,20 +1603,17 @@
 	font-weight: 700;
 }
 
-
 .sp-page .sidebar nav .sp-nav-progress svg {
 	color: #9f2233 !important;
 
 	stroke: #9f2233 !important;
 }
 
-
 .sp-page .sidebar nav .sp-nav-progress:hover {
 	background: #f8ecef !important;
 
 	color: #9f2233 !important;
 }
-
 
 /* =========================================================
    NAVBAR
@@ -1737,7 +1623,6 @@
 	top: -5px;
 	bottom: -5px;
 }
-
 
 /* =========================================================
    REMOVE ANY OLD TOPBAR CONFLICTS
@@ -1790,7 +1675,6 @@
 	gap: 24px;
 }
 
-
 /* Keep original card appearance */
 .sp-option-card {
 	min-height: 350px;
@@ -1798,20 +1682,17 @@
 	border-radius: 16px;
 }
 
-
 /* Slightly larger top icon */
 .sp-option-icon {
 	width: 54px;
 	height: 54px;
 }
 
-
 /* Keep pill design but improve readability */
 .sp-option-label {
 	font-size: 11px;
 	padding: 6px 10px;
 }
-
 
 /* Larger headings */
 .sp-option-card h3 {
@@ -1821,7 +1702,6 @@
 	line-height: 1.25;
 }
 
-
 /* Larger, concise description */
 .sp-option-card p {
 	max-width: 500px;
@@ -1830,14 +1710,12 @@
 	line-height: 1.55;
 }
 
-
 /* Features */
 .sp-option-features {
 	gap: 9px;
 
 	margin-top: 20px;
 }
-
 
 .sp-option-features span {
 	padding-left: 17px;
@@ -1846,7 +1724,6 @@
 	line-height: 1.45;
 }
 
-
 /* Slightly larger bullet */
 .sp-option-features span::before {
 	top: 7px;
@@ -1854,7 +1731,6 @@
 	width: 6px;
 	height: 6px;
 }
-
 
 /* Keep the nice SMALL white button,
    just make it easier to read */
@@ -1873,12 +1749,10 @@
 	font-weight: 650;
 }
 
-
 /* Arrow */
 .sp-option-card .sp-option-btn span {
 	font-size: 18px;
 }
-
 
 /* Restore original watermark placement */
 .sp-option-watermark {
@@ -1892,11 +1766,44 @@
 	transform: rotate(-8deg);
 }
 
-
 .sp-option-card:hover .sp-option-watermark {
-	transform:
-		rotate(-4deg)
-		scale(1.05);
+	transform: rotate(-4deg) scale(1.05);
 
 	color: rgba(255, 255, 255, 0.07);
+}
+
+.sp-danger-zone {
+	display: flex;
+	justify-content: center;
+	margin: 1rem 0;
+}
+.sp-delete-btn {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.6rem 1.25rem;
+	border: 1px solid #dc2626;
+	border-radius: 8px;
+	background: white;
+	color: #dc2626;
+	font-size: 0.85rem;
+	font-weight: 600;
+	cursor: pointer;
+}
+.sp-delete-btn:hover {
+	background: #fef2f2;
+}
+.sp-delete-btn-solid {
+	padding: 0.55rem 1.25rem;
+	border: none;
+	border-radius: 8px;
+	background: #dc2626;
+	color: white;
+	font-size: 0.88rem;
+	font-weight: 600;
+	cursor: pointer;
+}
+.sp-delete-btn-solid:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
 }
