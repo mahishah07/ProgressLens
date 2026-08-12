@@ -10,62 +10,167 @@
 	overflow-y: auto;
 }
 
-.pr-topbar {
+/* =========================================================
+   REPORT ACTION TOOLBAR
+   ========================================================= */
+
+.pr-report-toolbar {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: 1.5rem;
-	min-height: 76px;
-	padding: 0 36px;
+	gap: 1rem;
+
+	padding: 14px 34px;
+
 	background: white;
+
 	border-bottom: 1px solid #e5e7eb;
-	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.025);
-	position: sticky;
-	top: 0;
-	z-index: 20;
-}
-.pr-topbar h2 {
-	font-size: 19px;
-	font-weight: 700;
-	color: #8f1f30;
-	margin: 0;
 }
 
-.pr-topbar-actions {
+.pr-report-toolbar-actions {
 	display: flex;
 	align-items: center;
 	gap: 12px;
 }
 
-.pr-topbar-actions button {
+
+/* Back to Student Progress */
+
+.pr-back-progress {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+
+	padding: 9px 14px;
+
+	background: white;
+
+	border: 1px solid #d8dade;
+	border-radius: 8px;
+
+	color: #4b5563;
+
+	font-size: 13px;
+	font-weight: 600;
+
+	cursor: pointer;
+
+	transition:
+		background 0.18s ease,
+		color 0.18s ease,
+		border-color 0.18s ease,
+		transform 0.18s ease;
+}
+
+.pr-back-progress:hover {
+	background: #f8ecef;
+
+	border-color: #e7c3ca;
+
+	color: #8f1f30;
+
+	transform: translateX(-2px);
+}
+
+
+/* Print */
+
+.pr-print-btn {
 	height: 40px;
+
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	gap: 8px;
+
 	padding: 0 16px;
+
+	border: 1px solid #8f1f30;
 	border-radius: 9px;
-	font-size: 14px;
+
+	background: #8f1f30;
+
+	color: white;
+
+	font-size: 13px;
 	font-weight: 700;
+
 	cursor: pointer;
 }
 
-.pr-print-btn {
-	border: 1px solid #8f1f30;
-	background: #8f1f30;
-	color: white;
+.pr-print-btn:hover {
+	background: #7f1d2d;
 }
 
-.pr-topbar-download,
-.pr-topbar-share {
-	border: 1px solid #d8dade;
-	background: white;
-	color: #30343a;
-}
+
+/* Share */
 
 .pr-topbar-share {
 	width: 40px;
-	padding: 0 !important;
+	height: 40px;
+
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+
+	padding: 0;
+
+	border: 1px solid #d8dade;
+	border-radius: 9px;
+
+	background: white;
+
+	color: #30343a;
+
+	cursor: pointer;
+}
+
+.pr-topbar-share:hover {
+	background: #f8ecef;
+
+	color: #8f1f30;
+
+	border-color: #e7c3ca;
+}
+
+
+.pr-last-updated {
+	color: #777b82;
+
+	font-size: 13px;
+
+	white-space: nowrap;
+}
+
+
+.pr-error-back {
+	display: flex;
+
+	justify-content: center;
+
+	padding: 0 2rem 2rem;
+}
+
+
+@media (max-width: 900px) {
+	.pr-last-updated {
+		display: none;
+	}
+}
+
+
+@media (max-width: 700px) {
+	.pr-report-toolbar {
+		padding: 12px 18px;
+	}
+
+	.pr-back-progress {
+		padding: 9px 11px;
+	}
+
+	.pr-report-toolbar-actions {
+		gap: 8px;
+	}
 }
 
 .pr-last-updated {
@@ -88,12 +193,18 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+
 	padding: 1rem 2rem;
-	background: #eff6ff;
-	border-bottom: 1px solid #bfdbfe;
+
+	background: #f8ecef;
+
+	border-bottom: 1px solid #e7c3ca;
+
 	font-size: 0.9rem;
-	color: #1e40af;
+
+	color: #7f1d2d;
 }
+
 .pr-gen-btn {
 	padding: 0.6rem 1.5rem;
 	background: #7f1d2d;
@@ -302,28 +413,43 @@
 }
 
 .pr-ai-section {
-	background: #faf5ff;
+	background: #fafafa;
+
 	padding: 1.5rem;
+
 	border-radius: 12px;
+
 	margin-bottom: 2rem;
-	border: 1px solid #ede9fe;
+
+	border: 1px solid #e5e7eb;
 }
+
 .pr-ai-section h3 {
 	font-size: 0.95rem;
+
 	font-weight: 700;
-	color: #7c3aed;
+
+	color: #7f1d2d;
+
 	margin: 0 0 1rem;
 }
+
+.pr-ai-item h4 {
+	font-size: 0.8rem;
+
+	font-weight: 700;
+
+	color: #7f1d2d;
+
+	margin: 0 0 0.4rem;
+}
+
 .pr-ai-grid {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	gap: 1rem;
 }
-.pr-ai-item {
-	background: white;
-	padding: 1rem;
-	border-radius: 8px;
-}
+
 .pr-ai-item h4 {
 	font-size: 0.8rem;
 	font-weight: 700;

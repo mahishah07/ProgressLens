@@ -1,5 +1,10 @@
-import { useState, useEffect } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
+import {
+	Link,
+	useNavigate,
+	useSearchParams,
+} from "react-router-dom";
+
 import "./../css/Landing.css";
 import "./../css/ErrorOptions.css";
 import "./../css/StudentProgress.css";
@@ -11,11 +16,13 @@ import {
 	FileCheck2,
 	Bell,
 	Settings,
-	Download,
 	Printer,
 	Share2,
+	Search,
+	BriefcaseBusiness,
+	ArrowLeft,
 } from "lucide-react";
-import { Line, Radar } from "react-chartjs-2";
+import { Line} from "react-chartjs-2";
 import {
 	Chart as ChartJS,
 	CategoryScale,
@@ -118,9 +125,80 @@ function Sidebar({ studentId }) {
 	);
 }
 
+function ReportTopbar({
+	search,
+	setSearch,
+	searching,
+	onSearch,
+}) {
+	return (
+		<header className="topbar eo-main-topbar">
+			<div className="topbar-brand">
+				<div>
+					<h2>DAS Assessment Portal</h2>
+
+					<span className="topbar-context">
+						Progress Monitoring
+					</span>
+				</div>
+			</div>
+
+			<div className="eo-topbar-right">
+				<form
+					className="eo-navbar-search"
+					onSubmit={onSearch}
+				>
+					<button
+						type="submit"
+						aria-label="Search student"
+						disabled={searching}
+					>
+						<Search size={18} />
+					</button>
+
+					<input
+						type="text"
+						value={search}
+						onChange={(event) =>
+							setSearch(event.target.value)
+						}
+						placeholder={
+							searching
+								? "Searching..."
+								: "Search student by name or ID..."
+						}
+						disabled={searching}
+					/>
+				</form>
+
+				<div className="eo-teacher-profile">
+					<div className="eo-teacher-icon">
+						<BriefcaseBusiness size={20} />
+					</div>
+
+					<div className="eo-teacher-copy">
+						<strong>
+							Educational Professional
+						</strong>
+
+						<span>
+							DAS Teacher Portal
+						</span>
+					</div>
+				</div>
+			</div>
+		</header>
+	);
+}
+
 export default function ProgressReport() {
 	const [searchParams] = useSearchParams();
 	const studentId = searchParams.get("studentId");
+
+	const navigate = useNavigate();
+
+	const [studentSearch, setStudentSearch] = useState("");
+	const [studentSearching, setStudentSearching] = useState(false);
 
 	const [report, setReport] = useState(null);
 	const [student, setStudent] = useState(null);
@@ -131,10 +209,95 @@ export default function ProgressReport() {
 	const [error, setError] = useState(null);
 	const [editing, setEditing] = useState(false);
 	const [editedComments, setEditedComments] = useState("");
+
 	const [reportId] = useState(
 		() =>
-			`DAS-${new Date().getFullYear()}-PR-${Math.floor(Math.random() * 9000) + 1000}`,
+			`DAS-${new Date().getFullYear()}-PR-${
+				Math.floor(Math.random() * 9000) + 1000
+			}`,
 	);
+
+
+
+	const openStudentDashboard = async (event) => {
+	event.preventDefault();
+
+	const query = studentSearch.trim();
+
+	if (!query) return;
+
+	setStudentSearching(true);
+
+	try {
+		const response = await fetch(
+			`${API}/api/progress/search?studentId=${encodeURIComponent(
+				query,
+			)}`,
+		);
+
+		const data = await response.json();
+
+		if (!response.ok) {
+			throw new Error(
+				data.message ||
+					"Unable to search the student directory.",
+			);
+		}
+
+		const profiles = Array.isArray(data)
+			? data
+			: [];
+
+		const normalised = query.toLowerCase();
+
+		const profile =
+			profiles.find((student) => {
+				const fullName = [
+					student.firstName,
+					student.lastName,
+				]
+					.filter(Boolean)
+					.join(" ")
+					.toLowerCase();
+
+				return (
+					student.studentId?.toLowerCase() === normalised ||
+					student.name?.toLowerCase() === normalised ||
+					fullName === normalised
+				);
+			}) || profiles[0];
+
+		if (!profile?.studentId) {
+			alert(`No student found for “${query}”.`);
+			return;
+		}
+
+		setStudentSearch("");
+
+		navigate(
+			`/student/${encodeURIComponent(
+				profile.studentId,
+			)}?view=dashboard`,
+		);
+	} catch (err) {
+		alert(err.message);
+	} finally {
+		setStudentSearching(false);
+	}
+};
+	const backToStudentProgress = () => {
+	if (!studentId) {
+		navigate("/");
+		return;
+	}
+
+	navigate(
+		`/student/${encodeURIComponent(
+			studentId,
+		)}?view=dashboard`,
+	);
+};
+
 
 	useEffect(() => {
 		if (!studentId) return;
@@ -255,13 +418,15 @@ export default function ProgressReport() {
 		await navigator.clipboard.writeText(window.location.href);
 	};
 
-	const lastUpdated = new Date(
-		report?.updatedAt || report?.createdAt || Date.now(),
-	).toLocaleDateString("en-SG", {
-		day: "numeric",
-		month: "short",
-		year: "numeric",
-	});
+	const lastUpdated = useMemo(() => {
+		const timestamp = report?.updatedAt || report?.createdAt;
+		if (!timestamp) return null;
+		return new Date(timestamp).toLocaleDateString("en-SG", {
+			day: "numeric",
+			month: "short",
+			year: "numeric",
+		});
+	}, [report?.updatedAt, report?.createdAt]);
 
 	useEffect(() => {
 		const shouldPrint = searchParams.get("print") === "true";
@@ -281,8 +446,8 @@ export default function ProgressReport() {
 				{
 					label: "Score",
 					data: dashboard.progressOverTime.map((p) => p.weightedScore ?? null),
-					borderColor: "#1a3c6e",
-					backgroundColor: "rgba(26,60,110,0.08)",
+					borderColor: "#8f1f30",
+					backgroundColor: "rgba(143, 31, 48, 0.08)",
 					tension: 0.4,
 					pointRadius: 5,
 					fill: true,
@@ -291,46 +456,59 @@ export default function ProgressReport() {
 		};
 	};
 
-	const buildRadarData = () => {
-		if (!dashboard?.bandScore?.componentResults) return null;
-		const entries = dashboard.bandScore.componentResults.filter(
-			(c) => !c.skipped && c.score !== null && c.score !== undefined,
-		);
-		if (entries.length === 0) return null;
-		return {
-			labels: entries.map((c) => c.name.replace(/([A-Z])/g, " $1").trim()),
-			datasets: [
-				{
-					label: "Score",
-					data: entries.map((c) => c.score),
-					borderColor: "#7c3aed",
-					backgroundColor: "rgba(124,58,237,0.2)",
-				},
-			],
-		};
-	};
-
-	if (loading || generating)
+	if (loading || generating) {
 		return (
 			<div className="pr-page eo-page sp-page">
 				<Sidebar studentId={studentId} />
+
 				<main className="pr-main">
+					<ReportTopbar
+						search={studentSearch}
+						setSearch={setStudentSearch}
+						searching={studentSearching}
+						onSearch={openStudentDashboard}
+					/>
+
 					<p className="state-msg">
-						{generating ? "Generating AI report..." : "Loading..."}
+						{generating
+							? "Generating AI report..."
+							: "Loading..."}
 					</p>
 				</main>
 			</div>
 		);
+	}
 
-	if (error)
+	if (error) {
 		return (
 			<div className="pr-page eo-page sp-page">
 				<Sidebar studentId={studentId} />
+
 				<main className="pr-main">
-					<p className="state-msg error">{error}</p>
+					<ReportTopbar
+						search={studentSearch}
+						setSearch={setStudentSearch}
+						searching={studentSearching}
+						onSearch={openStudentDashboard}
+					/>
+
+					<p className="state-msg error">
+						{error}
+					</p>
+
+					<div className="pr-error-back">
+						<button
+							className="pr-back-progress"
+							onClick={backToStudentProgress}
+						>
+							<ArrowLeft size={17} />
+							Back to Student Progress
+						</button>
+					</div>
 				</main>
 			</div>
 		);
+	}
 
 	const lineData = buildLineData();
 	// const radarData = buildRadarData();
@@ -339,21 +517,40 @@ export default function ProgressReport() {
 		<div className="pr-page eo-page sp-page">
 			<Sidebar studentId={studentId} />
 			<main className="pr-main">
-				<header className="pr-topbar">
-					<h2>DAS Assessment Portal</h2>
-					<div className="pr-topbar-actions">
-						<button type="button" className="pr-print-btn" onClick={() => window.print()}>
-							<Printer size={17} /> Print Report
-						</button>
-						<button type="button" className="pr-topbar-download" onClick={handleExportPDF}>
-							<Download size={17} /> Download PDF
-						</button>
-						<span className="pr-last-updated">Last updated: {lastUpdated}</span>
-						<button type="button" className="pr-topbar-share" onClick={handleShare} aria-label="Share report">
-							<Share2 size={18} />
+				<ReportTopbar
+					search={studentSearch}
+					setSearch={setStudentSearch}
+					searching={studentSearching}
+					onSearch={openStudentDashboard}
+				/>
+
+				<div className="pr-report-toolbar">
+					<button
+						type="button"
+						className="pr-back-progress"
+						onClick={backToStudentProgress}
+					>
+						<ArrowLeft size={17} />
+						Back to Student Progress
+					</button>
+
+					<div className="pr-report-toolbar-actions">
+						<span className="pr-last-updated">
+							{lastUpdated
+								? `Last updated: ${lastUpdated}`
+								: ""}
+						</span>
+
+						<button
+							type="button"
+							className="pr-print-btn"
+							onClick={handleExportPDF}
+						>
+							<Printer size={17} />
+							Print Report
 						</button>
 					</div>
-				</header>
+				</div>
 
 				{/* Generate button if no report */}
 				{!report && (
@@ -377,7 +574,7 @@ export default function ProgressReport() {
 							<div className="pr-doc-header">
 								<div className="pr-doc-title">
 									<div className="pr-das-logo">
-										🎓 Dyslexia Association of Singapore
+										Dyslexia Association of Singapore
 									</div>
 									<h1>Student Progress Report</h1>
 									<p>
