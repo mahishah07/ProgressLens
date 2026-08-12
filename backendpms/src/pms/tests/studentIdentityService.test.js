@@ -36,4 +36,9 @@ describe("UT-PMS-02 — resolveStudent identifier resolution", () => {
 		const result = await resolveStudent("");
 		expect(result).toBeNull();
 	});
+
+	test("returns null for whitespace-only identifier", async () => {
+		const result = await resolveStudent("   ");
+		expect(result).toBeNull();
+	});
 });

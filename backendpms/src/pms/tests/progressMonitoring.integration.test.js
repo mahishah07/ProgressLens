@@ -2,13 +2,10 @@ const mongoose = require("mongoose");
 const request = require("supertest");
 const { MongoMemoryServer } = require("mongodb-memory-server");
 
-jest.mock(
-	"../services/aiService",
-	() => ({
-		generateParentReport: jest.fn(),
-		generateRecommendations: jest.fn(),
-	}),
-);
+jest.mock("../services/aiService", () => ({
+	generateParentReport: jest.fn(),
+	generateRecommendations: jest.fn(),
+}));
 
 const { createApp } = require("../../../server");
 const Student = require("../models/Student");
@@ -91,7 +88,9 @@ describe("Progress Monitoring API integration", () => {
 	test("IT-STU-01: POST/GET/PUT/DELETE persists the student lifecycle", async () => {
 		const created = await createStudent();
 
-		const fetched = await request(app).get(`/api/students/${created.studentId}`);
+		const fetched = await request(app).get(
+			`/api/students/${created.studentId}`,
+		);
 		expect(fetched.status).toBe(200);
 		expect(fetched.body).toMatchObject({
 			studentId: "DAS-0707",
@@ -105,35 +104,37 @@ describe("Progress Monitoring API integration", () => {
 		expect(updated.status).toBe(200);
 		expect(updated.body.summaryBand).toBe("B5");
 
-		const removed = await request(app).delete(`/api/students/${created.studentId}`);
+		const removed = await request(app).delete(
+			`/api/students/${created.studentId}`,
+		);
 		expect(removed.status).toBe(200);
-		await expect(Student.countDocuments({ studentId: "DAS-0707" })).resolves.toBe(0);
+		await expect(
+			Student.countDocuments({ studentId: "DAS-0707" }),
+		).resolves.toBe(0);
 	});
 
 	test("IT-STU-02: duplicate student IDs are rejected without creating another row", async () => {
 		await createStudent();
-		const duplicate = await request(app).post("/api/students").send(studentPayload());
+		const duplicate = await request(app)
+			.post("/api/students")
+			.send(studentPayload());
 
 		expect(duplicate.status).toBe(400);
-		await expect(Student.countDocuments({ studentId: "DAS-0707" })).resolves.toBe(1);
+		await expect(
+			Student.countDocuments({ studentId: "DAS-0707" }),
+		).resolves.toBe(1);
 	});
 
 	test("PMS-004: bulk insert accepts valid rows, reports a duplicate partition, and rejects empty input", async () => {
 		const inserted = await request(app)
 			.post("/api/students/bulk")
-			.send([
-				studentPayload(),
-				studentPayload({ studentId: "XYZ-1000" }),
-			]);
+			.send([studentPayload(), studentPayload({ studentId: "XYZ-1000" })]);
 		expect(inserted.status).toBe(201);
 		expect(inserted.body).toHaveLength(2);
 
 		const partialDuplicate = await request(app)
 			.post("/api/students/bulk")
-			.send([
-				studentPayload(),
-				studentPayload({ studentId: "NEW-2000" }),
-			]);
+			.send([studentPayload(), studentPayload({ studentId: "NEW-2000" })]);
 		expect(partialDuplicate.status).toBe(400);
 		expect(await Student.countDocuments({ studentId: "DAS-0707" })).toBe(1);
 		expect(await Student.countDocuments({ studentId: "NEW-2000" })).toBe(1);
@@ -142,17 +143,21 @@ describe("Progress Monitoring API integration", () => {
 		expect(empty.status).toBe(400);
 	});
 
-	test("PMS-006: student deletion is restricted while owned records exist", async () => {
+	test("PMS-006: student deletion cascades — assessments and reports are removed along with the student", async () => {
 		const student = await createStudent();
 		await createAssessment(student.studentId);
-		await Report.create({ student: student._id, overallProgress: "Saved report" });
+		await Report.create({
+			student: student._id,
+			overallProgress: "Saved report",
+		});
 
-		const rejected = await request(app).delete(`/api/students/${student.studentId}`);
-		expect(rejected.status).toBe(409);
-		expect(rejected.body.message).toMatch(/assessments or reports exist/i);
-		expect(await Student.countDocuments({ _id: student._id })).toBe(1);
-		expect(await Assessment.countDocuments({ student: student._id })).toBe(1);
-		expect(await Report.countDocuments({ student: student._id })).toBe(1);
+		const removed = await request(app).delete(
+			`/api/students/${student.studentId}`,
+		);
+		expect(removed.status).toBe(200);
+		expect(await Student.countDocuments({ _id: student._id })).toBe(0);
+		expect(await Assessment.countDocuments({ student: student._id })).toBe(0);
+		expect(await Report.countDocuments({ student: student._id })).toBe(0);
 	});
 
 	test.each([
@@ -160,16 +165,21 @@ describe("Progress Monitoring API integration", () => {
 		["C9", 201],
 		["A0", 400],
 		["C10", 400],
-	])("IT-PMS-02: summary-band boundary %s returns %s", async (summaryBand, status) => {
-		const response = await request(app)
-			.post("/api/students")
-			.send(studentPayload({ studentId: `DAS-${summaryBand}`, summaryBand }));
-		expect(response.status).toBe(status);
-	});
+	])(
+		"IT-PMS-02: summary-band boundary %s returns %s",
+		async (summaryBand, status) => {
+			const response = await request(app)
+				.post("/api/students")
+				.send(studentPayload({ studentId: `DAS-${summaryBand}`, summaryBand }));
+			expect(response.status).toBe(status);
+		},
+	);
 
 	test("IT-PMS-01: assessment CRUD persists ownership, updates, and deletion", async () => {
 		const student = await createStudent();
-		const created = await createAssessment(student.studentId, { phonicsScore: 62 });
+		const created = await createAssessment(student.studentId, {
+			phonicsScore: 62,
+		});
 
 		expect(created.student).toBe(student._id);
 		expect(created.phonicsScore).toBe(62);
@@ -182,11 +192,18 @@ describe("Progress Monitoring API integration", () => {
 			.put(`/api/assessments/${created._id}`)
 			.send({ newBand: "B5", teacherComments: "Improved" });
 		expect(updated.status).toBe(200);
-		expect(updated.body).toMatchObject({ newBand: "B5", teacherComments: "Improved" });
+		expect(updated.body).toMatchObject({
+			newBand: "B5",
+			teacherComments: "Improved",
+		});
 
-		const removed = await request(app).delete(`/api/assessments/${created._id}`);
+		const removed = await request(app).delete(
+			`/api/assessments/${created._id}`,
+		);
 		expect(removed.status).toBe(200);
-		expect((await request(app).get(`/api/assessments/${created._id}`)).status).toBe(404);
+		expect(
+			(await request(app).get(`/api/assessments/${created._id}`)).status,
+		).toBe(404);
 	});
 
 	test("IT-PMS-03: overview and dashboard agree on the learner and latest assessment", async () => {
@@ -214,31 +231,40 @@ describe("Progress Monitoring API integration", () => {
 		expect(overview.body.lastSemester).toBe("2026 Sem 2");
 		expect(dashboard.body).toMatchObject({ status: "ok", totalAssessments: 2 });
 		expect(dashboard.body.latestAssessment.semester).toBe("2026 Sem 2");
-		expect(dashboard.body.assessmentHistory.map((item) => item.semester)).toEqual([
-			"2026 Sem 2",
-			"2026 Sem 1",
-		]);
+		expect(
+			dashboard.body.assessmentHistory.map((item) => item.semester),
+		).toEqual(["2026 Sem 2", "2026 Sem 1"]);
 	});
 
 	test("IT-PMS-04: studentId search distinguishes match and no-match partitions", async () => {
 		await createStudent();
 		await createStudent({ studentId: "XYZ-1000", centreId: "CENTRE-B" });
 
-		const matched = await request(app).get("/api/progress/search?studentId=DAS-07");
-		const missing = await request(app).get("/api/progress/search?studentId=NONE");
+		const matched = await request(app).get(
+			"/api/progress/search?studentId=DAS-07",
+		);
+		const missing = await request(app).get(
+			"/api/progress/search?studentId=NONE",
+		);
 
 		expect(matched.status).toBe(200);
-		expect(matched.body.map((student) => student.studentId)).toEqual(["DAS-0707"]);
+		expect(matched.body.map((student) => student.studentId)).toEqual([
+			"DAS-0707",
+		]);
 		expect(missing.status).toBe(200);
 		expect(missing.body).toEqual([]);
 	});
 
 	test("IT-PMS-05: assessment progress handles zero and two-record histories", async () => {
 		const student = await createStudent();
-		const empty = await request(app).get("/api/assessments/student/DAS-0707/progress");
+		const empty = await request(app).get(
+			"/api/assessments/student/DAS-0707/progress",
+		);
 		expect(empty.status).toBe(200);
 		expect(empty.body).toEqual([]);
-		const emptyOverview = await request(app).get("/api/progress/DAS-0707/overview");
+		const emptyOverview = await request(app).get(
+			"/api/progress/DAS-0707/overview",
+		);
 		expect(emptyOverview.status).toBe(200);
 		expect(emptyOverview.body).toMatchObject({
 			hasAssessments: false,
@@ -251,7 +277,9 @@ describe("Progress Monitoring API integration", () => {
 			semester: "2026 Sem 2",
 			assessmentDate: "2026-07-15T00:00:00.000Z",
 		});
-		const history = await request(app).get("/api/assessments/student/DAS-0707/progress");
+		const history = await request(app).get(
+			"/api/assessments/student/DAS-0707/progress",
+		);
 		expect(history.status).toBe(200);
 		expect(history.body.map((assessment) => assessment.semester)).toEqual([
 			"2026 Sem 1",
@@ -280,7 +308,10 @@ describe("Progress Monitoring API integration", () => {
 		const comparison = await request(app).get("/api/comparison/DAS-0707");
 		expect(comparison.status).toBe(200);
 		expect(comparison.body.status).toBe("ok");
-		expect(comparison.body.bandChange).toEqual({ direction: "improved", steps: 1 });
+		expect(comparison.body.bandChange).toEqual({
+			direction: "improved",
+			steps: 1,
+		});
 		expect(comparison.body.componentComparison.wra).toMatchObject({
 			before: 7,
 			after: 9,
@@ -312,7 +343,9 @@ describe("Progress Monitoring API integration", () => {
 			overallProgress: "Steady progress",
 			isEdited: false,
 		});
-		await expect(Report.countDocuments({ student: student._id })).resolves.toBe(1);
+		await expect(Report.countDocuments({ student: student._id })).resolves.toBe(
+			1,
+		);
 
 		const latest = await request(app).get("/api/reports/DAS-0707/latest");
 		expect(latest.status).toBe(200);
@@ -362,6 +395,8 @@ describe("Progress Monitoring API integration", () => {
 		const failure = await request(app).post("/api/ai/DAS-0707/recommendations");
 		expect(failure.status).toBe(500);
 		expect(failure.body.message).toBe("Unable to generate recommendations");
-		expect(JSON.stringify(failure.body)).not.toContain("secret-token-must-not-leak");
+		expect(JSON.stringify(failure.body)).not.toContain(
+			"secret-token-must-not-leak",
+		);
 	});
 });

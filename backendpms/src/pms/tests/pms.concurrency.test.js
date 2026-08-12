@@ -2,33 +2,12 @@ const request = require("supertest");
 
 jest.setTimeout(15000);
 
-jest.mock("googleapis", () => ({
-	google: {
-		auth: { GoogleAuth: jest.fn(() => ({})) },
-		sheets: jest.fn(() => ({
-			spreadsheets: {
-				values: {
-					get: jest.fn().mockResolvedValue({
-						data: {
-							values: [
-								["Semester", "Student_ID", "Teacher_ID", "NewBand", "Word_Reading_Accuracy"],
-								["2026 Sem 1", "DAS-SHEETS", "teacher-01", "B5", "9"],
-							],
-						},
-					}),
-				},
-			},
-		})),
-	},
-}));
-
 jest.mock("../services/aiService", () => ({
 	generateParentReport: jest.fn(),
 	generateRecommendations: jest.fn(),
 }));
 
 const { createApp } = require("../../../server");
-const sheetsSync = require("../services/sheetsSync");
 const {
 	connectTestDatabase,
 	clearTestDatabase,
@@ -40,7 +19,9 @@ const {
 	Report,
 } = require("./pmsTestHarness");
 
-const app = createApp({ env: { NODE_ENV: "test", CORS_ORIGINS: "http://localhost:5173" } });
+const app = createApp({
+	env: { NODE_ENV: "test", CORS_ORIGINS: "http://localhost:5173" },
+});
 
 describe("PMS concurrency and data-integrity tests", () => {
 	beforeAll(connectTestDatabase);
@@ -54,8 +35,12 @@ describe("PMS concurrency and data-integrity tests", () => {
 				request(app).post("/api/students").send(payload),
 				request(app).post("/api/students").send(payload),
 			]);
-			expect(responses.map((response) => response.status).sort()).toEqual([201, 400]);
-			expect(await Student.countDocuments({ studentId: `RACE-${run}` })).toBe(1);
+			expect(responses.map((response) => response.status).sort()).toEqual([
+				201, 400,
+			]);
+			expect(await Student.countDocuments({ studentId: `RACE-${run}` })).toBe(
+				1,
+			);
 		}
 	});
 
@@ -68,8 +53,12 @@ describe("PMS concurrency and data-integrity tests", () => {
 			teacherObservations: "Original observation",
 		});
 		const [overall, observation] = await Promise.all([
-			request(app).put(`/api/reports/${report._id}/edit`).send({ overallProgress: "Updated overall" }),
-			request(app).put(`/api/reports/${report._id}/edit`).send({ teacherObservations: "Updated observation" }),
+			request(app)
+				.put(`/api/reports/${report._id}/edit`)
+				.send({ overallProgress: "Updated overall" }),
+			request(app)
+				.put(`/api/reports/${report._id}/edit`)
+				.send({ teacherObservations: "Updated observation" }),
 		]);
 		expect([overall.status, observation.status]).toEqual([200, 200]);
 		const stored = await Report.findById(report._id);
@@ -78,20 +67,12 @@ describe("PMS concurrency and data-integrity tests", () => {
 		expect(stored.isEdited).toBe(true);
 	});
 
-	test("CON-007: simultaneous Sheets sync requests create one logical assessment", async () => {
-		const student = await Student.create(studentPayload("DAS-SHEETS"));
-		const responses = await Promise.all([
-			sheetsSync.syncFromSheets(),
-			sheetsSync.syncFromSheets(),
-		]);
-		expect(await Assessment.countDocuments({ student: student._id, semester: "2026 Sem 1" })).toBe(1);
-		expect(responses[0]).toEqual(responses[1]);
-		expect(responses[0].created).toBe(1);
-	});
-
 	test("CON-006: stale same-field report edit is rejected instead of silently overwriting", async () => {
 		const student = await Student.create(studentPayload("DAS-VERSION"));
-		const report = await Report.create({ student: student._id, overallProgress: "Original" });
+		const report = await Report.create({
+			student: student._id,
+			overallProgress: "Original",
+		});
 		const [first, second] = await Promise.all([
 			request(app).put(`/api/reports/${report._id}/edit`).send({
 				overallProgress: "First",

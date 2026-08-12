@@ -194,16 +194,26 @@ exports.editReport = async (reportId, updates) => {
 	const filter = { _id: reportId };
 	if (expectedVersion !== undefined) filter.__v = expectedVersion;
 
-	const report = await Report.findOneAndUpdate(filter, {
-		$set: filteredUpdates,
-		$inc: { __v: 1 },
-	}, {
-		returnDocument: "after",
-		runValidators: true,
-	});
+	const report = await Report.findOneAndUpdate(
+		filter,
+		{
+			$set: filteredUpdates,
+			$inc: { __v: 1 },
+		},
+		{
+			returnDocument: "after",
+			runValidators: true,
+		},
+	);
 
-	if (!report && expectedVersion !== undefined && await Report.exists({ _id: reportId })) {
-		const error = new Error("Report was updated by another request; reload and try again");
+	if (
+		!report &&
+		expectedVersion !== undefined &&
+		(await Report.exists({ _id: reportId }))
+	) {
+		const error = new Error(
+			"Report was updated by another request; reload and try again",
+		);
 		error.statusCode = 409;
 		throw error;
 	}

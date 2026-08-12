@@ -4,7 +4,18 @@ import "./../css/Landing.css";
 import "./../css/ErrorOptions.css";
 import "./../css/StudentProgress.css";
 import "./../css/AddAssessment.css";
-import { LayoutDashboard, TrendingUp as TrendIcon, BarChart3, FileCheck2, Bell, Settings, ArrowLeft, Save, Search, BriefcaseBusiness } from "lucide-react";
+import {
+	LayoutDashboard,
+	TrendingUp as TrendIcon,
+	BarChart3,
+	FileCheck2,
+	Bell,
+	Settings,
+	ArrowLeft,
+	Save,
+	Search,
+	BriefcaseBusiness,
+} from "lucide-react";
 
 const API = import.meta.env.VITE_PMS_API;
 
@@ -15,24 +26,43 @@ function ProgressSidebar({ studentId }) {
 		<aside className="sidebar">
 			<div className="logo-section">
 				<div className="logo-circle">DAS</div>
-				<div><h2>DAS Teacher</h2><p>Educational Professional</p></div>
+				<div>
+					<h2>DAS Teacher</h2>
+					<p>Educational Professional</p>
+				</div>
 			</div>
 			<nav>
-				<Link to="/"><LayoutDashboard size={20} /><span>Dashboard</span></Link>
-				<Link to={`/student/${encodedId}?view=dashboard`} className="sp-nav-progress active" aria-current="page">
-					<TrendIcon size={20} /><span>Progress Monitoring</span>
+				<Link to="/">
+					<LayoutDashboard size={20} />
+					<span>Dashboard</span>
+				</Link>
+				<Link
+					to={`/student/${encodedId}?view=dashboard`}
+					className="sp-nav-progress active"
+					aria-current="page"
+				>
+					<TrendIcon size={20} />
+					<span>Progress Monitoring</span>
 				</Link>
 				<div className="eo-nav-section">
 					<span className="eo-nav-heading">ERROR ANALYSIS</span>
 					<Link to={`/error-answer/${encodedId}`} className="eo-nav-subitem">
-						<FileCheck2 size={18} /><span>Reference-Based Analysis</span>
+						<FileCheck2 size={18} />
+						<span>Reference-Based Analysis</span>
 					</Link>
 					<Link to={`/error-dashboard/${encodedId}`} className="eo-nav-subitem">
-						<BarChart3 size={19} /><span>Free-Form Analysis</span>
+						<BarChart3 size={19} />
+						<span>Free-Form Analysis</span>
 					</Link>
 				</div>
-				<a href="#"><Bell size={20} /><span>Notifications</span></a>
-				<a href="#"><Settings size={20} /><span>Settings</span></a>
+				<a href="#">
+					<Bell size={20} />
+					<span>Notifications</span>
+				</a>
+				<a href="#">
+					<Settings size={20} />
+					<span>Settings</span>
+				</a>
 			</nav>
 		</aside>
 	);
@@ -49,18 +79,26 @@ function AssessmentTopbar({ search, setSearch, searching, onSearch }) {
 			</div>
 			<div className="eo-topbar-right">
 				<form className="eo-navbar-search" onSubmit={onSearch}>
-					<button type="submit" aria-label="Search student" disabled={searching}>
+					<button
+						type="submit"
+						aria-label="Search student"
+						disabled={searching}
+					>
 						<Search size={18} />
 					</button>
 					<input
 						value={search}
 						onChange={(event) => setSearch(event.target.value)}
-						placeholder={searching ? "Searching..." : "Search student by name or ID..."}
+						placeholder={
+							searching ? "Searching..." : "Search student by name or ID..."
+						}
 						disabled={searching}
 					/>
 				</form>
 				<div className="eo-teacher-profile">
-					<div className="eo-teacher-icon"><BriefcaseBusiness size={20} /></div>
+					<div className="eo-teacher-icon">
+						<BriefcaseBusiness size={20} />
+					</div>
 					<div className="eo-teacher-copy">
 						<strong>Educational Professional</strong>
 						<span>DAS Teacher Portal</span>
@@ -220,7 +258,6 @@ export default function AddAssessment() {
 			student: student._id,
 			semester: semester.trim(),
 			summaryBand,
-			newBand,
 			assessmentDate,
 			assessedBy: student.teacherId,
 		};
@@ -252,13 +289,18 @@ export default function AddAssessment() {
 
 		setStudentSearching(true);
 		try {
-			const response = await fetch(`${API}/api/progress/search?studentId=${encodeURIComponent(query)}`);
+			const response = await fetch(
+				`${API}/api/progress/search?studentId=${encodeURIComponent(query)}`,
+			);
 			const results = await response.json();
-			if (!response.ok) throw new Error(results.message || "Unable to search students.");
+			if (!response.ok)
+				throw new Error(results.message || "Unable to search students.");
 			const profile = Array.isArray(results) ? results[0] : null;
 			if (!profile?.studentId) throw new Error("Student not found.");
 			setStudentSearch("");
-			navigate(`/student/${encodeURIComponent(profile.studentId)}?view=dashboard`);
+			navigate(
+				`/student/${encodeURIComponent(profile.studentId)}?view=dashboard`,
+			);
 		} catch (searchError) {
 			alert(searchError.message);
 		} finally {
