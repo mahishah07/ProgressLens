@@ -503,7 +503,7 @@ export default function ProgressReport() {
 							onClick={handleExportPDF}
 						>
 							<Printer size={17} />
-							Print Report
+							Download Pdf
 						</button>
 					</div>
 				</div>
