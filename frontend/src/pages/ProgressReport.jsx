@@ -1,9 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import {
-	Link,
-	useNavigate,
-	useSearchParams,
-} from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 import "./../css/Landing.css";
 import "./../css/ErrorOptions.css";
@@ -22,7 +18,7 @@ import {
 	BriefcaseBusiness,
 	ArrowLeft,
 } from "lucide-react";
-import { Line} from "react-chartjs-2";
+import { Line } from "react-chartjs-2";
 import {
 	Chart as ChartJS,
 	CategoryScale,
@@ -96,18 +92,12 @@ function Sidebar({ studentId }) {
 				<div className="eo-nav-section">
 					<span className="eo-nav-heading">ERROR ANALYSIS</span>
 
-					<Link
-						to={`/error-answer/${encodedId}`}
-						className="eo-nav-subitem"
-					>
+					<Link to={`/error-answer/${encodedId}`} className="eo-nav-subitem">
 						<FileCheck2 size={18} />
 						<span>Reference-Based Analysis</span>
 					</Link>
 
-					<Link
-						to={`/error-dashboard/${encodedId}`}
-						className="eo-nav-subitem"
-					>
+					<Link to={`/error-dashboard/${encodedId}`} className="eo-nav-subitem">
 						<BarChart3 size={19} />
 						<span>Free-Form Analysis</span>
 					</Link>
@@ -125,29 +115,19 @@ function Sidebar({ studentId }) {
 	);
 }
 
-function ReportTopbar({
-	search,
-	setSearch,
-	searching,
-	onSearch,
-}) {
+function ReportTopbar({ search, setSearch, searching, onSearch }) {
 	return (
 		<header className="topbar eo-main-topbar">
 			<div className="topbar-brand">
 				<div>
 					<h2>DAS Assessment Portal</h2>
 
-					<span className="topbar-context">
-						Progress Monitoring
-					</span>
+					<span className="topbar-context">Progress Monitoring</span>
 				</div>
 			</div>
 
 			<div className="eo-topbar-right">
-				<form
-					className="eo-navbar-search"
-					onSubmit={onSearch}
-				>
+				<form className="eo-navbar-search" onSubmit={onSearch}>
 					<button
 						type="submit"
 						aria-label="Search student"
@@ -159,13 +139,9 @@ function ReportTopbar({
 					<input
 						type="text"
 						value={search}
-						onChange={(event) =>
-							setSearch(event.target.value)
-						}
+						onChange={(event) => setSearch(event.target.value)}
 						placeholder={
-							searching
-								? "Searching..."
-								: "Search student by name or ID..."
+							searching ? "Searching..." : "Search student by name or ID..."
 						}
 						disabled={searching}
 					/>
@@ -177,13 +153,9 @@ function ReportTopbar({
 					</div>
 
 					<div className="eo-teacher-copy">
-						<strong>
-							Educational Professional
-						</strong>
+						<strong>Educational Professional</strong>
 
-						<span>
-							DAS Teacher Portal
-						</span>
+						<span>DAS Teacher Portal</span>
 					</div>
 				</div>
 			</div>
@@ -217,87 +189,70 @@ export default function ProgressReport() {
 			}`,
 	);
 
-
-
 	const openStudentDashboard = async (event) => {
-	event.preventDefault();
+		event.preventDefault();
 
-	const query = studentSearch.trim();
+		const query = studentSearch.trim();
 
-	if (!query) return;
+		if (!query) return;
 
-	setStudentSearching(true);
+		setStudentSearching(true);
 
-	try {
-		const response = await fetch(
-			`${API}/api/progress/search?studentId=${encodeURIComponent(
-				query,
-			)}`,
-		);
-
-		const data = await response.json();
-
-		if (!response.ok) {
-			throw new Error(
-				data.message ||
-					"Unable to search the student directory.",
+		try {
+			const response = await fetch(
+				`${API}/api/progress/search?studentId=${encodeURIComponent(query)}`,
 			);
-		}
 
-		const profiles = Array.isArray(data)
-			? data
-			: [];
+			const data = await response.json();
 
-		const normalised = query.toLowerCase();
-
-		const profile =
-			profiles.find((student) => {
-				const fullName = [
-					student.firstName,
-					student.lastName,
-				]
-					.filter(Boolean)
-					.join(" ")
-					.toLowerCase();
-
-				return (
-					student.studentId?.toLowerCase() === normalised ||
-					student.name?.toLowerCase() === normalised ||
-					fullName === normalised
+			if (!response.ok) {
+				throw new Error(
+					data.message || "Unable to search the student directory.",
 				);
-			}) || profiles[0];
+			}
 
-		if (!profile?.studentId) {
-			alert(`No student found for “${query}”.`);
+			const profiles = Array.isArray(data) ? data : [];
+
+			const normalised = query.toLowerCase();
+
+			const profile =
+				profiles.find((student) => {
+					const fullName = [student.firstName, student.lastName]
+						.filter(Boolean)
+						.join(" ")
+						.toLowerCase();
+
+					return (
+						student.studentId?.toLowerCase() === normalised ||
+						student.name?.toLowerCase() === normalised ||
+						fullName === normalised
+					);
+				}) || profiles[0];
+
+			if (!profile?.studentId) {
+				alert(`No student found for “${query}”.`);
+				return;
+			}
+
+			setStudentSearch("");
+
+			navigate(
+				`/student/${encodeURIComponent(profile.studentId)}?view=dashboard`,
+			);
+		} catch (err) {
+			alert(err.message);
+		} finally {
+			setStudentSearching(false);
+		}
+	};
+	const backToStudentProgress = () => {
+		if (!studentId) {
+			navigate("/");
 			return;
 		}
 
-		setStudentSearch("");
-
-		navigate(
-			`/student/${encodeURIComponent(
-				profile.studentId,
-			)}?view=dashboard`,
-		);
-	} catch (err) {
-		alert(err.message);
-	} finally {
-		setStudentSearching(false);
-	}
-};
-	const backToStudentProgress = () => {
-	if (!studentId) {
-		navigate("/");
-		return;
-	}
-
-	navigate(
-		`/student/${encodeURIComponent(
-			studentId,
-		)}?view=dashboard`,
-	);
-};
-
+		navigate(`/student/${encodeURIComponent(studentId)}?view=dashboard`);
+	};
 
 	useEffect(() => {
 		if (!studentId) return;
@@ -353,28 +308,34 @@ export default function ProgressReport() {
 
 	const generateReport = async () => {
 		setGenerating(true);
-		try {
-			const res = await fetch(`${API}/api/reports/${studentId}/generate`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ generatedBy: "Teacher" }),
-			});
-			const data = await res.json();
-			if (data.report) {
-				setReport(data.report);
-				setEditedComments(data.report.teacherObservations || "");
-			}
+		setError(null);
 
-			// also get AI recommendations
+		try {
 			const aiRes = await fetch(`${API}/api/ai/${studentId}/recommendations`, {
 				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
 			});
+
 			const aiData = await aiRes.json();
-			if (aiData.recommendations) setAiRecs(aiData.recommendations);
+
+			if (!aiRes.ok) {
+				throw new Error(
+					aiData.message || "Failed to generate AI recommendations.",
+				);
+			}
+
+			if (!aiData.recommendations) {
+				throw new Error("AI recommendations were not returned by the server.");
+			}
+
+			setAiRecs(aiData.recommendations);
 		} catch (err) {
 			setError(err.message);
+		} finally {
+			setGenerating(false);
 		}
-		setGenerating(false);
 	};
 
 	const saveEdits = async () => {
@@ -389,7 +350,8 @@ export default function ProgressReport() {
 				}),
 			});
 			const data = await res.json();
-			if (!res.ok) throw new Error(data.message || "Unable to save report changes");
+			if (!res.ok)
+				throw new Error(data.message || "Unable to save report changes");
 			setReport(data);
 			setEditing(false);
 		} catch (err) {
@@ -470,9 +432,7 @@ export default function ProgressReport() {
 					/>
 
 					<p className="state-msg">
-						{generating
-							? "Generating AI report..."
-							: "Loading..."}
+						{generating ? "Generating AI report..." : "Loading..."}
 					</p>
 				</main>
 			</div>
@@ -492,9 +452,7 @@ export default function ProgressReport() {
 						onSearch={openStudentDashboard}
 					/>
 
-					<p className="state-msg error">
-						{error}
-					</p>
+					<p className="state-msg error">{error}</p>
 
 					<div className="pr-error-back">
 						<button
@@ -536,9 +494,7 @@ export default function ProgressReport() {
 
 					<div className="pr-report-toolbar-actions">
 						<span className="pr-last-updated">
-							{lastUpdated
-								? `Last updated: ${lastUpdated}`
-								: ""}
+							{lastUpdated ? `Last updated: ${lastUpdated}` : ""}
 						</span>
 
 						<button
@@ -702,7 +658,23 @@ export default function ProgressReport() {
 
 							{/* Therapist observations */}
 							<div className="pr-section">
-								<h3>≡ Therapist Observations</h3>
+								<div className="pr-observations-header">
+									<h3>≡ Therapist Observations</h3>
+
+									{!editing && (
+										<button
+											type="button"
+											className="pr-edit-btn"
+											onClick={() => {
+												setEditedComments(report?.teacherObservations || "");
+												setEditing(true);
+											}}
+										>
+											Edit
+										</button>
+									)}
+								</div>
+
 								{editing ? (
 									<div className="pr-edit-block">
 										<textarea
@@ -710,14 +682,25 @@ export default function ProgressReport() {
 											onChange={(e) => setEditedComments(e.target.value)}
 											rows={5}
 											className="pr-textarea"
+											placeholder="Enter therapist observations..."
 										/>
+
 										<div className="pr-edit-actions">
-											<button className="pr-save-btn" onClick={saveEdits}>
+											<button
+												type="button"
+												className="pr-save-btn"
+												onClick={saveEdits}
+											>
 												Save
 											</button>
+
 											<button
+												type="button"
 												className="pr-cancel-btn"
-												onClick={() => setEditing(false)}
+												onClick={() => {
+													setEditedComments(report?.teacherObservations || "");
+													setEditing(false);
+												}}
 											>
 												Cancel
 											</button>
@@ -725,7 +708,7 @@ export default function ProgressReport() {
 									</div>
 								) : (
 									<blockquote className="pr-quote">
-										{report.teacherObservations ||
+										{report?.teacherObservations ||
 											"No observations recorded yet."}
 									</blockquote>
 								)}
@@ -792,7 +775,6 @@ export default function ProgressReport() {
 						</div>
 					</div>
 				)}
-
 			</main>
 		</div>
 	);

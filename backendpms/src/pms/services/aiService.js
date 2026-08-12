@@ -25,6 +25,7 @@ const SKILL_LABELS = {
 
 const sanitiseForAI = (comparison) => {
 	const componentComparison = {};
+
 	if (comparison.componentComparison) {
 		for (const [key, val] of Object.entries(comparison.componentComparison)) {
 			componentComparison[SKILL_LABELS[key] || key] = {
@@ -40,6 +41,7 @@ const sanitiseForAI = (comparison) => {
 
 	return {
 		totalAssessments: comparison.totalAssessments,
+		singleAssessment: comparison.singleAssessment || false,
 		comparisonPeriod: comparison.comparisonPeriod,
 		bandChange: comparison.bandChange,
 		componentComparison,
@@ -48,15 +50,25 @@ const sanitiseForAI = (comparison) => {
 };
 
 exports.generateDashboardSummary = async (dashboardData) => {
-	const prompt = `You are a supportive special education teacher writing a brief internal summary for a student's progress dashboard (for teacher eyes, not parents).
+	const prompt = `You are an experienced special education teacher specialising in literacy development for students with dyslexia and learning differences.
 
-Based on this student's latest assessment data, write a concise 2-3 sentence summary covering: overall progress, strongest area, and the main area needing intervention.
+Based on the following anonymised student assessment data, generate personalised teaching recommendations.
 
-Data:
-${JSON.stringify(dashboardData, null, 2)}
+If singleAssessment is true, this is the student's current or first assessment. Do NOT describe improvement, decline, growth over time, or comparison with a previous assessment. Instead, base the recommendations on the student's current component results and identify strengths and areas that would benefit from targeted support.
 
-Respond in JSON format only:
-{ "summary": "2-3 sentence summary" }`;
+If singleAssessment is false, use the assessment comparison data to identify genuine areas of improvement and areas requiring further intervention. Do not claim improvement unless the data shows it.
+
+Assessment Data:
+${JSON.stringify(sanitised, null, 2)}
+
+Respond in the following JSON format only, no extra text, and in parent-friendly language:
+{
+"summary": "2-3 sentence summary of the student's current learning progress",
+"strengths": "2-3 sentences identifying what the student is doing well based only on the assessment data",
+"interventionAreas": "2-3 sentences identifying specific areas that need targeted support",
+"teachingStrategies": "3-4 concrete teaching strategies the teacher can use immediately",
+"suggestedActivities": "3-4 specific learning activities tailored to this student's needs"
+}`;
 
 	const response = await client.chat.completions.create({
 		model: "gpt-4o-mini",

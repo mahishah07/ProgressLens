@@ -641,16 +641,17 @@ const BAND_CONFIG = {
 
 /**
  * Calculate band score for a student's assessment
- * @param {Object} assessment - Assessment document from MongoDB
- * @param {string} bandLevel - Band level for this assessment
- * @param {string} schLevel - "Primary" or "Secondary" (needed for B5/B6 readingComp)
+ * assessment - Assessment document from MongoDB
+ * bandLevel - Band level for this assessment
+ * schLevel - "Primary" or "Secondary" (needed for B5/B6 readingComp)
  */
+
 const calculateBandScore = (assessment, bandLevel, schLevel) => {
 	const config = BAND_CONFIG[bandLevel];
 	if (!config) return null;
 
 	const results = config.components.map((comp) => {
-		// Written Vocab handled after writing group is resolved
+		// Written Vocab is resolved after the writing group is evaluated.
 		if (comp.tiedToWriting) {
 			return {
 				name: comp.name,
@@ -658,7 +659,7 @@ const calculateBandScore = (assessment, bandLevel, schLevel) => {
 				score: null,
 				passMark: null,
 				weight: comp.weight,
-				passed: null, // resolved below
+				passed: null,
 				weightedScore: 0,
 				skipped: false,
 				note: "Tied to writing result",
@@ -668,24 +669,27 @@ const calculateBandScore = (assessment, bandLevel, schLevel) => {
 		const score = assessment[comp.scoreField];
 		const hasScore = score !== null && score !== undefined && score > 0;
 
-		// Fluency has no confirmed pass mark — always counts as passed if present
+		// Fluency has no confirmed pass mark.
+		// It is considered passed when entered, and also when its
+		// stored value is 0 (existing system behaviour).
 		if (comp.name === "fluency") {
-			const fluencyPassed = hasScore ? true : score === 0 ? true : null;
 			if (!hasScore && score !== 0) {
 				return {
 					name: comp.name,
-					group: comp.group,
+					group: comp.group || null,
 					score: score ?? null,
 					passMark: null,
 					weight: comp.weight,
 					passed: null,
 					weightedScore: 0,
-					skipped: true,
+					skipped: false,
+					note: "No score entered",
 				};
 			}
+
 			return {
 				name: comp.name,
-				group: comp.group,
+				group: comp.group || null,
 				score: score ?? null,
 				passMark: null,
 				weight: comp.weight,
@@ -696,9 +700,10 @@ const calculateBandScore = (assessment, bandLevel, schLevel) => {
 			};
 		}
 
-		// Reading Comprehension: mandatory from A3 onward, but data has a known
-		// collection gap (missing/blank scores despite always being administered).
-		// Per team decision: default to passed when unscored, until data is cleaned.
+		// Reading Comprehension:
+		// Reading Comprehension is automatically considered passed when
+		// no real score has been recorded. Once an actual score is entered,
+		// it is evaluated against its band's pass mark.
 		if (comp.name === "readingComp" && !hasScore) {
 			return {
 				name: comp.name,
@@ -707,48 +712,56 @@ const calculateBandScore = (assessment, bandLevel, schLevel) => {
 				passMark: null,
 				weight: comp.weight,
 				passed: true,
-				weightedScore: 0, // set below via non-group weightedScore assignment
+				weightedScore: 0,
 				skipped: false,
-				note: "No score recorded — defaulted to passed (known data gap)",
+				note: "No score recorded — defaulted to passed",
 			};
 		}
 
-		// Skip optional components with no real score
-		// Skip any component with no real score (required or optional)
+		// Components that have not been scored are still displayed,
+		// but they do not contribute to the score yet.
 		if (!hasScore) {
+			let passMark = comp.passMark;
+
+			if (passMark && typeof passMark === "object") {
+				passMark = passMark[schLevel] ?? passMark.Primary;
+			}
+
 			return {
 				name: comp.name,
 				group: comp.group || null,
 				score: score ?? null,
-				passMark: comp.passMark,
+				passMark,
 				weight: comp.weight,
 				passed: null,
 				weightedScore: 0,
-				skipped: true,
+				skipped: false,
+				note: "No score entered",
 			};
 		}
 
-		// Resolve pass mark (may depend on schLevel)
+		// Resolve pass mark (may depend on school level).
 		let passMark = comp.passMark;
+
 		if (passMark && typeof passMark === "object") {
 			passMark = passMark[schLevel] ?? passMark.Primary;
 		}
 
-		const passed = hasScore ? score >= passMark : false;
+		const passed = score >= passMark;
 
 		return {
 			name: comp.name,
 			group: comp.group || null,
-			score: hasScore ? score : null,
+			score,
 			passMark,
 			weight: comp.weight,
 			passed,
-			weightedScore: 0, // set after dynamic redistribution
+			weightedScore: 0,
 			skipped: false,
 		};
 	});
 
-	// Dynamic weight redistribution per group (phonics, writing)
+	// Dynamic weight redistribution per group (phonics, writing).
 	if (config.dynamicGroups) {
 		for (const [groupName, groupConfig] of Object.entries(
 			config.dynamicGroups,
@@ -756,18 +769,24 @@ const calculateBandScore = (assessment, bandLevel, schLevel) => {
 			const groupResults = results.filter(
 				(r) => r.group === groupName && !r.skipped,
 			);
+
 			if (groupResults.length === 0) continue;
+
 			const weightPerComponent = parseFloat(
 				(groupConfig.totalWeight / groupResults.length).toFixed(4),
 			);
+
 			groupResults.forEach((r) => {
 				r.weight = weightPerComponent;
-				r.weightedScore = r.passed ? weightPerComponent : 0;
+
+				// Only scored components contribute to the weighted score.
+				// Unscored components remain at 0 until a score is entered.
+				r.weightedScore = r.passed === true ? weightPerComponent : 0;
 			});
 		}
 	}
 
-	// Non-group components get their weighted score directly
+	// Non-group components get their weighted score directly.
 	results.forEach((r) => {
 		if (
 			!r.group &&
@@ -779,15 +798,18 @@ const calculateBandScore = (assessment, bandLevel, schLevel) => {
 		}
 	});
 
-	// Resolve Written Vocab based on writing group outcome
+	// Resolve Written Vocab based on writing group outcome.
 	const writtenVocabRow = results.find((r) => r.name === "writtenVocab");
+
 	if (writtenVocabRow) {
 		const writingResults = results.filter(
 			(r) => r.group === "writing" && !r.skipped,
 		);
+
 		const allWritingPassed =
 			writingResults.length > 0 &&
 			writingResults.every((r) => r.passed === true);
+
 		writtenVocabRow.passed = allWritingPassed;
 		writtenVocabRow.weightedScore = allWritingPassed
 			? writtenVocabRow.weight
@@ -801,6 +823,7 @@ const calculateBandScore = (assessment, bandLevel, schLevel) => {
 	const totalScore = parseFloat(
 		results.reduce((sum, r) => sum + r.weightedScore, 0).toFixed(2),
 	);
+
 	const passed = totalScore >= config.passingTotal;
 
 	return {

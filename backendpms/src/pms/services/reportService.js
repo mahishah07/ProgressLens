@@ -111,6 +111,90 @@ const generateFallbackInterventionAreas = (dashboard) => {
 	return interventions;
 };
 
+const generateOverallProgress = (student, comparison) => {
+	const band = student.summaryBand;
+	const bandDesc =
+		BAND_DESCRIPTIONS[band] || "is making progress in their literacy journey";
+	const totalAssessments = comparison.totalAssessments;
+	const scoreChange = comparison.overallScore?.change;
+	const bandChange = comparison.bandChange;
+
+	let progress = `Your child ${bandDesc}. `;
+
+	if (totalAssessments === 1) {
+		progress += `This is their first assessment with us, and we are looking forward to tracking their growth over time.`;
+	} else {
+		progress += `Over ${totalAssessments} assessments, `;
+		if (bandChange?.direction === "improved") {
+			progress += `your child has moved up ${bandChange.steps} band level${bandChange.steps > 1 ? "s" : ""}, which is a wonderful achievement. `;
+		} else if (bandChange?.direction === "same") {
+			progress += `your child has maintained a consistent band level. `;
+		} else if (bandChange?.direction === "declined") {
+			progress += `your child has faced some challenges and we are working to provide additional support. `;
+		}
+
+		if (scoreChange !== null && scoreChange !== undefined) {
+			if (scoreChange > 0) {
+				progress += `Their overall assessment scores have improved by ${scoreChange} points, showing great dedication and effort.`;
+			} else if (scoreChange < 0) {
+				progress += `Their overall scores have dipped slightly, and our teachers are focused on providing targeted support.`;
+			} else {
+				progress += `Their overall scores have remained stable across assessments.`;
+			}
+		}
+	}
+
+	return progress;
+};
+
+const generateLiteracyGrowth = (comparison) => {
+	const skillChanges = comparison.skillChanges;
+	if (!skillChanges) return "Literacy assessment data is being gathered.";
+
+	const improved = Object.entries(skillChanges)
+		.filter(([_, v]) => v.improved === true)
+		.map(([k]) => SKILL_LABELS[k] || k);
+
+	const needsWork = Object.entries(skillChanges)
+		.filter(([_, v]) => v.improved === false)
+		.map(([k]) => SKILL_LABELS[k] || k);
+
+	let growth = "";
+
+	if (improved.length > 0) {
+		growth += `Your child has shown improvement in the following areas: ${improved.slice(0, 3).join(", ")}${improved.length > 3 ? ", and more" : ""}. `;
+	}
+
+	if (needsWork.length > 0) {
+		growth += `Areas where we will continue to provide support include: ${needsWork.slice(0, 3).join(", ")}${needsWork.length > 3 ? ", and others" : ""}.`;
+	}
+
+	return (
+		growth || "Your child is making steady progress across all literacy areas."
+	);
+};
+
+const generateInterventionAreas = (comparison) => {
+	const proficiency = comparison.proficiencyChange?.later;
+	const errorReduction = comparison.errorReduction;
+
+	let interventions = "";
+
+	if (proficiency?.weakest) {
+		const skillLabel =
+			SKILL_LABELS[proficiency.weakest.skill] || proficiency.weakest.skill;
+		interventions += `Our teachers will focus on strengthening your child's ${skillLabel} skills through targeted activities and exercises. `;
+	}
+
+	if (errorReduction && !errorReduction.improved) {
+		interventions += `We will also be providing additional support to help reduce errors in written work. `;
+	}
+
+	interventions += `Regular practice at home, such as reading together and encouraging writing activities, will greatly support your child's progress.`;
+
+	return interventions;
+};
+
 // UC3: generate AI-powered parent-friendly report — works for any student with >=1 assessment
 exports.generateReport = async (studentId, generatedBy) => {
 	const student = await resolveStudent(studentId);
