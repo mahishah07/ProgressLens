@@ -9,11 +9,19 @@ let mongo;
 async function connectTestDatabase() {
 	mongo = await MongoMemoryServer.create();
 	await mongoose.connect(mongo.getUri());
-	await Promise.all([Student.syncIndexes(), Assessment.syncIndexes(), Report.syncIndexes()]);
+	await Promise.all([
+		Student.syncIndexes(),
+		Assessment.syncIndexes(),
+		Report.syncIndexes(),
+	]);
 }
 
 async function clearTestDatabase() {
-	await Promise.all([Student.deleteMany({}), Assessment.deleteMany({}), Report.deleteMany({})]);
+	await Promise.all([
+		Student.deleteMany({}),
+		Assessment.deleteMany({}),
+		Report.deleteMany({}),
+	]);
 }
 
 async function stopTestDatabase() {
@@ -45,12 +53,27 @@ const assessmentPayload = (student, semester, date, overrides = {}) => ({
 	...overrides,
 });
 
+// helper for a guaranteed-passing B4 assessment (useful for band progression tests)
+const passingAssessmentPayload = (student, semester, date, overrides = {}) => ({
+	student,
+	semester,
+	assessmentDate: date,
+	summaryBand: "B4",
+	wraScore: 9,
+	fluencyMark: 20,
+	wordSpellingScore: 9,
+	narrativeScore: 15,
+	rdComprehensionScore: 8,
+	...overrides,
+});
+
 module.exports = {
 	connectTestDatabase,
 	clearTestDatabase,
 	stopTestDatabase,
 	studentPayload,
 	assessmentPayload,
+	passingAssessmentPayload,
 	Student,
 	Assessment,
 	Report,
