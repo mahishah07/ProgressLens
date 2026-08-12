@@ -271,3 +271,103 @@ describe("UT-PMS-10 — pass/fail transition counts", () => {
 		expect(result.transitions.newlyFailing).toBe(0);
 	});
 });
+
+// UT-PMS-12 — readingComp treatment when unscored in comparison view
+//
+// NOTE: this describe block was written without visibility into
+// comparisonService.js's actual internals. It asserts the SAME pattern
+// every other untested component follows elsewhere in this file
+// (bothTaken: false, before/after null) — i.e. it assumes comparisonService
+// does its own raw-score comparison rather than reusing bandScoring.js's
+// new readingComp default-pass logic. If comparisonService DOES call into
+// bandScoring.js (or otherwise special-cases readingComp), this test will
+// fail and that failure is informative: it means the Assessment Comparison
+// view and the Dashboard view currently disagree on how they treat a
+// missing Reading Comprehension score for the same student, which is a
+// real bug worth fixing before relying on this page in the demo.
+describe("UT-PMS-12 — readingComp treatment when unscored in comparison view", () => {
+	beforeEach(() => jest.clearAllMocks());
+
+	test("readingComp missing in both assessments is not silently dropped from componentComparison", async () => {
+		resolveStudent.mockResolvedValue({
+			_id: "s1",
+			studentId: "Student 0008",
+			summaryBand: "B4",
+			schLevel: "Primary",
+		});
+
+		const earlier = {
+			_id: "a1",
+			assessmentDate: new Date("2023-01-01"),
+			semester: "2023 Sem 1",
+			summaryBand: "B4",
+			newBand: "B4",
+			wraScore: 8,
+		};
+		const later = {
+			_id: "a2",
+			assessmentDate: new Date("2024-01-01"),
+			semester: "2024 Sem 1",
+			summaryBand: "B4",
+			newBand: "B4",
+			wraScore: 9,
+		};
+
+		Assessment.find.mockReturnValue({
+			sort: jest.fn().mockResolvedValue([earlier, later]),
+		});
+
+		const result = await comparisonService.compareAssessments(
+			"Student 0008",
+			"a1",
+			"a2",
+		);
+
+		// The key thing this locks in: readingComp must appear as SOME
+		// entry (not undefined) even when unscored both times, so the UI
+		// has something to render rather than the field disappearing.
+		expect(result.componentComparison).toHaveProperty("readingComp");
+	});
+
+	test("readingComp scored in one assessment only shows the real score with no fabricated variance", async () => {
+		resolveStudent.mockResolvedValue({
+			_id: "s1",
+			studentId: "Student 0009",
+			summaryBand: "B4",
+			schLevel: "Primary",
+		});
+
+		const earlier = {
+			_id: "a1",
+			assessmentDate: new Date("2023-01-01"),
+			semester: "2023 Sem 1",
+			summaryBand: "B4",
+			newBand: "B4",
+			wraScore: 8,
+		};
+		const later = {
+			_id: "a2",
+			assessmentDate: new Date("2024-01-01"),
+			semester: "2024 Sem 1",
+			summaryBand: "B4",
+			newBand: "B4",
+			wraScore: 9,
+			rdComprehensionScore: 9,
+		};
+
+		Assessment.find.mockReturnValue({
+			sort: jest.fn().mockResolvedValue([earlier, later]),
+		});
+
+		const result = await comparisonService.compareAssessments(
+			"Student 0009",
+			"a1",
+			"a2",
+		);
+		const readingComp = result.componentComparison.readingComp;
+
+		expect(readingComp.bothTaken).toBe(false);
+		expect(readingComp.after).toBe(9);
+		expect(readingComp.change).toBeNull();
+	});
+});

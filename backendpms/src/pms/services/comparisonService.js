@@ -43,10 +43,18 @@ const getComponentComparison = (earlierResults, laterResults) => {
 		const before = earlierResults[name];
 		const after = laterResults[name];
 
-		const beforeTaken = before && !before.skipped && before.score !== null;
-		const afterTaken = after && !after.skipped && after.score !== null;
+		// "Scored" = has a real numeric score (safe to diff for variance).
+		const beforeScored = before && !before.skipped && before.score !== null;
+		const afterScored = after && !after.skipped && after.score !== null;
 
-		if (beforeTaken && afterTaken) {
+		// "Resolved" = has SOME pass/fail conclusion, whether from a real
+		// score or a defaulted one (e.g. readingComp with no score still
+		// resolves to passed:true — see bandScoring.js). Used so those
+		// rows aren't silently dropped from the comparison entirely.
+		const beforeResolved = before && !before.skipped;
+		const afterResolved = after && !after.skipped;
+
+		if (beforeScored && afterScored) {
 			const change = parseFloat((after.score - before.score).toFixed(2));
 			comparison[name] = {
 				before: before.score,
@@ -56,16 +64,30 @@ const getComponentComparison = (earlierResults, laterResults) => {
 				change,
 				bothTaken: true,
 			};
-		} else if (beforeTaken || afterTaken) {
+		} else if (beforeScored || afterScored) {
 			comparison[name] = {
-				before: beforeTaken ? before.score : null,
-				after: afterTaken ? after.score : null,
-				beforePassed: beforeTaken ? before.passed : null,
-				afterPassed: afterTaken ? after.passed : null,
+				before: beforeScored ? before.score : null,
+				after: afterScored ? after.score : null,
+				beforePassed: beforeResolved ? before.passed : null,
+				afterPassed: afterResolved ? after.passed : null,
+				change: null,
+				bothTaken: false,
+			};
+		} else if (beforeResolved || afterResolved) {
+			// Neither side has a real score, but at least one resolved
+			// (e.g. readingComp defaulted to passed both times) — surface
+			// it instead of dropping the row.
+			comparison[name] = {
+				before: null,
+				after: null,
+				beforePassed: beforeResolved ? before.passed : null,
+				afterPassed: afterResolved ? after.passed : null,
 				change: null,
 				bothTaken: false,
 			};
 		}
+		// else: both genuinely skipped (e.g. an optional writing component
+		// untested both times) — correctly omitted, nothing to show.
 	}
 
 	return comparison;
