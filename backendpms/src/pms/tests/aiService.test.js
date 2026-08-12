@@ -129,7 +129,10 @@ describe("UT-PMS-23 — readingComp default-pass values don't misrepresent progr
 			mockComparisonDataWithDefaultedReadingComp,
 		);
 
-		const callArgs = mockCreate.mock.calls[0][0];
+		// Use the most recent call, not calls[0] — the mock isn't cleared
+		// between tests in this file, so calls[0] would grab an earlier
+		// test's call instead of this one.
+		const callArgs = mockCreate.mock.calls[mockCreate.mock.calls.length - 1][0];
 		const promptContent = callArgs.messages[0].content;
 
 		// The raw data is passed through — this test documents current
