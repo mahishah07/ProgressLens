@@ -707,87 +707,48 @@ export default function StudentProgress() {
 					onStudentSearch={openStudentDashboard}
 				/>
 
-				<div className="sp-profile-strip">
-					<div className="sp-student-icon sp-student-icon-small">
-						<UserRound size={24} />
+				<section className="eo-profile-card sp-dashboard-profile-card">
+					<div className="eo-student-icon">
+						<UserRound size={29} />
 					</div>
 
-					<div className="sp-dashboard-student">
-						<span className="sp-profile-eyebrow">PROGRESS MONITORING</span>
-						<h2>{dashboard?.student?.studentId}</h2>
-
-						<div className="sp-strip-meta">
-							<span>
-								<CalendarDays size={14} />
-								Last Assessment:{" "}
-								{dashboard?.latestAssessment?.assessmentDate
-									? new Date(
-											dashboard.latestAssessment.assessmentDate,
-										).toLocaleDateString("en-GB", {
-											day: "2-digit",
-											month: "short",
-											year: "numeric",
-										})
-									: "—"}
-							</span>
-
-							<span className="sp-band-tag">
-								<GraduationCap size={14} />
-								{dashboard?.latestAssessment?.newBand ||
-									dashboard?.currentBandLevel ||
-									dashboard?.student?.summaryBand ||
-									"—"}
-							</span>
-
-							<span>
-								<BriefcaseBusiness size={14} />
-								Centre:{" "}
-								{dashboard?.student?.centreId ||
-									dashboard?.student?.centre ||
-									overview?.student?.centreId ||
-									overview?.student?.centre ||
-									"—"}
-							</span>
-						</div>
+					<div className="eo-profile-info">
+						<h1>{dashboard?.student?.studentId}</h1>
+						{SHEET_URL && (
+							<a href={SHEET_URL} target="_blank" rel="noopener noreferrer" className="eo-sheets-btn">
+								<Sheet size={16} /> Open Google Sheets
+							</a>
+						)}
 					</div>
 
-					<div className="sp-quick-actions">
+					<div className="eo-profile-meta sp-dashboard-action-grid">
 						<button
-							className="sp-compare-btn"
+							className="eo-meta-item sp-dashboard-action"
 							onClick={() => navigate(`/assessment-comparison?studentId=${id}`)}
 							disabled={isPending}
 						>
-							Compare Assessments
+							<span className="eo-meta-icon"><BarChart3 size={18} /></span>
+							<span>Compare Assessments</span>
 						</button>
 
 						<button
-							className="sp-qa-primary"
+							className="eo-meta-item sp-dashboard-action sp-dashboard-action-primary"
 							onClick={() => navigate(`/progress-report?studentId=${id}`)}
 							disabled={isPending}
 						>
-							<FileText size={16} />
-							Generate Report
+							<span className="eo-meta-icon"><FileText size={18} /></span>
+							<span>Generate Report</span>
 						</button>
 
 						<button
-							className="sp-qa-secondary"
+							className="eo-meta-item sp-dashboard-action"
 							onClick={() => navigate(`/student/${id}/add-assessment`)}
 						>
-							<Save size={16} />
-							Add Assessment
+							<span className="eo-meta-icon"><Save size={18} /></span>
+							<span>Add Assessment</span>
 						</button>
-
-						<a
-							href={SHEET_URL}
-							target="_blank"
-							rel="noopener noreferrer"
-							className="sp-qa-secondary"
-						>
-							<Sheet size={16} />
-							Open Google Sheets
-						</a>
 					</div>
-				</div>
+				</section>
 
 				{isPending ? (
 					<div className="sp-history-card">

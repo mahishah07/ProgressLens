@@ -1,16 +1,22 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import "./../css/Landing.css";
+import "./../css/ErrorOptions.css";
+import "./../css/StudentProgress.css";
 import "./../css/AssessmentComparison.css";
 import {
 	LayoutDashboard,
-	TrendingUp,
+	TrendingUp as TrendIcon,
 	BarChart3,
+	FileCheck2,
 	FileText,
 	Bell,
 	Settings,
 	ArrowLeft,
 	Download,
 	Share2,
+	Search,
+	BriefcaseBusiness,
 } from "lucide-react";
 import { Bar } from "react-chartjs-2";
 import {
@@ -25,6 +31,69 @@ import {
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 const API = import.meta.env.VITE_PMS_API;
+
+function ProgressSidebar({ studentId }) {
+	const encodedId = encodeURIComponent(studentId || "");
+
+	return (
+		<aside className="sidebar">
+			<div className="logo-section">
+				<div className="logo-circle">DAS</div>
+				<div><h2>DAS Teacher</h2><p>Educational Professional</p></div>
+			</div>
+			<nav>
+				<Link to="/"><LayoutDashboard size={20} /><span>Dashboard</span></Link>
+				<Link to={`/student/${encodedId}?view=dashboard`} className="sp-nav-progress active" aria-current="page">
+					<TrendIcon size={20} /><span>Progress Monitoring</span>
+				</Link>
+				<div className="eo-nav-section">
+					<span className="eo-nav-heading">ERROR ANALYSIS</span>
+					<Link to={`/error-answer/${encodedId}`} className="eo-nav-subitem">
+						<FileCheck2 size={18} /><span>Reference-Based Analysis</span>
+					</Link>
+					<Link to={`/error-dashboard/${encodedId}`} className="eo-nav-subitem">
+						<BarChart3 size={19} /><span>Free-Form Analysis</span>
+					</Link>
+				</div>
+				<a href="#"><Bell size={20} /><span>Notifications</span></a>
+				<a href="#"><Settings size={20} /><span>Settings</span></a>
+			</nav>
+		</aside>
+	);
+}
+
+function ComparisonTopbar({ search, setSearch, searching, onSearch }) {
+	return (
+		<header className="topbar eo-main-topbar">
+			<div className="topbar-brand">
+				<div>
+					<h2>DAS Assessment Portal</h2>
+					<span className="topbar-context">Progress Monitoring</span>
+				</div>
+			</div>
+			<div className="eo-topbar-right">
+				<form className="eo-navbar-search" onSubmit={onSearch}>
+					<button type="submit" aria-label="Search student" disabled={searching}>
+						<Search size={18} />
+					</button>
+					<input
+						value={search}
+						onChange={(event) => setSearch(event.target.value)}
+						placeholder={searching ? "Searching..." : "Search student by name or ID..."}
+						disabled={searching}
+					/>
+				</form>
+				<div className="eo-teacher-profile">
+					<div className="eo-teacher-icon"><BriefcaseBusiness size={20} /></div>
+					<div className="eo-teacher-copy">
+						<strong>Educational Professional</strong>
+						<span>DAS Teacher Portal</span>
+					</div>
+				</div>
+			</div>
+		</header>
+	);
+}
 
 const SKILL_LABELS = {
 	pictureNaming: "Picture Naming",
@@ -56,6 +125,38 @@ export default function AssessmentComparison() {
 	const [error, setError] = useState(null);
 	const [assessmentIdA, setAssessmentIdA] = useState("");
 	const [assessmentIdB, setAssessmentIdB] = useState("");
+	const [studentSearch, setStudentSearch] = useState("");
+	const [studentSearching, setStudentSearching] = useState(false);
+
+	const searchStudent = async (event) => {
+		event.preventDefault();
+		const query = studentSearch.trim();
+		if (!query) return;
+
+		setStudentSearching(true);
+		try {
+			const response = await fetch(`${API}/api/progress/search?studentId=${encodeURIComponent(query)}`);
+			const results = await response.json();
+			if (!response.ok) throw new Error(results.message || "Unable to search students.");
+			const profile = Array.isArray(results) ? results[0] : null;
+			if (!profile?.studentId) throw new Error("Student not found.");
+			setStudentSearch("");
+			navigate(`/student/${encodeURIComponent(profile.studentId)}?view=dashboard`);
+		} catch (searchError) {
+			alert(searchError.message);
+		} finally {
+			setStudentSearching(false);
+		}
+	};
+
+	const topbar = (
+		<ComparisonTopbar
+			search={studentSearch}
+			setSearch={setStudentSearch}
+			searching={studentSearching}
+			onSearch={searchStudent}
+		/>
+	);
 
 	// initial load — gets full history + default (first vs latest) comparison
 	useEffect(() => {
@@ -149,56 +250,12 @@ export default function AssessmentComparison() {
 		}));
 	};
 
-	const Sidebar = () => (
-		<aside className="sidebar">
-			<div className="logo-section">
-				<div className="logo-circle">DAS</div>
-				<div>
-					<h2>DAS Teacher</h2>
-					<p>Educational Professional</p>
-				</div>
-			</div>
-			<nav>
-				<Link to="/">
-					<LayoutDashboard size={20} />
-					<span>Dashboard</span>
-				</Link>
-				<a className="active">
-					<TrendingUp size={20} />
-					<span>Progress Monitoring</span>
-				</a>
-				<a href="#">
-					<BarChart3 size={20} />
-					<span>Error Pattern Analysis</span>
-				</a>
-				<a href="#">
-					<FileText size={20} />
-					<span>Reports</span>
-				</a>
-				<a href="#">
-					<Bell size={20} />
-					<span>Notifications</span>
-				</a>
-				<a href="#">
-					<Settings size={20} />
-					<span>Settings</span>
-				</a>
-			</nav>
-			<div className="sidebar-footer">
-				<div className="avatar-small">SR</div>
-				<div>
-					<p className="footer-name">S. Richards</p>
-					<p className="footer-role">Profile</p>
-				</div>
-			</div>
-		</aside>
-	);
-
 	if (loading && !data)
 		return (
-			<div className="ac-page">
-				<Sidebar />
+			<div className="ac-page eo-page sp-page">
+				<ProgressSidebar studentId={studentId} />
 				<main className="ac-main">
+					{topbar}
 					<p className="state-msg">Loading comparison...</p>
 				</main>
 			</div>
@@ -206,9 +263,10 @@ export default function AssessmentComparison() {
 
 	if (error)
 		return (
-			<div className="ac-page">
-				<Sidebar />
+			<div className="ac-page eo-page sp-page">
+				<ProgressSidebar studentId={studentId} />
 				<main className="ac-main">
+					{topbar}
 					<p className="state-msg error">{error}</p>
 				</main>
 			</div>
@@ -216,9 +274,10 @@ export default function AssessmentComparison() {
 
 	if (!data || data.status === "insufficient_data")
 		return (
-			<div className="ac-page">
-				<Sidebar />
+			<div className="ac-page eo-page sp-page">
+				<ProgressSidebar studentId={studentId} />
 				<main className="ac-main">
+					{topbar}
 					<p className="state-msg">
 						{data?.message ||
 							"At least one assessment is required to generate a comparison."}
@@ -237,13 +296,10 @@ export default function AssessmentComparison() {
 	const transitions = data.transitions;
 
 	return (
-		<div className="ac-page">
-			<Sidebar />
+		<div className="ac-page eo-page sp-page">
+			<ProgressSidebar studentId={studentId} />
 			<main className="ac-main">
-				<header className="ac-topbar">
-					<h2>DAS Assessment Portal</h2>
-					<span className="ac-topbar-sub">Comparative Analysis</span>
-				</header>
+				{topbar}
 
 				<div className="ac-header">
 					<div>

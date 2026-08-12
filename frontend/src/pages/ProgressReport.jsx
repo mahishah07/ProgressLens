@@ -1,17 +1,19 @@
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import "./../css/Landing.css";
+import "./../css/ErrorOptions.css";
+import "./../css/StudentProgress.css";
 import "./../css/ProgressReport.css";
 import {
 	LayoutDashboard,
-	TrendingUp,
+	TrendingUp as TrendIcon,
 	BarChart3,
-	FileText,
+	FileCheck2,
 	Bell,
 	Settings,
 	Download,
-	Mail,
+	Printer,
 	Share2,
-	Edit,
 } from "lucide-react";
 import { Line, Radar } from "react-chartjs-2";
 import {
@@ -58,7 +60,9 @@ const COMPONENT_LABELS = {
 	writtenVocab: "Written Vocab",
 };
 
-function Sidebar() {
+function Sidebar({ studentId }) {
+	const encodedId = studentId ? encodeURIComponent(studentId) : "";
+
 	return (
 		<aside className="sidebar">
 			<div className="logo-section">
@@ -73,18 +77,34 @@ function Sidebar() {
 					<LayoutDashboard size={20} />
 					<span>Dashboard</span>
 				</Link>
-				<a href="#">
-					<TrendingUp size={20} />
+				<Link
+					to={`/student/${encodedId}?view=dashboard`}
+					className="sp-nav-progress active"
+					aria-current="page"
+				>
+					<TrendIcon size={20} />
 					<span>Progress Monitoring</span>
-				</a>
-				<a href="#">
-					<BarChart3 size={20} />
-					<span>Error Pattern Analysis</span>
-				</a>
-				<a className="active">
-					<FileText size={20} />
-					<span>Reports</span>
-				</a>
+				</Link>
+
+				<div className="eo-nav-section">
+					<span className="eo-nav-heading">ERROR ANALYSIS</span>
+
+					<Link
+						to={`/error-answer/${encodedId}`}
+						className="eo-nav-subitem"
+					>
+						<FileCheck2 size={18} />
+						<span>Reference-Based Analysis</span>
+					</Link>
+
+					<Link
+						to={`/error-dashboard/${encodedId}`}
+						className="eo-nav-subitem"
+					>
+						<BarChart3 size={19} />
+						<span>Free-Form Analysis</span>
+					</Link>
+				</div>
 				<a href="#">
 					<Bell size={20} />
 					<span>Notifications</span>
@@ -94,13 +114,6 @@ function Sidebar() {
 					<span>Settings</span>
 				</a>
 			</nav>
-			<div className="sidebar-footer">
-				<div className="avatar-small">SR</div>
-				<div>
-					<p className="footer-name">S. Richards</p>
-					<p className="footer-role">Profile</p>
-				</div>
-			</div>
 		</aside>
 	);
 }
@@ -227,6 +240,29 @@ export default function ProgressReport() {
 		window.open(printUrl, "_blank");
 	};
 
+	const handleShare = async () => {
+		const shareData = {
+			title: "DAS Progress Report",
+			text: `Progress report for student ${studentId}`,
+			url: window.location.href,
+		};
+
+		if (navigator.share) {
+			await navigator.share(shareData);
+			return;
+		}
+
+		await navigator.clipboard.writeText(window.location.href);
+	};
+
+	const lastUpdated = new Date(
+		report?.updatedAt || report?.createdAt || Date.now(),
+	).toLocaleDateString("en-SG", {
+		day: "numeric",
+		month: "short",
+		year: "numeric",
+	});
+
 	useEffect(() => {
 		const shouldPrint = searchParams.get("print") === "true";
 		if (shouldPrint && report && !loading) {
@@ -276,8 +312,8 @@ export default function ProgressReport() {
 
 	if (loading || generating)
 		return (
-			<div className="pr-page">
-				<Sidebar />
+			<div className="pr-page eo-page sp-page">
+				<Sidebar studentId={studentId} />
 				<main className="pr-main">
 					<p className="state-msg">
 						{generating ? "Generating AI report..." : "Loading..."}
@@ -288,8 +324,8 @@ export default function ProgressReport() {
 
 	if (error)
 		return (
-			<div className="pr-page">
-				<Sidebar />
+			<div className="pr-page eo-page sp-page">
+				<Sidebar studentId={studentId} />
 				<main className="pr-main">
 					<p className="state-msg error">{error}</p>
 				</main>
@@ -300,12 +336,23 @@ export default function ProgressReport() {
 	// const radarData = buildRadarData();
 
 	return (
-		<div className="pr-page">
-			<Sidebar />
+		<div className="pr-page eo-page sp-page">
+			<Sidebar studentId={studentId} />
 			<main className="pr-main">
 				<header className="pr-topbar">
 					<h2>DAS Assessment Portal</h2>
-					<span className="pr-topbar-sub">Progress Report Preview</span>
+					<div className="pr-topbar-actions">
+						<button type="button" className="pr-print-btn" onClick={() => window.print()}>
+							<Printer size={17} /> Print Report
+						</button>
+						<button type="button" className="pr-topbar-download" onClick={handleExportPDF}>
+							<Download size={17} /> Download PDF
+						</button>
+						<span className="pr-last-updated">Last updated: {lastUpdated}</span>
+						<button type="button" className="pr-topbar-share" onClick={handleShare} aria-label="Share report">
+							<Share2 size={18} />
+						</button>
+					</div>
 				</header>
 
 				{/* Generate button if no report */}
@@ -549,21 +596,6 @@ export default function ProgressReport() {
 					</div>
 				)}
 
-				{/* Bottom bar */}
-				<div className="pr-bottom-bar">
-					<button className="pr-edit-btn" onClick={() => setEditing(!editing)}>
-						<Edit size={16} /> Edit Report
-					</button>
-					<button className="pr-download-btn" onClick={() => window.print()}>
-						<Download size={16} /> Download PDF
-					</button>
-					<button className="pr-mail-btn">
-						<Mail size={16} />
-					</button>
-					<button className="pr-share-btn">
-						<Share2 size={16} />
-					</button>
-				</div>
 			</main>
 		</div>
 	);

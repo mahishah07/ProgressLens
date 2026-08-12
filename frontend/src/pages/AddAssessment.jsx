@@ -1,11 +1,75 @@
 import { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import "./../css/Landing.css";
+import "./../css/ErrorOptions.css";
 import "./../css/StudentProgress.css";
 import "./../css/AddAssessment.css";
-import { LayoutDashboard, Bell, Settings, ArrowLeft, Save } from "lucide-react";
+import { LayoutDashboard, TrendingUp as TrendIcon, BarChart3, FileCheck2, Bell, Settings, ArrowLeft, Save, Search, BriefcaseBusiness } from "lucide-react";
 
 const API = import.meta.env.VITE_PMS_API;
+
+function ProgressSidebar({ studentId }) {
+	const encodedId = encodeURIComponent(studentId || "");
+
+	return (
+		<aside className="sidebar">
+			<div className="logo-section">
+				<div className="logo-circle">DAS</div>
+				<div><h2>DAS Teacher</h2><p>Educational Professional</p></div>
+			</div>
+			<nav>
+				<Link to="/"><LayoutDashboard size={20} /><span>Dashboard</span></Link>
+				<Link to={`/student/${encodedId}?view=dashboard`} className="sp-nav-progress active" aria-current="page">
+					<TrendIcon size={20} /><span>Progress Monitoring</span>
+				</Link>
+				<div className="eo-nav-section">
+					<span className="eo-nav-heading">ERROR ANALYSIS</span>
+					<Link to={`/error-answer/${encodedId}`} className="eo-nav-subitem">
+						<FileCheck2 size={18} /><span>Reference-Based Analysis</span>
+					</Link>
+					<Link to={`/error-dashboard/${encodedId}`} className="eo-nav-subitem">
+						<BarChart3 size={19} /><span>Free-Form Analysis</span>
+					</Link>
+				</div>
+				<a href="#"><Bell size={20} /><span>Notifications</span></a>
+				<a href="#"><Settings size={20} /><span>Settings</span></a>
+			</nav>
+		</aside>
+	);
+}
+
+function AssessmentTopbar({ search, setSearch, searching, onSearch }) {
+	return (
+		<header className="topbar eo-main-topbar">
+			<div className="topbar-brand">
+				<div>
+					<h2>DAS Assessment Portal</h2>
+					<span className="topbar-context">Progress Monitoring</span>
+				</div>
+			</div>
+			<div className="eo-topbar-right">
+				<form className="eo-navbar-search" onSubmit={onSearch}>
+					<button type="submit" aria-label="Search student" disabled={searching}>
+						<Search size={18} />
+					</button>
+					<input
+						value={search}
+						onChange={(event) => setSearch(event.target.value)}
+						placeholder={searching ? "Searching..." : "Search student by name or ID..."}
+						disabled={searching}
+					/>
+				</form>
+				<div className="eo-teacher-profile">
+					<div className="eo-teacher-icon"><BriefcaseBusiness size={20} /></div>
+					<div className="eo-teacher-copy">
+						<strong>Educational Professional</strong>
+						<span>DAS Teacher Portal</span>
+					</div>
+				</div>
+			</div>
+		</header>
+	);
+}
 
 // Which score fields are tested per band level
 const BAND_FIELDS = {
@@ -102,6 +166,8 @@ export default function AddAssessment() {
 	const [saving, setSaving] = useState(false);
 	const [saveError, setSaveError] = useState(null);
 	const [showSuccess, setShowSuccess] = useState(false);
+	const [studentSearch, setStudentSearch] = useState("");
+	const [studentSearching, setStudentSearching] = useState(false);
 
 	const [semester, setSemester] = useState("");
 	const [summaryBand, setSummaryBand] = useState("");
@@ -172,36 +238,42 @@ export default function AddAssessment() {
 		setSaving(false);
 	};
 
-	const Sidebar = () => (
-		<aside className="sidebar">
-			<div className="logo-section">
-				<div className="logo-circle">DAS</div>
-				<div>
-					<h2>DAS Teacher</h2>
-					<p>Educational Professional</p>
-				</div>
-			</div>
-			<nav>
-				<Link to="/">
-					<LayoutDashboard size={20} />
-					<span>Dashboard</span>
-				</Link>
-				<a href="#">
-					<Bell size={20} />
-					<span>Notifications</span>
-				</a>
-				<a href="#">
-					<Settings size={20} />
-					<span>Settings</span>
-				</a>
-			</nav>
-		</aside>
+	const searchStudent = async (event) => {
+		event.preventDefault();
+		const query = studentSearch.trim();
+		if (!query) return;
+
+		setStudentSearching(true);
+		try {
+			const response = await fetch(`${API}/api/progress/search?studentId=${encodeURIComponent(query)}`);
+			const results = await response.json();
+			if (!response.ok) throw new Error(results.message || "Unable to search students.");
+			const profile = Array.isArray(results) ? results[0] : null;
+			if (!profile?.studentId) throw new Error("Student not found.");
+			setStudentSearch("");
+			navigate(`/student/${encodeURIComponent(profile.studentId)}?view=dashboard`);
+		} catch (searchError) {
+			alert(searchError.message);
+		} finally {
+			setStudentSearching(false);
+		}
+	};
+
+	const topbar = (
+		<AssessmentTopbar
+			search={studentSearch}
+			setSearch={setStudentSearch}
+			searching={studentSearching}
+			onSearch={searchStudent}
+		/>
 	);
 
 	if (loading) {
 		return (
-			<div className="sp-page">
+			<div className="sp-page eo-page">
+				<ProgressSidebar studentId={id} />
 				<main className="sp-main">
+					{topbar}
 					<p className="state-msg">Loading...</p>
 				</main>
 			</div>
@@ -210,8 +282,10 @@ export default function AddAssessment() {
 
 	if (error) {
 		return (
-			<div className="sp-page">
+			<div className="sp-page eo-page">
+				<ProgressSidebar studentId={id} />
 				<main className="sp-main">
+					{topbar}
 					<p className="state-msg error">{error}</p>
 				</main>
 			</div>
@@ -219,12 +293,10 @@ export default function AddAssessment() {
 	}
 
 	return (
-		<div className="sp-page">
-			<Sidebar />
+		<div className="sp-page eo-page">
+			<ProgressSidebar studentId={id} />
 			<main className="sp-main">
-				<header className="topbar">
-					<h2>DAS Assessment Portal</h2>
-				</header>
+				{topbar}
 
 				<div className="aa-content">
 					<div className="aa-header">

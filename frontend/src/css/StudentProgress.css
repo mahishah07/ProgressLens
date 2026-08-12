@@ -1747,6 +1747,40 @@
 	display: none;
 }
 
+/* Dashboard profile matches the analysis profile card dimensions. */
+.sp-dashboard-profile-card {
+	margin: 30px 36px;
+}
+
+.sp-dashboard-action-grid {
+	max-width: none;
+}
+
+.sp-dashboard-action {
+	width: 100%;
+	font: inherit;
+	color: #1f2933;
+	text-align: left;
+	cursor: pointer;
+}
+
+.sp-dashboard-action > span:last-child {
+	font-size: 15px;
+	font-weight: 700;
+	line-height: 1.3;
+}
+
+.sp-dashboard-action-primary {
+	border-color: #e7c3ca;
+	background: #fdf8f9;
+	color: #9f2233;
+}
+
+.sp-dashboard-action:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
 /* =========================================================
    OPTION CARDS
    KEEP ORIGINAL DESIGN — JUST IMPROVE READABILITY

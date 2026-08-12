@@ -136,8 +136,8 @@ body {
 	content: "";
 	position: absolute;
 	left: 0;
-	top: 4px;
-	bottom: 4px;
+	top: -5px;
+	bottom: -5px;
 	width: 4px;
 	border-radius: 999px;
 	background: #9f2233;
@@ -151,11 +151,14 @@ body {
 
 .topbar h2 {
 	color: #1f2933 !important;
+	font-size: 19px;
+	line-height: 1.2;
 }
 
 .topbar-context {
-	font-size: 12px;
+	font-size: 13px;
 	font-weight: 500;
+	line-height: 1.2;
 	color: var(--das-grey);
 }
 
