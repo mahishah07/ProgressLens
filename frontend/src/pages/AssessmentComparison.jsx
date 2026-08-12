@@ -1090,29 +1090,44 @@ export default function AssessmentComparison() {
 				{/* ========================================
 				    CYCLES
 				    ======================================== */}
-
 				<div className="ac-cycle-bar">
-					<span className="ac-cycle-tag">
-						Cycle A
-					</span>
+					<div className="ac-cycle-side">
+						<span className="ac-cycle-tag">
+							Cycle A
+						</span>
 
-					<span>
-						{data.comparisonPeriod?.from}
-						{" — "}
-						Baseline Assessment
-					</span>
+						<div className="ac-cycle-copy">
+							<strong>
+								{data.comparisonPeriod?.from}
+							</strong>
 
-					<span className="ac-cycle-tag ac-cycle-active">
-						Cycle B
-					</span>
+							<span>
+								Baseline Assessment
+							</span>
+						</div>
+					</div>
 
-					<span>
-						{data.comparisonPeriod?.to}
-					</span>
+					<div className="ac-cycle-separator" aria-hidden="true">
+						<span className="ac-cycle-separator-line" />
+						<span className="ac-cycle-vs">VS</span>
+						<span className="ac-cycle-separator-line" />
+					</div>
 
-					<span className="ac-latest">
-						Latest Results
-					</span>
+					<div className="ac-cycle-side ac-cycle-side-latest">
+						<span className="ac-cycle-tag ac-cycle-active">
+							Cycle B
+						</span>
+
+						<div className="ac-cycle-copy">
+							<strong>
+								{data.comparisonPeriod?.to}
+							</strong>
+
+							<span className="ac-latest">
+								Latest Results
+							</span>
+						</div>
+					</div>
 				</div>
 
 
@@ -1345,22 +1360,7 @@ export default function AssessmentComparison() {
 						<ArrowLeft size={16} />
 						Back
 					</button>
-
-					<button
-						className="ac-primary-btn"
-						onClick={() =>
-							navigate(
-								`/progress-report?studentId=${encodeURIComponent(
-									profileStudentId,
-								)}`,
-							)
-						}
-					>
-						<Share2 size={16} />
-						Generate Parent Report
-					</button>
 				</div>
-
 			</main>
 		</div>
 	);
