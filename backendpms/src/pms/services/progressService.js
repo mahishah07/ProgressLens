@@ -33,16 +33,26 @@ const calculateAverageScore = (skillScores) => {
 	);
 };
 
-const getSkillBreakdown = (skillScores) => {
-	const entries = Object.entries(skillScores).filter(([_, v]) => v !== null);
-	if (entries.length === 0)
+const getSkillBreakdownFromBandScore = (bandScore) => {
+	if (!bandScore) return { strongest: null, weakest: null, breakdown: {} };
+
+	const tested = bandScore.componentResults.filter(
+		(c) =>
+			!c.skipped &&
+			c.score !== null &&
+			c.score !== undefined &&
+			c.name !== "writtenVocab",
+	);
+
+	if (tested.length === 0)
 		return { strongest: null, weakest: null, breakdown: {} };
 
-	const sorted = [...entries].sort(([, a], [, b]) => b - a);
+	const sorted = [...tested].sort((a, b) => b.score - a.score);
+
 	return {
-		strongest: sorted[0][0],
-		weakest: sorted[sorted.length - 1][0],
-		breakdown: Object.fromEntries(entries),
+		strongest: sorted[0].name,
+		weakest: sorted[sorted.length - 1].name,
+		breakdown: Object.fromEntries(tested.map((c) => [c.name, c.score])),
 	};
 };
 
@@ -78,7 +88,7 @@ exports.buildDashboard = async (studentId) => {
 		student.schLevel,
 	);
 	const skillScores = getSkillScores(latest);
-	const skillBreakdown = getSkillBreakdown(skillScores);
+	const skillBreakdown = getSkillBreakdownFromBandScore(bandScore);
 	const averageScore = calculateAverageScore(skillScores);
 
 	const progressOverTime = assessments.map((a) => {

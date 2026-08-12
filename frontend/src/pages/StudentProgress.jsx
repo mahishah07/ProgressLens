@@ -226,6 +226,9 @@ export default function StudentProgress() {
 	const [selectedSkills, setSelectedSkills] = useState([]);
 	const [chartType, setChartType] = useState("radar");
 
+	const [aiSummary, setAiSummary] = useState(null);
+	const [aiSummaryLoading, setAiSummaryLoading] = useState(false);
+
 	// Delete-student state/handler — must live inside the component
 	// since it uses `id`, `navigate`, and hooks.
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -282,6 +285,18 @@ export default function StudentProgress() {
 		loadOverview();
 		return () => controller.abort();
 	}, [id]);
+
+	useEffect(() => {
+		if (!dashboard || dashboard.status === "assessment_pending") return;
+		setAiSummaryLoading(true);
+		fetch(`${API}/api/ai/${id}/dashboard-summary`)
+			.then((r) => r.json())
+			.then((data) => {
+				setAiSummary(data.summary || null);
+				setAiSummaryLoading(false);
+			})
+			.catch(() => setAiSummaryLoading(false));
+	}, [dashboard, id]);
 
 	const openStudentDashboard = async (event) => {
 		event.preventDefault();
@@ -784,19 +799,6 @@ export default function StudentProgress() {
 
 					<div className="eo-profile-info">
 						<h1>{dashboard?.student?.studentId}</h1>
-<<<<<<< Updated upstream
-						{SHEET_URL && (
-							<a
-								href={SHEET_URL}
-								target="_blank"
-								rel="noopener noreferrer"
-								className="eo-sheets-btn"
-							>
-								<Sheet size={16} /> Open Google Sheets
-							</a>
-						)}
-=======
->>>>>>> Stashed changes
 					</div>
 
 					<div className="eo-profile-meta sp-dashboard-action-grid">
@@ -925,57 +927,33 @@ export default function StudentProgress() {
 							<div className="sp-ai-card">
 								<h3>✦ Student Performance Summary</h3>
 								<p>
-									{(() => {
-										const band =
-											dashboard?.latestAssessment?.newBand ||
-											dashboard?.currentBandLevel ||
-											"—";
-										const score = dashboard?.bandScore?.totalScore;
-										const passed = dashboard?.bandScore?.passed;
-										const strongest = dashboard?.skillBreakdown?.strongest;
-										const weakest = dashboard?.skillBreakdown?.weakest;
-										const history = dashboard?.assessmentHistory;
+									{aiSummaryLoading
+										? "Generating summary..."
+										: aiSummary ||
+											(() => {
+												const band =
+													dashboard?.latestAssessment?.newBand ||
+													dashboard?.currentBandLevel ||
+													"—";
+												const score = dashboard?.bandScore?.totalScore;
+												const passed = dashboard?.bandScore?.passed;
+												const strongest = dashboard?.skillBreakdown?.strongest;
+												const weakest = dashboard?.skillBreakdown?.weakest;
 
-										const latest = history?.[history.length - 1];
-										const previous = history?.[history.length - 2];
-										const latestScore = latest?.weightedScore;
-										const previousScore = previous?.weightedScore;
-
-										let improvement = "";
-										if (
-											latestScore !== null &&
-											latestScore !== undefined &&
-											previousScore !== null &&
-											previousScore !== undefined
-										) {
-											const diff = parseFloat(
-												(latestScore - previousScore).toFixed(2),
-											);
-											if (diff > 0) {
-												improvement = ` This is an improvement of ${diff}% from their previous assessment (${previousScore}%).`;
-											} else if (diff < 0) {
-												improvement = ` This is a decrease of ${Math.abs(diff)}% from their previous assessment (${previousScore}%).`;
-											} else {
-												improvement = ` Their score is unchanged from their previous assessment.`;
-											}
-										}
-
-										let summary = `${dashboard?.student?.studentId} is currently at Band Level ${band}`;
-										if (score !== null && score !== undefined) {
-											summary += `, with a weighted assessment score of ${score}%`;
-											summary += passed
-												? " : meeting the required threshold."
-												: " : below the 90% passing threshold.";
-										}
-										summary += improvement;
-										if (strongest)
-											summary += ` Their strongest skill area is ${strongest}`;
-										if (weakest) {
-											summary += `, with ${weakest} identified as a focus area for improvement.`;
-										}
-
-										return summary;
-									})()}
+												let summary = `${dashboard?.student?.studentId} is currently at Band Level ${band}`;
+												if (score !== null && score !== undefined) {
+													summary += `, with a weighted assessment score of ${score}%`;
+													summary += passed
+														? " : meeting the required threshold."
+														: " : below the 90% passing threshold.";
+												}
+												if (strongest)
+													summary += ` Their strongest skill area is ${SKILL_LABELS[strongest] || strongest}`;
+												if (weakest) {
+													summary += `, with ${SKILL_LABELS[weakest] || weakest} identified as a focus area for improvement.`;
+												}
+												return summary;
+											})()}
 								</p>
 
 								<div className="sp-tags">

@@ -1451,32 +1451,42 @@
 
 .sp-ai-card {
 	background: linear-gradient(145deg, #f9f6f6, #f6f1f2);
-
 	border: 1px solid var(--sp-red-border);
-
 	padding: 1.5rem;
-
 	border-radius: 12px;
 }
 
 .sp-ai-card h3 {
-	color: var(--sp-red-dark);
+	color: var(--sp-red-dark) !important;
+	font-size: 1.2rem;
 }
 
 .sp-ai-card p {
-	color: #444b55;
+	color: #444b55 !important;
+	font-size: 1rem;
+	line-height: 1.7;
+}
+
+.sp-tag,
+.sp-tag-alt,
+.sp-tag-warn {
+	font-size: 0.9rem;
+	padding: 0.4rem 1rem;
 }
 
 .sp-tag {
-	background: var(--sp-red);
-
-	color: white;
+	background: var(--sp-red) !important;
+	color: white !important;
 }
 
 .sp-tag-alt {
-	background: #525866;
+	background: #525866 !important;
+	color: white !important;
+}
 
-	color: white;
+.sp-tag-warn {
+	background: #fee2e2 !important;
+	color: #991b1b !important;
 }
 
 /* =========================================================
@@ -1489,7 +1499,6 @@
 .sp-history-card,
 .sp-goals-card {
 	border: 1px solid #e7e8eb;
-
 	box-shadow: 0 3px 10px rgba(31, 41, 51, 0.035);
 }
 
@@ -1499,9 +1508,7 @@
 
 .sp-bottom-bar {
 	background: transparent;
-
 	border-top: 0;
-
 	padding: 0 32px 24px;
 }
 
@@ -1516,7 +1523,6 @@
 
 	.sp-profile-meta {
 		width: 100%;
-
 		max-width: none;
 	}
 
@@ -1526,7 +1532,6 @@
 
 	.sp-quick-actions {
 		width: 100%;
-
 		margin-left: 74px;
 	}
 }
@@ -1550,7 +1555,6 @@
 
 	.sp-quick-actions {
 		margin-left: 0;
-
 		flex-wrap: wrap;
 	}
 }
@@ -1562,7 +1566,6 @@
 
 .sp-page .sidebar {
 	min-height: 100vh;
-
 	flex-shrink: 0;
 }
 
@@ -1572,16 +1575,12 @@
 
 .sp-page .sidebar nav > a {
 	min-height: 48px;
-
 	display: flex;
 	align-items: center;
-
 	gap: 12px;
-
 	padding: 11px 16px;
 	font-size: 15px;
 	font-weight: 500;
-
 	line-height: 1.3;
 }
 
@@ -1597,33 +1596,29 @@
 
 .sp-page .sidebar nav .sp-nav-progress {
 	background: #f8ecef !important;
-
 	color: #9f2233 !important;
-
 	font-weight: 700;
 }
 
 .sp-page .sidebar nav .sp-nav-progress svg {
 	color: #9f2233 !important;
-
 	stroke: #9f2233 !important;
 }
 
 .sp-page .sidebar nav .sp-nav-progress:hover {
 	background: #f8ecef !important;
-
 	color: #9f2233 !important;
 }
 
 /* =========================================================
    NAVBAR
    ========================================================= */
+
 .sp-page .topbar-brand::before {
 	background: #9f2233 !important;
 	top: -5px;
 	bottom: -5px;
 }
-
 /* =========================================================
    REMOVE ANY OLD TOPBAR CONFLICTS
    ========================================================= */
@@ -1770,4 +1765,31 @@
 	transform: rotate(-4deg) scale(1.05);
 
 	color: rgba(255, 255, 255, 0.07);
+}
+.sp-delete-btn {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.6rem 1.1rem;
+	border-radius: 8px;
+	border: 1px solid #ef4444;
+	background: #fff;
+	color: #dc2626;
+	font-weight: 600;
+	font-size: 0.85rem;
+	cursor: pointer;
+	transition: background 0.15s ease;
+}
+
+.sp-delete-btn:hover {
+	background: #fef2f2;
+}
+.sp-dashboard-action:not(.sp-dashboard-action-primary) {
+	border-color: #4b5563;
+	background: #f9fafb;
+	color: #1f2933;
+}
+
+.sp-dashboard-action:not(.sp-dashboard-action-primary):hover {
+	background: #f3f4f6;
 }

@@ -47,6 +47,29 @@ const sanitiseForAI = (comparison) => {
 	};
 };
 
+exports.generateDashboardSummary = async (dashboardData) => {
+	const prompt = `You are a supportive special education teacher writing a brief internal summary for a student's progress dashboard (for teacher eyes, not parents).
+
+Based on this student's latest assessment data, write a concise 2-3 sentence summary covering: overall progress, strongest area, and the main area needing intervention.
+
+Data:
+${JSON.stringify(dashboardData, null, 2)}
+
+Respond in JSON format only:
+{ "summary": "2-3 sentence summary" }`;
+
+	const response = await client.chat.completions.create({
+		model: "gpt-4o-mini",
+		messages: [{ role: "user", content: prompt }],
+		max_tokens: 300,
+		temperature: 0.7,
+	});
+
+	const text = response.choices[0].message.content.trim();
+	const clean = text.replace(/```json|```/g, "").trim();
+	return JSON.parse(clean);
+};
+
 // UC6: generate AI teaching recommendations
 exports.generateRecommendations = async (comparisonData) => {
 	const sanitised = sanitiseForAI(comparisonData);

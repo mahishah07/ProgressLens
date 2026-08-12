@@ -2,6 +2,36 @@ const aiService = require("../services/aiService");
 const comparisonService = require("../services/comparisonService");
 const Assessment = require("../models/Assessment");
 
+exports.getDashboardSummary = async (req, res) => {
+	try {
+		const progressService = require("../services/progressService");
+		const aiService = require("../services/aiService");
+
+		const dashboard = await progressService.buildDashboard(
+			req.params.studentId,
+		);
+		if (!dashboard)
+			return res.status(404).json({ message: "Student not found" });
+		if (dashboard.status === "assessment_pending") {
+			return res.status(200).json({ summary: null });
+		}
+
+		const sanitised = {
+			currentBand: dashboard.currentBandLevel,
+			overallScore: dashboard.bandScore?.totalScore,
+			passed: dashboard.bandScore?.passed,
+			strongestSkill: dashboard.skillBreakdown?.strongest,
+			weakestSkill: dashboard.skillBreakdown?.weakest,
+			totalAssessments: dashboard.totalAssessments,
+		};
+
+		const result = await aiService.generateDashboardSummary(sanitised);
+		res.json(result);
+	} catch (err) {
+		res.status(500).json({ message: err.message });
+	}
+};
+
 // UC6: POST /api/ai/:studentId/recommendations
 exports.generateRecommendations = async (req, res) => {
 	try {
