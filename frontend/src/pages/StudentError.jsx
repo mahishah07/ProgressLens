@@ -316,7 +316,9 @@ const lastAssessmentDate =
 		: "No assessment yet";
 
 	return (
-		<div className="sea-page">
+		<div 
+		className="sea-page"
+		data-cy="student-error-page">
 			<aside className="sidebar">
 				<div className="logo-section">
 					<div className="logo-circle">DAS</div>
@@ -565,7 +567,9 @@ const lastAssessmentDate =
 
 					<div className="sea-grid">
 						{/* Writing sample */}
-						<div className="sea-card sea-writing">
+						<div 
+						className="sea-card sea-writing"
+						data-cy="writing-sample">
     						<div className="sea-card-header">
         						<h3>≡ Writing Sample</h3>
         						<span className="sea-date">
@@ -594,7 +598,9 @@ const lastAssessmentDate =
 						</div>
 
 						{/* Donut chart */}
-						<div className="sea-card sea-donut">
+						<div 
+						className="sea-card sea-donut"
+						data-cy="error-chart">
 							<div className="sea-chart-header">
 								<h3>Error Type Classification</h3>
 								<div className="sea-chart-toggle" aria-label="Chart view">
@@ -620,7 +626,9 @@ const lastAssessmentDate =
 					</div>
 
 					{/* AI Pattern Analysis */}
-					<div className="sea-ai-card sea-ai-recommendation">
+					<div 
+					className="sea-ai-card sea-ai-recommendation"
+					data-cy="ai-pattern-analysis">
 						<div className="sea-ai-heading">
 							<span>ANALYSIS SUMMARY</span>
 							<h3>AI Pattern Analysis</h3>

@@ -1686,6 +1686,7 @@ export default function ErrorDashboard() {
                       studentFileInputRef
                     }
                     type="file"
+                    data-cy="epa-file-input"
                     hidden
                     accept=".pdf,.png,.jpg,.jpeg,.tif,.tiff,.bmp"
                     onChange={
@@ -1706,6 +1707,7 @@ export default function ErrorDashboard() {
                   !studentFile ||
                   uploading
                 }
+                data-cy="epa-analyse-button" 
                 onClick={
                   analyzeAssessment
                 }

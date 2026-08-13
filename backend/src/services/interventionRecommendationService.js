@@ -121,7 +121,7 @@ const reportAnalysisSchema = z.object({
     explanation: z.string(),
   })),
   grammarErrors: z.array(z.object({
-    category: z.enum(["Tense", "Grammar"]).default("Grammar"),
+    category: z.enum(["Tense", "Grammar"]),
     actual: z.string().min(1),
     expectedCorrection: z.string().min(1),
     explanation: z.string().min(1),
@@ -178,10 +178,6 @@ async function generateInterventionRecommendation(
   const response =
     await client.responses.parse({
       model,
-
-      reasoning: {
-        effort: "low",
-      },
 
       safety_identifier:
         createSafetyIdentifier(studentId),
@@ -405,7 +401,6 @@ async function analyseReportWithOpenAi({ studentId, sourceText, errors, tokens, 
   const client = dependencies.client || new OpenAI({ apiKey });
   const response = await client.responses.parse({
     model,
-    reasoning: { effort: "low" },
     safety_identifier: createSafetyIdentifier(studentId),
     store: false,
     input: [
@@ -455,19 +450,6 @@ return {
     error: "",
   },
 };
-
-  return {
-    correctedText: response.output_parsed.correctedText,
-    corrections: response.output_parsed.corrections,
-    grammarErrors: response.output_parsed.grammarErrors || [],
-    recommendation: {
-      status: "completed",
-      ...response.output_parsed.recommendation,
-      model,
-      generatedAt: new Date(),
-      error: "",
-    },
-  };
 }
 
 module.exports = {
