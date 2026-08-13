@@ -24,7 +24,6 @@ import {
 	BriefcaseBusiness,
 	CalendarDays,
 	GraduationCap,
-	Sheet,
 	ArrowLeft,
 	KeyRound,
 	FileCheck2,
@@ -39,9 +38,6 @@ const ERROR_API =
 
 const PMS_API =
 	import.meta.env.VITE_PMS_API;
-
-const SHEET_URL =
-	import.meta.env.VITE_GOOGLE_SHEET_URL;
 
 
 /* =========================================================
@@ -875,28 +871,6 @@ export default function AnswerDiagnosticReport() {
 									studentId
 								}
 							</h1>
-
-
-							{SHEET_URL && (
-
-								<a
-									href={
-										SHEET_URL
-									}
-									target="_blank"
-									rel="noopener noreferrer"
-									className="eo-sheets-btn"
-								>
-
-									<Sheet
-										size={16}
-									/>
-
-									Open Google Sheets
-
-								</a>
-
-							)}
 
 						</div>
 

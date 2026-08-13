@@ -234,14 +234,6 @@ export default function DiagnosticReport() {
 							className="dr-btn-primary"
 							onClick={() => window.print()}
 						>
-							<Printer size={15} />
-							Print Report
-						</button>
-
-						<button
-							className="dr-btn-secondary"
-							onClick={() => window.print()}
-						>
 							<Download size={15} />
 							Download PDF
 						</button>
@@ -249,10 +241,6 @@ export default function DiagnosticReport() {
 						<span className="dr-updated">
 							Last updated: {formatDate(lastReview)}
 						</span>
-
-						<button className="dr-icon-btn" title="Share report">
-							<Share2 size={16} />
-						</button>
 					</div>
 				</header>
 

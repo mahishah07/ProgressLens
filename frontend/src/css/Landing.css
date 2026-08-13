@@ -45,14 +45,11 @@ body {
 }
 
 .logo-section {
-	display: flex;
-	align-items: center;
-
-	gap: 15px;
-
-	padding: 30px 24px;
-
-	border-bottom: 1px solid #ececec;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 30px 24px;
+    border-bottom: 1px solid #ececec;
 }
 
 /* DAS logo */
@@ -155,8 +152,6 @@ body {
 	padding: 0 36px;
 	box-shadow:
 		0 1px 4px rgba(0, 0, 0, 0.025);
-	position: sticky;
-	top: 0;
 	z-index: 20;
 }
 
@@ -357,6 +352,48 @@ body {
 	box-shadow:
 		0 10px 24px
 		rgba(31, 41, 51, 0.07);
+}
+
+/* Register button shown after an invalid student search */
+.student-card .register-search-btn {
+    width: auto;
+    align-self: center;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    margin-top: 18px;
+    padding: 11px 18px;
+
+    border: 1px solid var(--das-red);
+    border-radius: 9px;
+
+    background: var(--das-red);
+    color: white;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.student-card .register-search-btn:hover {
+    background: var(--das-red-dark);
+    border-color: var(--das-red-dark);
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 4px 10px
+        rgba(127, 29, 45, 0.15);
 }
 
 /* Avatar */
@@ -719,4 +756,156 @@ body {
 .landing-page .sidebar nav a.active:hover {
 	background: #f8ecef !important;
 	color: #9f2233 !important;
+}
+
+/* =========================================================
+   DAS LOGO — EXACT LANDING PAGE STYLE
+   ========================================================= */
+
+.sp-page .logo-circle {
+    width: 58px !important;
+    height: 58px !important;
+
+    min-width: 58px !important;
+    min-height: 58px !important;
+
+    flex: 0 0 58px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    background: #9f2233 !important;
+    color: #ffffff !important;
+
+    border: none !important;
+    border-radius: 14px !important;
+
+    font-size: 16px !important;
+    font-weight: 800 !important;
+
+    line-height: 1 !important;
+    letter-spacing: 0 !important;
+
+    box-sizing: border-box !important;
+
+    box-shadow:
+        0 4px 10px
+        rgba(159, 34, 51, 0.12) !important;
+}
+
+/* =========================================================
+   DELETE STUDENT BUTTONS
+   ========================================================= */
+
+
+/* Outline delete button on Student Overview */
+.sp-delete-btn {
+    min-height: 40px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    padding: 0 14px;
+
+    border: 1px solid #dc2626;
+    border-radius: 9px;
+
+    background: #ffffff;
+
+    color: #dc2626;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 650;
+
+    cursor: pointer;
+
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        transform 0.18s ease;
+}
+
+
+.sp-delete-btn:hover {
+    background: #fef2f2;
+
+    border-color: #b91c1c;
+
+    color: #b91c1c;
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   SOLID DELETE BUTTON IN CONFIRMATION MODAL
+   ========================================================= */
+
+.sp-delete-btn-solid {
+    min-height: 42px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    padding: 0 18px;
+
+    border: 1px solid #dc2626;
+    border-radius: 9px;
+
+    background: #dc2626;
+
+    color: #ffffff;
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 650;
+
+    cursor: pointer;
+
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+
+.sp-delete-btn-solid:hover:not(:disabled) {
+    background: #b91c1c;
+
+    border-color: #b91c1c;
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 4px 10px
+        rgba(185, 28, 28, 0.18);
+}
+
+
+.sp-delete-btn-solid:disabled {
+    opacity: 0.55;
+
+    cursor: not-allowed;
+
+    transform: none;
+
+    box-shadow: none;
+}
+
+.modal-footer .modal-cancel,
+.modal-footer .sp-delete-btn-solid {
+    min-height: 42px;
 }

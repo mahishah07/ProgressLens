@@ -8,7 +8,6 @@ import {
   BarChart3,
   CheckCircle2,
   FileCheck2,
-  Sheet,
   TrendingUp,
   LayoutDashboard,
   Bell,
@@ -22,7 +21,6 @@ import {
 
 const PMS_API = import.meta.env.VITE_PMS_API;
 const ERROR_API = import.meta.env.VITE_ERROR_API;
-const SHEET_URL = import.meta.env.VITE_GOOGLE_SHEET_URL;
 
 /* nav and sidebar */
 function TeacherSidebar({ studentId }) {
@@ -267,7 +265,12 @@ export default function ErrorOptions() {
     overview?.currentBandLevel ||
     "—";
 
-  const teacher = overview?.student?.teacherId || "—";
+  const centre =
+    overview?.student?.centreId ||
+    overview?.student?.centre ||
+    overview?.centreId ||
+    overview?.centre ||
+    "—";
 
   // ==========================================
   // NAVIGATION
@@ -455,18 +458,6 @@ export default function ErrorOptions() {
             <div className="eo-profile-info">
 
               <h1>{studentId}</h1>
-
-              {SHEET_URL && (
-                <a
-                  href={SHEET_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="eo-sheets-btn"
-                >
-                  <Sheet size={16} />
-                  Open Google Sheets
-                </a>
-              )}
             </div>
 
             <div className="eo-profile-meta">
@@ -496,19 +487,26 @@ export default function ErrorOptions() {
                 </div>
               </div>
 
-              {/* TEACHER */}
-              <div className="eo-meta-item">
-                <div className="eo-meta-icon">
-                  <UserRound size={17} />
-                </div>
+              {/* CENTRE */}
+                <div className="eo-meta-item">
 
-                <div>
-                  <span className="eo-meta-label">Assigned Teacher</span>
-                  <span className="eo-meta-value">{teacher}</span>
+                  <div className="eo-meta-icon">
+                    <BriefcaseBusiness size={17} />
+                  </div>
+
+                  <div>
+                    <span className="eo-meta-label">
+                      Centre
+                    </span>
+
+                    <span className="eo-meta-value">
+                      {centre}
+                    </span>
+                  </div>
+
                 </div>
-              </div>
-            </div>
-          </section>
+                </div>
+              </section>
 
           {/* INTRO */}
           <section className="eo-section-heading">

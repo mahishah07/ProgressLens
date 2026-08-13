@@ -288,7 +288,6 @@ export default function StudentProgress() {
 
 	useEffect(() => {
 		if (!dashboard || dashboard.status === "assessment_pending") return;
-		setAiSummaryLoading(true);
 		fetch(`${API}/api/ai/${id}/dashboard-summary`)
 			.then((r) => r.json())
 			.then((data) => {

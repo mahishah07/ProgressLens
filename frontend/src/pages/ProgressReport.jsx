@@ -360,9 +360,7 @@ export default function ProgressReport() {
 	};
 
 	const handleExportPDF = () => {
-		if (!studentId) return;
-		const printUrl = `${window.location.origin}/progress-report?studentId=${studentId}&print=true`;
-		window.open(printUrl, "_blank");
+		window.print();
 	};
 
 	const handleShare = async () => {

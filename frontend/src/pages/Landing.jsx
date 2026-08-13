@@ -6,14 +6,12 @@ import {
 	Bell,
 	Settings,
 	Search,
-	ExternalLink,
 	UserPlus,
 	UserRound,
 	BriefcaseBusiness,
 } from "lucide-react";
 
 const API = import.meta.env.VITE_PMS_API;
-const SHEET_URL = import.meta.env.VITE_GOOGLE_SHEET_URL;
 
 export default function Landing() {
 	const [students, setStudents] = useState([]);
@@ -224,14 +222,6 @@ export default function Landing() {
 									</option>
 								))}
 							</select>
-							<a
-								href={SHEET_URL}
-								target="_blank"
-								rel="noopener noreferrer"
-								className="sheet-button"
-							>
-								<ExternalLink size={18} /> Open Google Sheets
-							</a>
 						</div>
 
 						{/* States */}
@@ -287,7 +277,8 @@ export default function Landing() {
 												No student with ID <strong>{search}</strong> exists.
 											</p>
 											<p>You can register this student below.</p>
-											<button onClick={() => setShowModal(true)}>
+											<button className="register-search-btn" onClick={() => setShowModal(true)}>
+												<UserPlus size={17} />
 												Register New Student
 											</button>
 										</div>
