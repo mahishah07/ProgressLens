@@ -287,13 +287,14 @@ describe("Progress Monitoring API integration", () => {
 		]);
 	});
 
-	test("IT-REP-01: comparison reports insufficient data for one record and changes for two", async () => {
+	test("IT-REP-01: comparison returns singleAssessment mode for one record and full changes for two", async () => {
 		const student = await createStudent();
 		await createAssessment(student.studentId);
 
 		const insufficient = await request(app).get("/api/comparison/DAS-0707");
 		expect(insufficient.status).toBe(200);
-		expect(insufficient.body.status).toBe("insufficient_data");
+		expect(insufficient.body.status).toBe("ok");
+		expect(insufficient.body.singleAssessment).toBe(true);
 
 		await createAssessment(student.studentId, {
 			semester: "2026 Sem 2",
@@ -308,6 +309,7 @@ describe("Progress Monitoring API integration", () => {
 		const comparison = await request(app).get("/api/comparison/DAS-0707");
 		expect(comparison.status).toBe(200);
 		expect(comparison.body.status).toBe("ok");
+		expect(comparison.body.singleAssessment).toBeUndefined();
 		expect(comparison.body.bandChange).toEqual({
 			direction: "improved",
 			steps: 1,

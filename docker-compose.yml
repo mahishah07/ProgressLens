@@ -1,0 +1,47 @@
+services:
+  pms:
+    build:
+      context: .
+      dockerfile: backendpms/Dockerfile
+    env_file:
+      - backendpms/.env
+    ports:
+      - "5001:5001"
+    restart: unless-stopped
+
+  epa:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    env_file:
+      - backend/.env
+    ports:
+      - "5002:5002"
+    restart: unless-stopped
+
+  gateway:
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
+    env_file:
+      - .env
+    environment:
+      PROGRESS_API_URL: http://pms:5001
+      ERROR_ANALYSER_API_URL: http://epa:5002
+      GATEWAY_PORT: 5050
+    ports:
+      - "5050:5050"
+    depends_on:
+      - pms
+      - epa
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - gateway
+    restart: unless-stopped

@@ -782,38 +782,36 @@
    ========================================================= */
 
 .sp-page .logo-circle {
-    width: 58px !important;
-    height: 58px !important;
+	width: 58px !important;
+	height: 58px !important;
 
-    min-width: 58px !important;
-    min-height: 58px !important;
+	min-width: 58px !important;
+	min-height: 58px !important;
 
-    flex: 0 0 58px !important;
+	flex: 0 0 58px !important;
 
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
 
-    padding: 0 !important;
-    margin: 0 !important;
+	padding: 0 !important;
+	margin: 0 !important;
 
-    background: #9f2233 !important;
-    color: #ffffff !important;
+	background: #9f2233 !important;
+	color: #ffffff !important;
 
-    border: none !important;
-    border-radius: 14px !important;
+	border: none !important;
+	border-radius: 14px !important;
 
-    font-size: 16px !important;
-    font-weight: 800 !important;
+	font-size: 16px !important;
+	font-weight: 800 !important;
 
-    line-height: 1 !important;
-    letter-spacing: 0 !important;
+	line-height: 1 !important;
+	letter-spacing: 0 !important;
 
-    box-sizing: border-box !important;
+	box-sizing: border-box !important;
 
-    box-shadow:
-        0 4px 10px
-        rgba(159, 34, 51, 0.12) !important;
+	box-shadow: 0 4px 10px rgba(159, 34, 51, 0.12) !important;
 }
 
 .sp-page .topbar h2 {
@@ -1239,7 +1237,7 @@
 }
 
 /* =========================================================
-   BACK BUTTON
+   BACK BUTTON / BOTTOM ROW
    ========================================================= */
 
 .sp-back-bar {
@@ -1482,6 +1480,7 @@
 
 .sp-ai-card {
 	background: linear-gradient(145deg, #f9f6f6, #f6f1f2);
+
 	border: 1px solid var(--sp-red-border);
 	padding: 1.5rem;
 	border-radius: 12px;
@@ -1530,6 +1529,7 @@
 .sp-history-card,
 .sp-goals-card {
 	border: 1px solid #e7e8eb;
+
 	box-shadow: 0 3px 10px rgba(31, 41, 51, 0.035);
 }
 
@@ -1650,6 +1650,7 @@
 	top: -5px;
 	bottom: -5px;
 }
+
 /* =========================================================
    REMOVE ANY OLD TOPBAR CONFLICTS
    ========================================================= */
@@ -1797,24 +1798,7 @@
 
 	color: rgba(255, 255, 255, 0.07);
 }
-.sp-delete-btn {
-	display: flex;
-	align-items: center;
-	gap: 0.4rem;
-	padding: 0.6rem 1.1rem;
-	border-radius: 8px;
-	border: 1px solid #ef4444;
-	background: #fff;
-	color: #dc2626;
-	font-weight: 600;
-	font-size: 0.85rem;
-	cursor: pointer;
-	transition: background 0.15s ease;
-}
 
-.sp-delete-btn:hover {
-	background: #fef2f2;
-}
 .sp-dashboard-action:not(.sp-dashboard-action-primary) {
 	border-color: #4b5563;
 	background: #f9fafb;
@@ -1824,6 +1808,7 @@
 .sp-dashboard-action:not(.sp-dashboard-action-primary):hover {
 	background: #f3f4f6;
 }
+
 .sp-legend-note {
 	font-size: 0.75rem;
 	color: #888;
@@ -1832,113 +1817,105 @@
 
 /* =========================================================
    DELETE STUDENT BUTTONS
+   (single source of truth — do not redefine .sp-delete-btn
+   or .sp-delete-btn-solid anywhere else in this file)
    ========================================================= */
-
 
 /* Outline delete button on Student Overview */
 .sp-delete-btn {
-    min-height: 40px;
+	min-height: 40px;
 
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 
-    gap: 7px;
+	gap: 7px;
 
-    padding: 0 14px;
+	padding: 0 14px;
 
-    border: 1px solid #dc2626;
-    border-radius: 9px;
+	border: 1px solid #dc2626;
+	border-radius: 9px;
 
-    background: #ffffff;
+	background: #ffffff;
 
-    color: #dc2626;
+	color: #dc2626;
 
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 650;
+	font-family: inherit;
+	font-size: 13px;
+	font-weight: 650;
 
-    cursor: pointer;
+	cursor: pointer;
 
-    transition:
-        background 0.18s ease,
-        border-color 0.18s ease,
-        color 0.18s ease,
-        transform 0.18s ease;
+	transition:
+		background 0.18s ease,
+		border-color 0.18s ease,
+		color 0.18s ease,
+		transform 0.18s ease;
 }
-
 
 .sp-delete-btn:hover {
-    background: #fef2f2;
+	background: #fef2f2;
 
-    border-color: #b91c1c;
+	border-color: #b91c1c;
 
-    color: #b91c1c;
+	color: #b91c1c;
 
-    transform: translateY(-1px);
+	transform: translateY(-1px);
 }
 
-
-/* =========================================================
-   SOLID DELETE BUTTON IN CONFIRMATION MODAL
-   ========================================================= */
-
+/* Solid delete button inside the confirmation modal */
 .sp-delete-btn-solid {
-    min-height: 42px;
+	min-height: 42px;
 
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 
-    gap: 7px;
+	gap: 7px;
 
-    padding: 0 18px;
+	padding: 0 18px;
 
-    border: 1px solid #dc2626;
-    border-radius: 9px;
+	border: 1px solid #dc2626;
+	border-radius: 9px;
 
-    background: #dc2626;
+	background: #dc2626;
 
-    color: #ffffff;
+	color: #ffffff;
 
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 650;
+	font-family: inherit;
+	font-size: 14px;
+	font-weight: 650;
 
-    cursor: pointer;
+	cursor: pointer;
 
-    transition:
-        background 0.18s ease,
-        border-color 0.18s ease,
-        transform 0.18s ease,
-        box-shadow 0.18s ease;
+	transition:
+		background 0.18s ease,
+		border-color 0.18s ease,
+		transform 0.18s ease,
+		box-shadow 0.18s ease;
 }
-
 
 .sp-delete-btn-solid:hover:not(:disabled) {
-    background: #b91c1c;
+	background: #b91c1c;
 
-    border-color: #b91c1c;
+	border-color: #b91c1c;
 
-    transform: translateY(-1px);
+	transform: translateY(-1px);
 
-    box-shadow:
-        0 4px 10px
-        rgba(185, 28, 28, 0.18);
+	box-shadow: 0 4px 10px rgba(185, 28, 28, 0.18);
 }
 
-
 .sp-delete-btn-solid:disabled {
-    opacity: 0.55;
+	opacity: 0.55;
 
-    cursor: not-allowed;
+	cursor: not-allowed;
 
-    transform: none;
+	transform: none;
 
-    box-shadow: none;
+	box-shadow: none;
 }
 
 .modal-footer .modal-cancel,
 .modal-footer .sp-delete-btn-solid {
-    min-height: 42px;
+	min-height: 42px;
 }

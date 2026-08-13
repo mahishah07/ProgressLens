@@ -30,10 +30,12 @@ describe("UT-PMS-21 — POST /api/assessments (createAssessment / Add Assessment
 			schLevel: "Primary",
 		});
 
-		// Everything scored except readingComp — readingComp defaults to
-		// passed (see bandScoring.js), so the assessment should still be
-		// able to reach the 90% threshold and advance the band, even
-		// though Reading Comprehension was never actually tested here.
+		// The real bandScoring.js requires ALL THREE writing components
+		// (narrative, exposition, persuasive) to be scored and passing —
+		// unscored ones count as passed:null, not skipped, so they still
+		// count against Written Vocab's "every must pass" check and against
+		// the writing group's weight-redistribution divisor. readingComp
+		// is still omitted here to exercise its default-pass behavior.
 		const assessmentBody = {
 			student: "Student 0001",
 			summaryBand: "B4",
@@ -41,6 +43,8 @@ describe("UT-PMS-21 — POST /api/assessments (createAssessment / Add Assessment
 			wordSpellingScore: 9,
 			fluencyMark: 18,
 			narrativeScore: 15,
+			expositionScore: 15,
+			persuasiveScore: 15,
 			// no rdComprehensionScore
 		};
 

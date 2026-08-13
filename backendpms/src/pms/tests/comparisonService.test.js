@@ -70,7 +70,7 @@ describe("UT-PMS-08 — compareAssessments assessment selection", () => {
 		expect(result.status).toBe("insufficient_data");
 	});
 
-	test("returns insufficient_data when same assessment selected twice", async () => {
+	test("selecting the same assessment twice returns singleAssessment mode, not insufficient_data", async () => {
 		resolveStudent.mockResolvedValue({
 			_id: "s1",
 			studentId: "Student 0003",
@@ -91,7 +91,11 @@ describe("UT-PMS-08 — compareAssessments assessment selection", () => {
 			"a1",
 			"a1",
 		);
-		expect(result.status).toBe("insufficient_data");
+		expect(result.status).toBe("ok");
+		expect(result.singleAssessment).toBe(true);
+		expect(result.totalAssessments).toBe(1);
+		expect(result.bandChange).toBeNull();
+		expect(result.transitions).toEqual({ newlyPassing: 0, newlyFailing: 0 });
 	});
 });
 

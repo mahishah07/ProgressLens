@@ -65,7 +65,8 @@ describe("PMS black-box specification tests", () => {
 			assessmentPayload(student._id, "2026 Sem 1", "2026-01-15"),
 		);
 		const one = await request(app).get("/api/comparison/DAS-0707");
-		expect(one.body.status).toBe("insufficient_data");
+		expect(one.body.status).toBe("ok");
+		expect(one.body.singleAssessment).toBe(true);
 		await Assessment.create(
 			assessmentPayload(student._id, "2026 Sem 2", "2026-07-15", {
 				newBand: "B5",
@@ -73,6 +74,7 @@ describe("PMS black-box specification tests", () => {
 		);
 		const two = await request(app).get("/api/comparison/DAS-0707");
 		expect(two.body.status).toBe("ok");
+		expect(two.body.singleAssessment).toBeUndefined();
 		expect(two.body.totalAssessments).toBe(2);
 	});
 

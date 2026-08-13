@@ -6,11 +6,20 @@
  * - Phonics is NOT a separate scored component (assessed orally, excluded)
  * - Fluency has no confirmed pass mark yet — always counted as passed for now
  * - Written Vocab (Band B/C only) is not a separate test — it is tied to the
- *   overall Writing result: if ALL writing components the student took pass,
- *   Written Vocab passes and gets full weight; if ANY fail, Written Vocab
- *   fails and gets 0 weight.
+ *   overall Writing result: if ALL writing components the student TOOK pass,
+ *   Written Vocab passes and gets full weight; if ANY of the taken ones fail,
+ *   Written Vocab fails and gets 0 weight.
  * - Reading Comprehension pass marks differ by SchLevel (Primary/Secondary)
- *   for bands B5 and B6 only.
+ *   for bands B5 and B6 only. Reading Comprehension defaults to passed when
+ *   no real score is recorded (including an explicit 0) — this accounts for
+ *   a known data-collection gap in historical records, per team decision.
+ * - For every OTHER compulsory (non-optional) component, an explicit score
+ *   of 0 is treated as a genuine recorded result (a real fail), not as
+ *   "not taken". For optional components, a 0 is still treated as blank/
+ *   not-taken, matching the existing spreadsheet convention.
+ * - Dynamic weight groups (phonics, writing) redistribute weight only
+ *   across the components actually scored that cycle — an untested slot
+ *   does not shrink everyone else's share.
  */
 
 const WRITING_NAMES = [
@@ -667,7 +676,11 @@ const calculateBandScore = (assessment, bandLevel, schLevel) => {
 		}
 
 		const score = assessment[comp.scoreField];
-		const hasScore = score !== null && score !== undefined && score > 0;
+		const hasRealValue = score !== null && score !== undefined;
+		// hasScore = a genuine POSITIVE score. Used by fluency/readingComp's
+		// dedicated branches below, which already treat 0 the same as
+		// "no score" — that behaviour is intentionally unchanged here.
+		const hasScore = hasRealValue && score > 0;
 
 		// Fluency has no confirmed pass mark.
 		// It is considered passed when entered, and also when its
@@ -702,8 +715,10 @@ const calculateBandScore = (assessment, bandLevel, schLevel) => {
 
 		// Reading Comprehension:
 		// Reading Comprehension is automatically considered passed when
-		// no real score has been recorded. Once an actual score is entered,
-		// it is evaluated against its band's pass mark.
+		// no real score has been recorded, INCLUDING an explicit 0 — this
+		// is unchanged from the existing decision (known data-collection
+		// gap in historical records). Once a genuine positive score is
+		// entered, it is evaluated against its band's pass mark as normal.
 		if (comp.name === "readingComp" && !hasScore) {
 			return {
 				name: comp.name,
@@ -718,9 +733,10 @@ const calculateBandScore = (assessment, bandLevel, schLevel) => {
 			};
 		}
 
-		// Components that have not been scored are still displayed,
-		// but they do not contribute to the score yet.
-		if (!hasScore) {
+		// Genuinely no data entered at all (null/undefined) — every other
+		// component, compulsory or optional, is shown as "not yet scored"
+		// and does not contribute to the total this cycle.
+		if (!hasRealValue) {
 			let passMark = comp.passMark;
 
 			if (passMark && typeof passMark === "object") {
@@ -730,7 +746,7 @@ const calculateBandScore = (assessment, bandLevel, schLevel) => {
 			return {
 				name: comp.name,
 				group: comp.group || null,
-				score: score ?? null,
+				score: null,
 				passMark,
 				weight: comp.weight,
 				passed: null,
@@ -740,13 +756,32 @@ const calculateBandScore = (assessment, bandLevel, schLevel) => {
 			};
 		}
 
-		// Resolve pass mark (may depend on school level).
+		// A real value was entered (could be 0 or a positive number).
 		let passMark = comp.passMark;
-
 		if (passMark && typeof passMark === "object") {
 			passMark = passMark[schLevel] ?? passMark.Primary;
 		}
 
+		// Optional components: an explicit 0 is still treated as blank/
+		// not-taken, matching the existing spreadsheet convention where 0
+		// commonly means "not entered" for these fields.
+		if (score === 0 && comp.optional) {
+			return {
+				name: comp.name,
+				group: comp.group || null,
+				score: null,
+				passMark,
+				weight: comp.weight,
+				passed: null,
+				weightedScore: 0,
+				skipped: false,
+				note: "No score entered",
+			};
+		}
+
+		// Compulsory component with a real recorded value (including an
+		// explicit 0) — evaluate normally. A 0 here is a genuine fail,
+		// not "not taken".
 		const passed = score >= passMark;
 
 		return {
@@ -761,7 +796,21 @@ const calculateBandScore = (assessment, bandLevel, schLevel) => {
 		};
 	});
 
+	// Normalise: any component with passed === null (genuinely no data
+	// this cycle) is marked skipped. This is what the dashboard/Trend
+	// grid UI relies on to show "Not taken" instead of a fail — and it's
+	// also what group weight redistribution below uses to decide which
+	// components were actually administered this cycle.
+	results.forEach((r) => {
+		if (r.name !== "writtenVocab" && r.passed === null) {
+			r.skipped = true;
+		}
+	});
+
 	// Dynamic weight redistribution per group (phonics, writing).
+	// Only components actually scored this cycle (not skipped) share the
+	// group's total weight — an untested slot does not shrink everyone
+	// else's share.
 	if (config.dynamicGroups) {
 		for (const [groupName, groupConfig] of Object.entries(
 			config.dynamicGroups,
@@ -778,9 +827,6 @@ const calculateBandScore = (assessment, bandLevel, schLevel) => {
 
 			groupResults.forEach((r) => {
 				r.weight = weightPerComponent;
-
-				// Only scored components contribute to the weighted score.
-				// Unscored components remain at 0 until a score is entered.
 				r.weightedScore = r.passed === true ? weightPerComponent : 0;
 			});
 		}
@@ -798,7 +844,8 @@ const calculateBandScore = (assessment, bandLevel, schLevel) => {
 		}
 	});
 
-	// Resolve Written Vocab based on writing group outcome.
+	// Resolve Written Vocab based on the writing group outcome — only the
+	// writing components actually taken this cycle need to pass.
 	const writtenVocabRow = results.find((r) => r.name === "writtenVocab");
 
 	if (writtenVocabRow) {

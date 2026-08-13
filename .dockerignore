@@ -1,0 +1,17 @@
+node_modules
+**/node_modules
+
+.env
+**/.env
+
+*.log
+.DS_Store
+
+google-credentials.json
+**/google-credentials.json
+
+.git
+.gitignore
+
+coverage
+dist
