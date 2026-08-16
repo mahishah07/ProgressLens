@@ -1,30 +1,10 @@
-/* =========================================================
-   ERROR DASHBOARD / ERROR ANALYSIS SHARED BASE
-
-   IMPORTANT:
-   ErrorAnswer.css is imported AFTER this file.
-
-   This stylesheet supplies the structural/base classes used
-   by BOTH ErrorDashboard and ErrorAnswer, especially history.
-   ErrorAnswer.css then supplies the final visual overrides.
-   ========================================================= */
-
-
-/* =========================================================
-   GENERAL ANALYSIS SECTION
-   ========================================================= */
-
+/* General Analysis */
 .analysis-upload-section {
 	width: 100%;
 }
 
 
-/* =========================================================
-   BASE ANALYSE BUTTON
-
-   ErrorAnswer.css overrides colours/sizing when inside
-   .sa-upload-card.
-   ========================================================= */
+/* Base Analysis Button */
 
 .analyse-button {
 	margin: 35px auto 0;
@@ -75,15 +55,7 @@
 }
 
 
-/* =========================================================
-   ERROR DASHBOARD SINGLE UPLOAD
-
-   ErrorAnswer:
-   [Student] [Answer Key]
-
-   ErrorDashboard:
-   [        Student        ]
-   ========================================================= */
+/* Single upload */
 
 .ed-single-upload-grid {
 	grid-template-columns:
@@ -98,9 +70,7 @@
 }
 
 
-/* =========================================================
-   HISTORY HEADER
-   ========================================================= */
+/* History Header*/
 
 .history-header {
 	display: flex;
@@ -184,9 +154,7 @@
 }
 
 
-/* =========================================================
-   HISTORY TOOLBAR
-   ========================================================= */
+/* History Toolbar */
 
 .toolbar {
 	display: flex;
@@ -288,9 +256,7 @@
 }
 
 
-/* =========================================================
-   HISTORY GRID
-   ========================================================= */
+/* Histroy grid */
 
 .history-grid {
 	display: grid;
@@ -306,9 +272,7 @@
 }
 
 
-/* =========================================================
-   HISTORY CARD
-   ========================================================= */
+/* History card */
 
 .history-card {
 	position: relative;
@@ -369,9 +333,7 @@
 }
 
 
-/* =========================================================
-   HISTORY CARD HEADER
-   ========================================================= */
+/* History card header */
 
 .history-top {
 	display: flex;
@@ -424,9 +386,7 @@
 }
 
 
-/* =========================================================
-   HISTORY META
-   ========================================================= */
+/* History meta= */
 
 .history-meta-row {
 	display: flex;
@@ -463,9 +423,7 @@
 }
 
 
-/* =========================================================
-   HISTORY INSIGHTS
-   ========================================================= */
+/* History insights */
 
 .history-insights {
 	display: grid;
@@ -551,9 +509,7 @@
 }
 
 
-/* =========================================================
-   AI SUMMARY
-   ========================================================= */
+/* AI summary */
 
 .history-summary-block {
 	margin-top: 14px;
@@ -602,9 +558,7 @@
 }
 
 
-/* =========================================================
-   CARD FOOTER
-   ========================================================= */
+/* Card footer*/
 
 .history-card-footer {
 	display: flex;
@@ -631,11 +585,7 @@
 }
 
 
-/* =========================================================
-   HISTORY BUTTON STRUCTURE
-
-   ErrorAnswer.css overrides final colours.
-   ========================================================= */
+/* History button structure */
 
 .analysis-button,
 .report-button {
@@ -707,9 +657,7 @@
 }
 
 
-/* =========================================================
-   EMPTY FILTER RESULT
-   ========================================================= */
+/* Empty filter result */
 
 .history-empty-state {
 	grid-column: 1 / -1;
@@ -764,9 +712,7 @@
 }
 
 
-/* =========================================================
-   FREE-FORM ACTIVE NAV ITEM
-   ========================================================= */
+/* nav item */
 
 .ea-page
 .sidebar
@@ -790,9 +736,7 @@ nav
 }
 
 
-/* =========================================================
-   RESPONSIVE
-   ========================================================= */
+/* Responsive */
 
 @media (max-width: 1280px) {
 

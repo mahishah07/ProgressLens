@@ -47,9 +47,7 @@ const PMS_API =
   import.meta.env.VITE_PMS_API;
 
 
-/* =========================================================
-   HELPERS
-   ========================================================= */
+/* Helpers */
 
 const studentResults = (payload) =>
   payload?.students ||
@@ -258,9 +256,7 @@ function UploadedFileCard({
 }
 
 
-/* =========================================================
-   SIDEBAR
-   ========================================================= */
+/* Sidebar */
 
 function TeacherSidebar({ studentId }) {
   const encodedId =
@@ -360,9 +356,7 @@ function TeacherSidebar({ studentId }) {
 }
 
 
-/* =========================================================
-   TOPBAR
-   ========================================================= */
+/* Topbar */
 
 function TeacherTopbar({
   studentSearch,
@@ -453,9 +447,7 @@ function TeacherTopbar({
 }
 
 
-/* =========================================================
-   COMPONENT
-   ========================================================= */
+/* Component */
 
 export default function ErrorDashboard() {
   const navigate =
@@ -514,9 +506,7 @@ export default function ErrorDashboard() {
   ] = useState(false);
 
 
-  /* =====================================================
-     FILE STATE
-     ===================================================== */
+  /* File state*/
 
   const studentFileInputRef =
     useRef(null);
@@ -546,9 +536,7 @@ export default function ErrorDashboard() {
   ] = useState(false);
 
 
-  /* =====================================================
-     STUDENT OVERVIEW
-     ===================================================== */
+  /* Student overview */
 
   useEffect(() => {
     if (!id || !PMS_API) {
@@ -622,9 +610,7 @@ export default function ErrorDashboard() {
     "—";
 
 
-  /* =====================================================
-     FILE HANDLERS
-     ===================================================== */
+  /* File handles */
 
   const handleStudentBrowse =
     useCallback(() => {
@@ -772,9 +758,7 @@ export default function ErrorDashboard() {
     }, [studentPreviewURL]);
 
 
-  /* =====================================================
-     STUDENT SEARCH
-     ===================================================== */
+  /* Search student */
 
   const openStudentDashboard =
     async (event) => {
@@ -897,9 +881,7 @@ export default function ErrorDashboard() {
     };
 
 
-  /* =====================================================
-     LOAD HISTORY
-     ===================================================== */
+  /* Load history */
 
   const loadDashboard =
     useCallback(async () => {
@@ -1008,9 +990,7 @@ export default function ErrorDashboard() {
   }, [loadDashboard]);
 
 
-  /* =====================================================
-     ANALYSE
-     ===================================================== */
+  /*Analyse */
 
   const analyzeAssessment =
     async () => {
@@ -1197,9 +1177,7 @@ export default function ErrorDashboard() {
     };
 
 
-  /* =====================================================
-     PREVIEW CLEANUP
-     ===================================================== */
+  /* Clean preview */
 
   useEffect(() => {
 
@@ -1216,9 +1194,7 @@ export default function ErrorDashboard() {
   }, [studentPreviewURL]);
 
 
-  /* =====================================================
-     HISTORY FILTERS
-     ===================================================== */
+  /* Filters history */
 
   const analysedHistory =
     history
@@ -1411,9 +1387,7 @@ export default function ErrorDashboard() {
       });
 
 
-  /* =====================================================
-     RENDER
-     ===================================================== */
+  /* Render */
 
   return (
     <div className="eo-page ea-page">

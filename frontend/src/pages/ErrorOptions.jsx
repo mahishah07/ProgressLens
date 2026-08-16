@@ -148,6 +148,7 @@ function TeacherTopbar({
 }
 
 export default function ErrorOptions() {
+<<<<<<< Updated upstream
 	const { id } = useParams();
 	const navigate = useNavigate();
 
@@ -157,6 +158,347 @@ export default function ErrorOptions() {
 
 	const [studentSearch, setStudentSearch] = useState("");
 	const [studentSearching, setStudentSearching] = useState(false);
+=======
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const [overview, setOverview] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const [studentSearch, setStudentSearch] = useState("");
+  const [studentSearching, setStudentSearching] = useState(false);
+
+  // Fetch student overview from backend
+  useEffect(() => {
+    if (!id) return;
+
+    const controller = new AbortController();
+
+    const loadOverview = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await fetch(
+          `${PMS_API}/api/progress/${encodeURIComponent(id)}/overview`,
+          {
+            signal: controller.signal,
+          },
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || data.message) {
+          throw new Error(
+            data.message || "Unable to load student information.",
+          );
+        }
+
+        setOverview(data);
+      } catch (err) {
+        if (err.name !== "AbortError") {
+          console.error("Unable to load student overview:", err);
+          setError(err.message);
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadOverview();
+
+    return () => controller.abort();
+  }, [id]);
+
+  // Helpers
+  const formatDate = (date) => {
+    if (!date) return "No assessment yet";
+
+    return new Date(date).toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  const studentId = overview?.student?.studentId;
+
+  const currentBand =
+    overview?.latestNewBand ||
+    overview?.currentBandLevel ||
+    "—";
+
+  const centre =
+    overview?.student?.centreId ||
+    overview?.student?.centre ||
+    overview?.centreId ||
+    overview?.centre ||
+    "—";
+
+  // Navigation
+  const openStudentDashboard = async (event) => {
+  event.preventDefault();
+
+  const query = studentSearch.trim();
+
+  if (!query) return;
+
+  setStudentSearching(true);
+
+  try {
+    let profiles = [];
+
+    // Search error analyser database
+    if (ERROR_API) {
+      const response = await fetch(
+        `${ERROR_API}/api/students?q=${encodeURIComponent(query)}`
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        profiles =
+          data?.students ||
+          data?.data ||
+          [];
+      }
+    }
+
+
+    // Fall back to pms directory
+    if (profiles.length === 0) {
+      const response = await fetch(
+        `${PMS_API}/api/progress/search?studentId=${encodeURIComponent(
+          query
+        )}`
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            "Unable to search the student directory."
+        );
+      }
+
+      profiles = Array.isArray(data)
+        ? data
+        : [];
+    }
+
+
+    // Find best match
+    const normalised =
+      query.toLowerCase();
+
+    const profile =
+      profiles.find((student) => {
+        const fullName = [
+          student.firstName,
+          student.lastName,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+
+        return (
+          student.studentId?.toLowerCase() ===
+            normalised ||
+          student.name?.toLowerCase() ===
+            normalised ||
+          fullName === normalised
+        );
+      }) || profiles[0];
+
+
+    if (!profile?.studentId) {
+      alert(`No student found for “${query}”.`);
+      return;
+    }
+
+
+    setStudentSearch("");
+
+    navigate(
+      `/error-options/${encodeURIComponent(
+        profile.studentId
+      )}`
+    );
+
+  } catch (error) {
+    alert(error.message);
+  } finally {
+    setStudentSearching(false);
+  }
+};
+
+  const openWithAnswerKey = () => {
+    navigate(`/error-answer/${encodeURIComponent(id)}`);
+  };
+
+  const openWithoutAnswerKey = () => {
+    navigate(`/error-dashboard/${encodeURIComponent(id)}`);
+  };
+
+
+  // Loading / error
+  if (loading) {
+    return (
+      <div className="eo-page">
+        <main className="eo-main">
+          <div className="eo-state-card">
+            <div className="eo-loading-spinner" />
+
+            <h3>Loading student profile</h3>
+
+            <p>
+              Retrieving the latest student information...
+            </p>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="eo-page">
+        <main className="eo-main">
+          <div className="eo-state-card eo-error-state">
+            <h3>Unable to load student</h3>
+
+            <p>{error}</p>
+
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              className="eo-state-back"
+            >
+              <ArrowLeft size={17} />
+              Go Back
+            </button>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // Page
+  return (
+    <div className="eo-page">
+      <TeacherSidebar studentId={studentId} />
+      <main className="eo-main">
+        <TeacherTopbar
+          studentSearch={studentSearch}
+          setStudentSearch={setStudentSearch}
+          studentSearching={studentSearching}
+          onStudentSearch={openStudentDashboard}
+        />
+        <div className="eo-content">
+
+          {/* Student profile */}
+          <section className="eo-profile-card">
+            <div className="eo-student-icon">
+              <UserRound size={29} />
+            </div>
+
+            <div className="eo-profile-info">
+
+              <h1>{studentId}</h1>
+            </div>
+
+            <div className="eo-profile-meta">
+              
+              {/* Last assessment */}
+              <div className="eo-meta-item">
+                <div className="eo-meta-icon">
+                  <CalendarDays size={17} />
+                </div>
+
+                <div>
+                  <span className="eo-meta-label">Last Assessment</span>
+                  <span className="eo-meta-value">
+                    {formatDate(overview?.lastAssessmentDate)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Band */}
+              <div className="eo-meta-item">
+                <div className="eo-meta-icon">
+                  <GraduationCap size={17} />
+                </div>
+
+                <div>
+                  <span className="eo-meta-label">Assigned Band</span>
+                  <span className="eo-meta-value eo-band">{currentBand}</span>
+                </div>
+              </div>
+
+              {/* Centre */}
+                <div className="eo-meta-item">
+
+                  <div className="eo-meta-icon">
+                    <BriefcaseBusiness size={17} />
+                  </div>
+
+                  <div>
+                    <span className="eo-meta-label">
+                      Centre
+                    </span>
+
+                    <span className="eo-meta-value">
+                      {centre}
+                    </span>
+                  </div>
+
+                </div>
+                </div>
+              </section>
+
+          {/* Intro */}
+          <section className="eo-section-heading">
+            <div>
+              <span className="eo-eyebrow">
+                ERROR ANALYSIS
+              </span>
+
+              <h2>Choose an analysis method</h2>
+
+              <p>
+                Select the workflow that matches the assessment.
+              </p>
+            </div>
+          </section>
+
+          {/* Options */}
+          <section className="eo-options">
+
+            {/* With answer key */}
+            <article
+              className="eo-option-card eo-option-key"
+              onClick={openWithAnswerKey}
+            >
+              <div className="eo-card-accent" />
+
+              <div className="eo-option-header">
+
+                <div className="eo-option-icon eo-key-icon">
+                  <FileCheck2 size={28} />
+                </div>
+
+                <span className="eo-card-type">
+                  ANSWER KEY REQUIRED
+                </span>
+
+              </div>
+
+              <div className="eo-option-content">
+>>>>>>> Stashed changes
 
 	// ==========================================
 	// FETCH STUDENT OVERVIEW FROM BACKEND
@@ -179,6 +521,7 @@ export default function ErrorOptions() {
 					},
 				);
 
+<<<<<<< Updated upstream
 				const data = await response.json();
 
 				if (!response.ok || data.message) {
@@ -567,3 +910,124 @@ export default function ErrorOptions() {
 		</div>
 	);
 }
+=======
+              <div className="eo-feature-list">
+
+                <span>
+                  <CheckCircle2 size={16} />
+                  Student and answer-key comparison
+                </span>
+
+                <span>
+                  <CheckCircle2 size={16} />
+                  Structured error analysis
+                </span>
+
+              </div>
+
+              <button
+                type="button"
+                className="eo-option-btn eo-key-btn"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  openWithAnswerKey();
+                }}
+              >
+                Start analysis
+                <span className="eo-button-arrow">
+                  →
+                </span>
+              </button>
+
+              <FileCheck2
+                className="eo-background-icon"
+                size={185}
+              />
+
+            </article>
+
+            {/* W/o answer key */}
+            <article
+              className="eo-option-card eo-option-free"
+              onClick={openWithoutAnswerKey}
+            >
+              <div className="eo-card-accent" />
+
+              <div className="eo-option-header">
+
+                <div className="eo-option-icon eo-free-icon">
+                  <BarChart3 size={28} />
+                </div>
+
+                <span className="eo-card-type">
+                  NO ANSWER KEY
+                </span>
+
+              </div>
+
+              <div className="eo-option-content">
+
+                <h3>
+                  Free-Form Analysis
+                </h3>
+
+                <p>
+                  Analyse open-ended writing for recurring
+                  literacy and writing error patterns.
+                </p>
+
+              </div>
+
+              <div className="eo-feature-list">
+
+                <span>
+                  <CheckCircle2 size={16} />
+                  Writing-pattern detection
+                </span>
+
+                <span>
+                  <CheckCircle2 size={16} />
+                  Educator-focused insights
+                </span>
+
+              </div>
+
+              <button
+                type="button"
+                className="eo-option-btn eo-free-btn"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  openWithoutAnswerKey();
+                }}
+              >
+                Start analysis
+                <span className="eo-button-arrow">
+                  →
+                </span>
+              </button>
+
+              <BarChart3
+                className="eo-background-icon"
+                size={185}
+              />
+
+            </article>
+          </section>
+
+          {/* Back */}
+          <div className="eo-back-bar">
+            <button
+              type="button"
+              className="eo-back-btn"
+              onClick={() => navigate(-1)}
+            >
+              <ArrowLeft size={16} />
+              Back to Student Progress
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+>>>>>>> Stashed changes

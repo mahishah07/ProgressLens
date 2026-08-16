@@ -13,16 +13,22 @@ import {
 
 const API = import.meta.env.VITE_PMS_API;
 
+// Page state
 export default function Landing() {
 	const [students, setStudents] = useState([]);
 	const [centres, setCentres] = useState([]);
+
 	const [selectedCentre, setSelectedCentre] = useState("");
 	const [searchInput, setSearchInput] = useState("");
 	const [search, setSearch] = useState("");
+
 	const [page, setPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
+
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
+
+	// Registration modal state
 	const [showModal, setShowModal] = useState(false);
 	const [form, setForm] = useState({
 		semester: "",
@@ -38,8 +44,10 @@ export default function Landing() {
 	const [saving, setSaving] = useState(false);
 	const [saveError, setSaveError] = useState(null);
 
+	// Search debounce
 	useEffect(() => {
 		const timer = setTimeout(() => {
+			// Avoid querying on very short partial IDs
 			if (searchInput.length >= 4 || searchInput.length === 0) {
 				setSearch(searchInput.trim());
 			}
@@ -93,6 +101,7 @@ export default function Landing() {
 		loadStudents();
 	}, [search, selectedCentre, page]);
 
+	// Registration form
 	const handleFormChange = (e) => {
 		setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 	};
@@ -160,7 +169,7 @@ export default function Landing() {
 					</nav>
 				</aside>
 
-				{/* Main */}
+				{/* Main Content */}
 				<main className="main-content">
 					<header className="topbar">
 						<div className="topbar-brand">
@@ -314,7 +323,8 @@ export default function Landing() {
 					</section>
 				</main>
 			</div>
-
+			
+			{/* Register student modal */}
 			{showModal && (
 				<div className="modal-overlay" onClick={() => setShowModal(false)}>
 					<div className="modal-box" onClick={(e) => e.stopPropagation()}>
