@@ -13,7 +13,6 @@ import {
 	Bell,
 	Settings,
 	Printer,
-	Share2,
 	Search,
 	BriefcaseBusiness,
 	ArrowLeft,
@@ -361,21 +360,6 @@ export default function ProgressReport() {
 
 	const handleExportPDF = () => {
 		window.print();
-	};
-
-	const handleShare = async () => {
-		const shareData = {
-			title: "DAS Progress Report",
-			text: `Progress report for student ${studentId}`,
-			url: window.location.href,
-		};
-
-		if (navigator.share) {
-			await navigator.share(shareData);
-			return;
-		}
-
-		await navigator.clipboard.writeText(window.location.href);
 	};
 
 	const lastUpdated = useMemo(() => {

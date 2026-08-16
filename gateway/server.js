@@ -1,5 +1,9 @@
 const path = require("path");
-require("dotenv").config({ path: path.join(__dirname, "../.env"), override: true });
+require("dotenv").config({
+  path: path.join(__dirname, "../.env"),
+  override: false,
+  quiet: process.env.NODE_ENV === "test",
+});
 const http = require("http");
 const https = require("https");
 const crypto = require("crypto");
@@ -74,8 +78,9 @@ function createStreamingProxy({
 }
 
 function createGatewayApp(options = {}) {
-  const progressTarget = options.progressTarget || process.env.PROGRESS_API_URL || "http://127.0.0.1:5001";
-  const errorAnalyserTarget = options.errorAnalyserTarget || process.env.ERROR_ANALYSER_API_URL || "http://127.0.0.1:5002";
+  const env = options.env || process.env;
+  const progressTarget = options.progressTarget || env.PROGRESS_API_URL || "http://127.0.0.1:5001";
+  const errorAnalyserTarget = options.errorAnalyserTarget || env.ERROR_ANALYSER_API_URL || "http://127.0.0.1:5002";
   const proxyTimeoutMs = options.proxyTimeoutMs ?? options.timeoutMs ?? 120000;
   const app = express();
 
@@ -84,10 +89,12 @@ function createGatewayApp(options = {}) {
     req.requestId = req.headers["x-request-id"] || crypto.randomUUID();
     res.setHeader("X-Request-Id", req.requestId);
     const startedAt = Date.now();
-    res.on("finish", () => console.log(`${req.method} ${req.originalUrl} ${res.statusCode} ${Date.now() - startedAt}ms ${req.requestId}`));
+    if (env.NODE_ENV !== "test") {
+      res.on("finish", () => console.log(`${req.method} ${req.originalUrl} ${res.statusCode} ${Date.now() - startedAt}ms ${req.requestId}`));
+    }
     next();
   });
-  app.use(cors(createCorsOptions(options.env || process.env)));
+  app.use(cors(createCorsOptions(env)));
   app.get("/health", async (req, res) => {
     const [progressMonitoring, errorAnalyser] = await Promise.all([
       requestServiceHealth(progressTarget, "/"),

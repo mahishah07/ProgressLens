@@ -16,7 +16,9 @@
     "dev:pms": "nodemon backendpms/server.js",
     "dev:error-analyser": "nodemon backend/src/server.js",
     "demo:answer-key": "node scripts/demo-answer-key.js",
-    "test": "cross-env NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --runInBand",
+    "test": "node scripts/run-tests.js",
+    "test:bert": "cross-env NODE_ENV=test RUN_BERT_EVALUATION=true jest backend/tests/interventionRecommendation.bert.test.js --runInBand --detectOpenHandles",
+    "test:frontend": "npm --prefix frontend test",
     "test:e2e:pms": "playwright test --config=playwright.pms.config.js"
   },
   "dependencies": {
@@ -38,6 +40,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@huggingface/transformers": "^3.8.1",
     "@playwright/test": "^1.55.0",
     "cross-env": "^7.0.3",
     "jest": "^30.4.2",
@@ -48,7 +51,8 @@
   "jest": {
     "testPathIgnorePatterns": [
       "/node_modules/",
-      "/e2e/"
+      "/e2e/",
+      "/frontend/"
     ],
     "moduleNameMapper": {
       "^mime-types$": "<rootDir>/node_modules/mime-types/index.js"

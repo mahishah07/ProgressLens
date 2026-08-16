@@ -66,7 +66,9 @@ exports.generateRecommendations = async (req, res) => {
 
 		res.json({ status: "ok", recommendations });
 	} catch (err) {
-		console.error("AI recommendations provider request failed");
+		if (process.env.NODE_ENV !== "test") {
+			console.error("AI recommendations provider request failed");
+		}
 		res.status(500).json({ message: "Unable to generate recommendations" });
 	}
 };

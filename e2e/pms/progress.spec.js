@@ -70,7 +70,7 @@ test("E2E-008 browser: educator opens a student and views chronological progress
 	await expect(page.getByText("15 Jul 2026")).toBeVisible();
 	await expect(page.getByText("B5", { exact: true })).toBeVisible();
 
-	await page.getByRole("button", { name: /View Student Profile/i }).click();
+	await page.getByRole("button", { name: /View Progress Dashboard/i }).click();
 	await expect(page.getByRole("heading", { name: "Assessment History" })).toBeVisible();
 	await expect(page.getByRole("cell", { name: "2026 Sem 2" })).toBeVisible();
 	await expect(page.getByRole("cell", { name: "95%" })).toBeVisible();

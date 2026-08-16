@@ -5,7 +5,6 @@ import {
   vi,
 } from "vitest";
 
-import React from "react";
 import {
   render,
   screen,
@@ -18,16 +17,22 @@ import {
 } from "react-router-dom";
 import StudentProgress from "../src/pages/StudentProgress";
 
+vi.mock("react-chartjs-2", () => ({
+  Bar: () => <div role="img" aria-label="bar chart" />,
+  Line: () => <div role="img" aria-label="line chart" />,
+  Radar: () => <div role="img" aria-label="radar chart" />,
+}));
+
 function renderPage() {
   return render(
     <MemoryRouter
       initialEntries={[
-        "/progress/DAS-001",
+        "/student/DAS-001?view=dashboard",
       ]}
     >
       <Routes>
         <Route
-          path="/progress/:studentId"
+          path="/student/:id"
           element={<StudentProgress />}
         />
       </Routes>
@@ -42,10 +47,45 @@ function mockFetch(
 ) {
   const fetchMock = vi
     .fn()
-    .mockResolvedValue({
-      ok,
-      status,
-      json: async () => data,
+    .mockImplementation(async (input) => {
+      const url = String(input);
+
+      if (url.endsWith("/overview")) {
+        if (!ok) {
+          return {
+            ok,
+            status,
+            json: async () => ({
+              message: data.error || "Unable to load progress",
+            }),
+          };
+        }
+
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            student: data.student,
+            currentBandLevel: data.currentBandLevel,
+            latestNewBand: data.latestAssessment?.newBand,
+            hasAssessments: data.assessmentHistory?.length > 0,
+          }),
+        };
+      }
+
+      if (url.endsWith("/dashboard-summary")) {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({ summary: "Improving steadily" }),
+        };
+      }
+
+      return {
+        ok,
+        status,
+        json: async () => data,
+      };
     });
 
   vi.stubGlobal("fetch", fetchMock);
@@ -54,34 +94,53 @@ function mockFetch(
 }
 
 const dashboard = {
-  success: true,
-  data: {
-    student: {
-      studentId: "DAS-001",
-      name: "Test Student",
-      currentLevel: "B5",
-    },
-    latestAssessment: {
-      assessmentId: "A2",
-      overallScore: 78,
-    },
-    assessments: [
-      {
-        assessmentId: "A1",
-        overallScore: 65,
-        levelAchieved: "B4",
-      },
-      {
-        assessmentId: "A2",
-        overallScore: 78,
-        levelAchieved: "B5",
-      },
-    ],
-    skillBreakdown: {
+  status: "ok",
+  student: {
+    studentId: "DAS-001",
+    name: "Test Student",
+  },
+  currentBandLevel: "B5",
+  latestAssessment: {
+    semester: "A2",
+    newBand: "B5",
+    weightedScore: 78,
+    skillScores: {
       phonics: 80,
       spelling: 75,
       comprehension: 79,
     },
+  },
+  bandScore: {
+    totalScore: 78,
+    passed: false,
+    componentResults: [],
+  },
+  progressOverTime: [
+    { semester: "A1", weightedScore: 65 },
+    { semester: "A2", weightedScore: 78 },
+  ],
+  componentTrend: [],
+  assessmentHistory: [
+    {
+      assessmentDate: "2026-01-01T00:00:00.000Z",
+      semester: "A1",
+      summaryBand: "B4",
+      newBand: "B4",
+      weightedScore: 65,
+      assessedBy: "Teacher 1",
+    },
+    {
+      assessmentDate: "2026-06-01T00:00:00.000Z",
+      semester: "A2",
+      summaryBand: "B4",
+      newBand: "B5",
+      weightedScore: 78,
+      assessedBy: "Teacher 1",
+    },
+  ],
+  skillBreakdown: {
+    strongest: "phonics",
+    weakest: "spelling",
   },
 };
 
@@ -91,10 +150,12 @@ describe("Student Progress", () => {
 
     renderPage();
 
+    await screen.findByRole("heading", {
+      name: "Assessment History",
+    });
+
     expect(
-      await screen.findByText(
-        /DAS-001|Test Student/i
-      )
+      screen.getByRole("heading", { name: "DAS-001" })
     ).toBeInTheDocument();
 
     expect(
@@ -120,24 +181,22 @@ describe("Student Progress", () => {
 
   test("handles student with no assessments", async () => {
     mockFetch({
-      success: true,
-      data: {
-        student: {
-          studentId: "DAS-001",
-          name: "New Student",
-        },
-        latestAssessment: null,
-        assessments: [],
-        skillBreakdown: {},
+      status: "assessment_pending",
+      student: {
+        studentId: "DAS-001",
+        name: "New Student",
       },
+      assessmentHistory: [],
     });
 
     renderPage();
 
+    await screen.findByText(
+      /No assessments have been recorded/i
+    );
+
     expect(
-      await screen.findByText(
-        /DAS-001|New Student/i
-      )
+      screen.getByRole("heading", { name: "DAS-001" })
     ).toBeInTheDocument();
 
     expect(
@@ -147,20 +206,23 @@ describe("Student Progress", () => {
 
   test("does not render NaN when scores are missing", async () => {
     mockFetch({
-      success: true,
-      data: {
-        student: {
-          studentId: "DAS-001",
-        },
-        latestAssessment: null,
-        assessments: [
-          {
-            assessmentId: "A1",
-            overallScore: null,
-          },
-        ],
-        skillBreakdown: {},
+      status: "ok",
+      student: {
+        studentId: "DAS-001",
       },
+      currentBandLevel: "B4",
+      latestAssessment: {
+        semester: "A1",
+        weightedScore: null,
+        skillScores: {},
+      },
+      progressOverTime: [{ semester: "A1", weightedScore: null }],
+      componentTrend: [],
+      assessmentHistory: [{
+        semester: "A1",
+        weightedScore: null,
+      }],
+      skillBreakdown: {},
     });
 
     renderPage();
@@ -185,15 +247,7 @@ describe("Student Progress", () => {
 
     renderPage();
 
-    await waitFor(() => {
-      expect(
-        document.body
-      ).toBeInTheDocument();
-    });
-
-    expect(
-      document.body.textContent
-    ).not.toContain("NaN");
+    expect(await screen.findByText("Unable to load progress")).toBeInTheDocument();
   });
 
   test("handles network rejection", async () => {
@@ -206,10 +260,6 @@ describe("Student Progress", () => {
 
     renderPage();
 
-    await waitFor(() => {
-      expect(
-        document.body
-      ).toBeInTheDocument();
-    });
+    expect(await screen.findByText("Network failure")).toBeInTheDocument();
   });
 });

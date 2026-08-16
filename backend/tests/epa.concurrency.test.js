@@ -97,6 +97,9 @@ function openAiResultFor(errors, correctedText = "The dog ran home.") {
 beforeAll(async () => {
   replSet = await MongoMemoryReplSet.create({ replSet: { count: 1 } });
   await mongoose.connect(replSet.getUri(), { dbName: "progresslens-epa-concurrency" });
+  // `unique: true` declares a MongoDB index; it is not a synchronous
+  // Mongoose validator. Wait for that index before racing the two requests.
+  await StudentProfile.syncIndexes();
 });
 
 beforeEach(async () => {

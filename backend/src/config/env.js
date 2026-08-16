@@ -1,5 +1,9 @@
 const path = require("path");
-require("dotenv").config({ path: path.join(__dirname, "../../.env"), override: true });
+require("dotenv").config({
+  path: path.join(__dirname, "../../.env"),
+  override: false,
+  quiet: process.env.NODE_ENV === "test",
+});
 module.exports = {
   port: process.env.PORT || 5002,
   nodeEnv: process.env.NODE_ENV || "development",

@@ -38,7 +38,7 @@ function App() {
 				path="/answer-report/:reportId"
 				element={<AnswerDiagnosticReport />}
 			/>
-			<Route path="/student/:id/add-assessment" element={<AddAssessment />} />"
+			<Route path="/student/:id/add-assessment" element={<AddAssessment />} />
 		</Routes>
 	);
 }

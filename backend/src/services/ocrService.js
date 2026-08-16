@@ -126,10 +126,12 @@ async function extractDocument(source) {
   };
 }
 catch (error) {
-  console.error(
+  if (process.env.NODE_ENV !== "test") {
+    console.error(
       "Azure OCR failed:",
       error?.message || error
     );
+  }
 
     throw createOcrServiceError(
       "Document OCR service is currently unavailable."

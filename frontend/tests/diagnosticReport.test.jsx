@@ -5,7 +5,6 @@ import {
   vi,
 } from "vitest";
 
-import React from "react";
 import {
   render,
   screen,
@@ -22,12 +21,12 @@ function renderPage() {
   return render(
     <MemoryRouter
       initialEntries={[
-        "/diagnostic-report/report-1",
+        "/error-report/report-1",
       ]}
     >
       <Routes>
         <Route
-          path="/diagnostic-report/:reportId"
+          path="/error-report/:reportId"
           element={<DiagnosticReport />}
         />
       </Routes>
@@ -42,10 +41,31 @@ function mockFetch(
 ) {
   const fetchMock = vi
     .fn()
-    .mockResolvedValue({
-      ok,
-      status,
-      json: async () => data,
+    .mockImplementation(async (input) => {
+      const url = String(input);
+
+      if (url.includes("/api/reports/")) {
+        return {
+          ok,
+          status,
+          json: async () => data,
+        };
+      }
+
+      if (url.includes("/api/students/")) {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            studentId: "DAS-001",
+            centreId: "Bedok",
+            schLevel: "Secondary",
+            summaryBand: "B5",
+          }),
+        };
+      }
+
+      throw new Error(`Unhandled request in DiagnosticReport test: ${url}`);
     });
 
   vi.stubGlobal("fetch", fetchMock);
@@ -63,6 +83,10 @@ const analysedReport = {
     },
     expectedText:
       "The dog went home at night.",
+    writingSample: {
+      cleanedText: "The bog went home at nite.",
+      createdAt: "2026-08-01T00:00:00.000Z",
+    },
     errors: [
       {
         _id: "error-1",
@@ -115,7 +139,7 @@ const analysedReport = {
 };
 
 describe("Diagnostic Report", () => {
-  test("renders corrected error information", async () => {
+  test("renders the original and corrected writing samples", async () => {
     mockFetch(analysedReport);
 
     renderPage();
@@ -142,11 +166,11 @@ describe("Diagnostic Report", () => {
 
     renderPage();
 
-    expect(
-      await screen.findByText(
-        /Practise sound and letter mapping/i
-      )
-    ).toBeInTheDocument();
+    const summaries = await screen.findAllByText(
+      /Practise sound and letter mapping/i
+    );
+
+    expect(summaries).toHaveLength(2);
 
     expect(
       screen.getByText(/Word mapping/i)
@@ -224,6 +248,8 @@ describe("Diagnostic Report", () => {
   });
 
   test("handles report API failure without false success state", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
     mockFetch(
       {
         success: false,
@@ -236,16 +262,14 @@ describe("Diagnostic Report", () => {
 
     renderPage();
 
-    await waitFor(() => {
-      expect(
-        document.body
-      ).toBeInTheDocument();
-    });
+    expect(
+      await screen.findByRole("heading", {
+        name: "Unable to Load Report",
+      })
+    ).toBeInTheDocument();
 
     expect(
-      screen.queryByText(
-        /Practise sound and letter mapping/i
-      )
-    ).not.toBeInTheDocument();
+      screen.getByText("Unable to load diagnostic report")
+    ).toBeInTheDocument();
   });
 });

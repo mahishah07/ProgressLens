@@ -5,13 +5,10 @@ import {
   vi,
 } from "vitest";
 
-import React from "react";
 import {
   render,
   screen,
-  waitFor,
 } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import {
   MemoryRouter,
   Route,
@@ -28,7 +25,7 @@ function renderPage() {
     >
       <Routes>
         <Route
-          path="/error-dashboard/:studentId"
+          path="/error-dashboard/:id"
           element={<ErrorDashboard />}
         />
       </Routes>
@@ -41,7 +38,51 @@ function mockFetchImplementation(
 ) {
   const fetchMock = vi
     .fn()
-    .mockImplementation(implementation);
+    .mockImplementation(async (input) => {
+      const result = await implementation(input);
+      const payload = await result.json();
+      const url = String(input);
+
+      if (url.endsWith("/overview")) {
+        return {
+          ok: result.ok,
+          status: result.status,
+          json: async () => ({
+            student: payload.student,
+            currentBandLevel: "B4",
+            latestNewBand: "B5",
+            lastAssessmentDate: "2026-08-01T00:00:00.000Z",
+          }),
+        };
+      }
+
+      if (url.includes("/reports")) {
+        return {
+          ok: result.ok,
+          status: result.status,
+          json: async () => ({
+            data: (payload.reports || []).map((report) => ({
+              reviewStatus: "finalised",
+              writingSample: {
+                originalName: "Narrative writing.pdf",
+                mimeType: "application/pdf",
+                fileSize: 1024,
+                status: "analysed",
+              },
+              ...report,
+            })),
+          }),
+        };
+      }
+
+      return {
+        ok: result.ok,
+        status: result.status,
+        json: async () => ({
+          data: payload.student ? [payload.student] : [],
+        }),
+      };
+    });
 
   vi.stubGlobal("fetch", fetchMock);
 
@@ -101,11 +142,11 @@ describe("Error Dashboard", () => {
 
     renderPage();
 
-    await waitFor(() => {
-      expect(
-        document.body
-      ).toBeInTheDocument();
-    });
+    expect(
+      await screen.findByRole("heading", {
+        name: "Assignment History",
+      })
+    ).toBeInTheDocument();
 
     expect(
       document.body.textContent
@@ -129,11 +170,14 @@ describe("Error Dashboard", () => {
 
     renderPage();
 
-    await waitFor(() => {
-      expect(
-        document.body
-      ).toBeInTheDocument();
-    });
+    expect(
+      await screen.findByRole("heading", {
+        name: "Upload Assignment",
+      })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: "Assignment History" })
+    ).not.toBeInTheDocument();
   });
 
   test("handles backend failure without rendering false success data", async () => {
@@ -151,16 +195,20 @@ describe("Error Dashboard", () => {
 
     renderPage();
 
-    await waitFor(() => {
-      expect(
-        screen.queryByText(
-          /analysis complete/i
-        )
-      ).not.toBeInTheDocument();
-    });
+    expect(
+      await screen.findByRole("heading", {
+        name: "Upload Assignment",
+      })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: "Assignment History" })
+    ).not.toBeInTheDocument();
   });
 
   test("does not crash when API request rejects completely", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+
     mockFetchImplementation(
       async () => {
         throw new Error(
@@ -171,10 +219,10 @@ describe("Error Dashboard", () => {
 
     renderPage();
 
-    await waitFor(() => {
-      expect(
-        document.body
-      ).toBeInTheDocument();
-    });
+    expect(
+      await screen.findByRole("heading", {
+        name: "Upload Assignment",
+      })
+    ).toBeInTheDocument();
   });
 });

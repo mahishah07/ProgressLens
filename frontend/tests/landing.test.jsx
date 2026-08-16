@@ -1,4 +1,3 @@
-import React from "react";
 import {
   describe,
   test,
@@ -36,13 +35,13 @@ function setupSuccessfulFetch() {
     {
       _id: "student-1",
       studentId: "DAS-001",
-      centre: "Bedok",
+      centreId: "Bedok",
       name: "Student One",
     },
     {
       _id: "student-2",
       studentId: "DAS-002",
-      centre: "Bishan",
+      centreId: "Bishan",
       name: "Student Two",
     },
   ];
@@ -101,7 +100,7 @@ function setupSuccessfulFetch() {
         filteredStudents =
           filteredStudents.filter(
             (student) =>
-              student.centre === centre
+              student.centreId === centre
           );
       }
 
@@ -206,23 +205,23 @@ describe("Landing page", () => {
   ).toBeInTheDocument();
 });
 
-test("renders the Google Sheets link", async () => {
+test("renders the student dashboard link", async () => {
   setupSuccessfulFetch();
 
   renderPage();
 
-  const link = screen.getByRole("link", {
-    name: /Open Google Sheets/i,
+  const links = await screen.findAllByRole("link", {
+    name: /View Dashboard/i,
   });
+
+  const [link] = links;
 
   expect(link).toBeInTheDocument();
 
   expect(link).toHaveAttribute(
-    "target",
-    "_blank"
+    "href",
+    "/student/student-1"
   );
-
-  await screen.findByText("DAS-001");
 });
 
   test("renders students returned by the API", async () => {
@@ -323,28 +322,12 @@ test("allows teacher to select a centre filter", async () => {
           return response([]);
         }
 
-        return response(
-          {
-            error:
-              "Unable to load students",
-          },
-          false,
-          500
-        );
+        throw new Error("Unable to load students");
       })
     );
 
     renderPage();
 
-    await waitFor(() => {
-      expect(
-        screen.getByRole(
-          "heading",
-          {
-            name: "Class Overview",
-          }
-        )
-      ).toBeInTheDocument();
-    });
+    expect(await screen.findByText(/Failed to load students/i)).toBeInTheDocument();
   });
 });
