@@ -115,11 +115,14 @@ const recommendationSchema = z.object({
 
 const reportAnalysisSchema = z.object({
   correctedText: z.string().min(1),
-  corrections: z.array(z.object({
-    errorId: z.string(),
-    expectedCorrection: z.string(),
-    explanation: z.string(),
-  })),
+
+  corrections: z.array(
+    z.object({
+      errorId: z.string().min(1),
+      expectedCorrection: z.string().min(1),
+      explanation: z.string().min(1),
+    })
+  ),
   grammarErrors: z.array(z.object({
     category: z.enum(["Tense", "Grammar"]),
     actual: z.string().min(1),

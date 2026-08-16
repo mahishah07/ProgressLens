@@ -1068,34 +1068,35 @@ const studentCentre =
   }, [id]);
 
 
-  useEffect(() => {
-    let cancelled = false;
-    const timer = window.setTimeout(() => {
-      if (cancelled) return;
-      void loadDashboard();
-    }, 0);
+useEffect(() => {
+  let cancelled = false;
 
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timer);
+  const timer = window.setTimeout(() => {
+    if (cancelled) return;
+    void loadDashboard();
+  }, 0);
 
-      if (studentPreviewURL) {
-        URL.revokeObjectURL(
-          studentPreviewURL,
-        );
-      }
+  return () => {
+    cancelled = true;
+    window.clearTimeout(timer);
+  };
+}, [loadDashboard]);
 
-      if (answerKeyPreviewURL) {
-        URL.revokeObjectURL(
-          answerKeyPreviewURL,
-        );
-      }
-    };
-  }, [
-    loadDashboard,
-    studentPreviewURL,
-    answerKeyPreviewURL,
-  ]);
+useEffect(() => {
+  return () => {
+    if (studentPreviewURL) {
+      URL.revokeObjectURL(studentPreviewURL);
+    }
+  };
+}, [studentPreviewURL]);
+
+useEffect(() => {
+  return () => {
+    if (answerKeyPreviewURL) {
+      URL.revokeObjectURL(answerKeyPreviewURL);
+    }
+  };
+}, [answerKeyPreviewURL]);
 
 
   /* =====================================================
