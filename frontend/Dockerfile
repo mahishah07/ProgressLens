@@ -2,6 +2,12 @@ FROM node:22-alpine AS build
 WORKDIR /app
 COPY frontend/package*.json ./
 RUN npm install
+
+ARG VITE_PMS_API
+ARG VITE_ERROR_API
+ENV VITE_PMS_API=$VITE_PMS_API
+ENV VITE_ERROR_API=$VITE_ERROR_API
+
 COPY frontend/ .
 RUN npm run build
 
