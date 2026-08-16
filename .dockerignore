@@ -15,3 +15,5 @@ google-credentials.json
 
 coverage
 dist
+
+!frontend/.env

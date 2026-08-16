@@ -71,7 +71,7 @@ export default function DiagnosticReport() {
 				}
 
 				const reportResponse = await fetch(
-					`${ERROR_API}/api/reports/${reportId}`
+					`${ERROR_API}/reports/${reportId}`
 				);
 
 				const reportJson = await reportResponse.json();

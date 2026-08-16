@@ -571,7 +571,7 @@ export default function ErrorAnswerAnalysis() {
 
 				const response =
 					await fetch(
-						`${API}/api/students?q=${encodeURIComponent(
+						`${API}/students?q=${encodeURIComponent(
 							query
 						)}`
 					);
@@ -727,7 +727,7 @@ export default function ErrorAnswerAnalysis() {
 
 					const response =
 						await fetch(
-							`${API}/api/reports/${reportId}`
+							`${API}/reports/${reportId}`
 						);
 
 

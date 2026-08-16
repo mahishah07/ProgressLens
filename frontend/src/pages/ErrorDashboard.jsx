@@ -798,7 +798,7 @@ export default function ErrorDashboard() {
 
         const response =
           await fetch(
-            `${API}/api/students?q=${encodeURIComponent(
+            `${API}/students?q=${encodeURIComponent(
               query,
             )}`,
           );
@@ -917,13 +917,13 @@ export default function ErrorDashboard() {
         ] =
           await Promise.all([
             fetch(
-              `${API}/api/students?q=${encodeURIComponent(
+              `${API}/students?q=${encodeURIComponent(
                 id,
               )}`,
             ),
 
             fetch(
-              `${API}/api/students/${encodeURIComponent(
+              `${API}/students/${encodeURIComponent(
                 id,
               )}/reports`,
             ),
@@ -1042,7 +1042,7 @@ export default function ErrorDashboard() {
 
         const searchResponse =
           await fetch(
-            `${API}/api/students?q=${encodeURIComponent(
+            `${API}/students?q=${encodeURIComponent(
               id,
             )}`,
           );
@@ -1065,7 +1065,7 @@ export default function ErrorDashboard() {
 
           const createResponse =
             await fetch(
-              `${API}/api/students`,
+              `${API}/students`,
               {
                 method: "POST",
 
@@ -1118,7 +1118,7 @@ export default function ErrorDashboard() {
 
         const uploadResponse =
           await fetch(
-            `${API}/api/uploads/writing-sample`,
+            `${API}/uploads/writing-sample`,
             {
               method: "POST",
               body: formData,
@@ -1153,7 +1153,7 @@ export default function ErrorDashboard() {
 
         const analyseResponse =
           await fetch(
-            `${API}/api/reports/${reportId}/analyze`,
+            `${API}/reports/${reportId}/analyze`,
             {
               method: "POST",
             },

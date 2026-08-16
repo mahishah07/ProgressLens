@@ -699,7 +699,7 @@ const studentCentre =
 
     try {
       const response = await fetch(
-        `${API}/api/students?q=${encodeURIComponent(query)}`,
+        `${API}/students?q=${encodeURIComponent(query)}`,
       );
 
       const data = await response.json();
@@ -798,7 +798,7 @@ const studentCentre =
     // =====================================================
 
     const searchResponse = await fetch(
-      `${API}/api/students?q=${encodeURIComponent(id)}`
+      `${API}/students?q=${encodeURIComponent(id)}`
     );
 
     const searchData = await searchResponse.json();
@@ -809,7 +809,7 @@ const studentCentre =
 
     if (!existingProfile) {
       const createResponse = await fetch(
-        `${API}/api/students`,
+        `${API}/students`,
         {
           method: "POST",
           headers: {
@@ -852,7 +852,7 @@ const studentCentre =
     );
 
     const answerKeyResponse = await fetch(
-      `${API}/api/uploads/answer-key`,
+      `${API}/uploads/answer-key`,
       {
         method: "POST",
         body: answerKeyForm,
@@ -906,7 +906,7 @@ const studentCentre =
     );
 
     const uploadResponse = await fetch(
-      `${API}/api/uploads/writing-sample`,
+      `${API}/uploads/writing-sample`,
       {
         method: "POST",
         body: submissionForm,
@@ -942,7 +942,7 @@ const studentCentre =
     // =====================================================
 
     const analyseResponse = await fetch(
-      `${API}/api/reports/${reportId}/analyze`,
+      `${API}/reports/${reportId}/analyze`,
       {
         method: "POST",
       }
@@ -1005,13 +1005,13 @@ const studentCentre =
         reportsResponse,
       ] = await Promise.all([
         fetch(
-          `${API}/api/students?q=${encodeURIComponent(
+          `${API}/students?q=${encodeURIComponent(
             id,
           )}`,
         ),
 
         fetch(
-          `${API}/api/students/${encodeURIComponent(
+          `${API}/students/${encodeURIComponent(
             id,
           )}/reports`,
         ),

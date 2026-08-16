@@ -150,7 +150,7 @@ export default function StudentErrorAnalysis() {
 
 		setStudentSearching(true);
 		try {
-			const response = await fetch(`${API}/api/students?q=${encodeURIComponent(query)}`);
+			const response = await fetch(`${API}/students?q=${encodeURIComponent(query)}`);
 			const data = await response.json();
 			if (!response.ok) throw new Error(data.error || "Unable to search for students.");
 
@@ -193,7 +193,7 @@ export default function StudentErrorAnalysis() {
         console.log("inside loadReport");
 
         try {
-            const response = await fetch(`${API}/api/reports/${reportId}`);
+            const response = await fetch(`${API}/reports/${reportId}`);
 
             console.log("response =", response);
 

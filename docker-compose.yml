@@ -5,6 +5,8 @@ services:
       dockerfile: backendpms/Dockerfile
     env_file:
       - backendpms/.env
+    environment:
+      CORS_ORIGINS: "http://localhost,http://localhost:5173,http://127.0.0.1:5173"
     ports:
       - "5001:5001"
     restart: unless-stopped
@@ -15,6 +17,9 @@ services:
       dockerfile: backend/Dockerfile
     env_file:
       - backend/.env
+    environment:
+      CORS_ORIGINS: "http://localhost,http://localhost:5173,http://127.0.0.1:5173"
+
     ports:
       - "5002:5002"
     restart: unless-stopped
@@ -29,6 +34,7 @@ services:
       PROGRESS_API_URL: http://pms:5001
       ERROR_ANALYSER_API_URL: http://epa:5002
       GATEWAY_PORT: 5050
+      CORS_ORIGINS: "http://localhost,http://localhost:5173,http://127.0.0.1:5173"
     ports:
       - "5050:5050"
     depends_on:

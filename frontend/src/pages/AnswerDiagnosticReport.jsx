@@ -387,7 +387,7 @@ export default function AnswerDiagnosticReport() {
 
 				const reportResponse =
 					await fetch(
-						`${ERROR_API}/api/reports/${reportId}`
+						`${ERROR_API}/reports/${reportId}`
 					);
 
 
@@ -542,7 +542,7 @@ export default function AnswerDiagnosticReport() {
 
 					const response =
 						await fetch(
-							`${ERROR_API}/api/students?q=${encodeURIComponent(
+							`${ERROR_API}/students?q=${encodeURIComponent(
 								query
 							)}`
 						);
